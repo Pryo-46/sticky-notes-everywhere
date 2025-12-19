@@ -7,6 +7,7 @@ export class StickyManager {
   private shadowRoot: ShadowRoot;
   private maxZIndex = 2147483640;
   private areNotesVisible = true;
+  private onNoteCreatedCallback: ((note: StickyNote) => void) | null = null;
 
   constructor() {
     // Shadow DOMホストを作成
@@ -136,7 +137,14 @@ export class StickyManager {
       note.setVisible(false);
     }
 
+    // 付箋作成コールバックを呼び出し
+    this.onNoteCreatedCallback?.(note);
+
     return note;
+  }
+
+  public onNoteCreated(callback: (note: StickyNote) => void): void {
+    this.onNoteCreatedCallback = callback;
   }
 
   public deleteNote(id: string): void {

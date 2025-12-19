@@ -2,12 +2,14 @@
 import { MenuBar } from './MenuBar';
 import { StickyManager } from './StickyManager';
 import { DragCreateHandler } from './DragCreateHandler';
+import { DragMoveHandler } from './DragMoveHandler';
 import type { ExtensionMessage } from '../types';
 
 // シングルトンインスタンス
 let menuBar: MenuBar | null = null;
 let stickyManager: StickyManager | null = null;
 let dragCreateHandler: DragCreateHandler | null = null;
+let dragMoveHandler: DragMoveHandler | null = null;
 
 function initialize(): void {
   if (menuBar) return; // 既に初期化済み
@@ -16,6 +18,12 @@ function initialize(): void {
   menuBar = new MenuBar();
   stickyManager = new StickyManager();
   dragCreateHandler = new DragCreateHandler(stickyManager, () => menuBar!.getSelectedSize());
+  dragMoveHandler = new DragMoveHandler(stickyManager);
+
+  // 付箋が作成されたときにドラッグ移動機能をセットアップ
+  stickyManager.onNoteCreated((note) => {
+    dragMoveHandler!.setupNote(note);
+  });
 
   // メニューバーのカラースウォッチにドラッグハンドラーを設定
   menuBar.onColorSwatchSetup((element, color) => {
