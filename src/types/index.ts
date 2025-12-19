@@ -44,3 +44,20 @@ export interface ToggleMenuMessage {
 }
 
 export type ExtensionMessage = ToggleMenuMessage;
+
+/** 拡張機能の設定 */
+export interface ExtensionSettings {
+  /** カスタムカラー値 */
+  colors: Record<StickyColor, string>;
+  /** カスタムサイズプリセット */
+  sizes: Record<StickySize, StickyDimensions>;
+  /** デフォルトサイズ */
+  defaultSize: StickySize;
+}
+
+/** デフォルト設定 */
+export const DEFAULT_SETTINGS: ExtensionSettings = {
+  colors: { ...COLOR_VALUES },
+  sizes: { ...SIZE_PRESETS },
+  defaultSize: 'medium',
+};

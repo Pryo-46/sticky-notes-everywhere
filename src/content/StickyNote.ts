@@ -1,6 +1,6 @@
 import type { StickyColor, StickyDimensions, StickyNoteData } from '../types';
-import { COLOR_VALUES } from '../types';
 import { ICONS } from './icons';
+import { StorageService } from './StorageService';
 
 const STICKY_COLORS: StickyColor[] = ['red', 'orange', 'yellow', 'green', 'cyan', 'gray', 'white'];
 
@@ -86,6 +86,10 @@ export class StickyNote {
     this.element.appendChild(resizeHandle);
   }
 
+  private getColorValue(color: StickyColor): string {
+    return StorageService.getInstance().getSettings().colors[color];
+  }
+
   private applyStyles(): void {
     const { position, size, color } = this.data;
     this.element.style.cssText = `
@@ -94,7 +98,7 @@ export class StickyNote {
       top: ${position.y}px;
       width: ${size.width}px;
       height: ${size.height}px;
-      background-color: ${COLOR_VALUES[color]};
+      background-color: ${this.getColorValue(color)};
       border-radius: 4px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       display: flex;
@@ -139,7 +143,7 @@ export class StickyNote {
 
   public setColor(color: StickyColor): void {
     this.data.color = color;
-    this.element.style.backgroundColor = COLOR_VALUES[color];
+    this.element.style.backgroundColor = this.getColorValue(color);
     // コピーボタンのアイコンも更新
     const copyBtn = this.element.querySelector('.sticky-note-copy');
     if (copyBtn) {
@@ -158,7 +162,7 @@ export class StickyNote {
   }
 
   private createColorIcon(color: StickyColor): string {
-    const fillColor = COLOR_VALUES[color];
+    const fillColor = this.getColorValue(color);
     const strokeColor = this.darkenColor(fillColor, 30);
     return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="12" cy="12" r="8" fill="${fillColor}" stroke="${strokeColor}" stroke-width="2"/>
@@ -166,7 +170,7 @@ export class StickyNote {
   }
 
   private createDeleteIcon(color: StickyColor): string {
-    const fillColor = COLOR_VALUES[color];
+    const fillColor = this.getColorValue(color);
     const strokeColor = this.darkenColor(fillColor, 30);
     return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="12" cy="12" r="8" fill="${fillColor}" stroke="${strokeColor}" stroke-width="2"/>
@@ -175,7 +179,7 @@ export class StickyNote {
   }
 
   private createCopyIcon(color: StickyColor): string {
-    const strokeColor = this.darkenColor(COLOR_VALUES[color], 30);
+    const strokeColor = this.darkenColor(this.getColorValue(color), 30);
     return `<svg width="16" height="16" viewBox="0 0 24 24" fill="${strokeColor}">
       <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
     </svg>`;
@@ -241,7 +245,7 @@ export class StickyNote {
     STICKY_COLORS.forEach((color) => {
       const swatch = document.createElement('button');
       swatch.className = `sticky-note-picker-swatch${color === this.data.color ? ' active' : ''}`;
-      swatch.style.backgroundColor = COLOR_VALUES[color];
+      swatch.style.backgroundColor = this.getColorValue(color);
       swatch.title = color;
       swatch.addEventListener('click', (e) => {
         e.stopPropagation();

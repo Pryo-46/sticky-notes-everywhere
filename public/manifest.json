@@ -3,7 +3,7 @@
   "name": "Sticky Notes Everywhere",
   "version": "1.0.0",
   "description": "Webページ上にどこでも付箋を貼れる拡張機能",
-  "permissions": ["activeTab", "scripting"],
+  "permissions": ["activeTab", "scripting", "storage"],
   "action": {
     "default_title": "Sticky Notes Everywhere",
     "default_icon": {

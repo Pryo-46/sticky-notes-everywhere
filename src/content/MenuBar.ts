@@ -1,5 +1,6 @@
 import type { StickyColor, StickySize } from '../types';
 import { ICONS } from './icons';
+import { StorageService } from './StorageService';
 
 const COLORS: StickyColor[] = ['red', 'orange', 'yellow', 'green', 'cyan', 'gray', 'white'];
 const SIZES: StickySize[] = ['small', 'medium', 'large'];
@@ -13,6 +14,7 @@ type ColorSwatchCallback = (element: HTMLElement, color: StickyColor) => void;
 type VisibilityToggleCallback = () => boolean;
 type ClearAllCallback = () => void;
 type CopyAllCallback = () => void;
+type SettingsCallback = () => void;
 
 export class MenuBar {
   private element: HTMLDivElement;
@@ -23,6 +25,7 @@ export class MenuBar {
   private visibilityToggleCallback: VisibilityToggleCallback | null = null;
   private clearAllCallback: ClearAllCallback | null = null;
   private copyAllCallback: CopyAllCallback | null = null;
+  private settingsCallback: SettingsCallback | null = null;
   private notesVisible = true;
 
   constructor() {
@@ -109,13 +112,7 @@ export class MenuBar {
         cursor: grabbing;
       }
 
-      .color-swatch.red { background-color: #ff6b6b; }
-      .color-swatch.orange { background-color: #ffa94d; }
-      .color-swatch.yellow { background-color: #ffd43b; }
-      .color-swatch.green { background-color: #69db7c; }
-      .color-swatch.cyan { background-color: #66d9e8; }
-      .color-swatch.gray { background-color: #adb5bd; }
-      .color-swatch.white { background-color: #ffffff; }
+      /* 色はインラインスタイルで動的に設定 */
 
       .size-presets {
         display: flex;
@@ -183,8 +180,9 @@ export class MenuBar {
   }
 
   private getMenuBarHTML(): string {
+    const settings = StorageService.getInstance().getSettings();
     const colorSwatches = COLORS.map(
-      (color) => `<div class="color-swatch ${color}" data-color="${color}" draggable="true"></div>`
+      (color) => `<div class="color-swatch ${color}" data-color="${color}" draggable="true" style="background-color: ${settings.colors[color]}"></div>`
     ).join('');
 
     const sizeButtons = SIZES.map(
@@ -205,6 +203,7 @@ export class MenuBar {
         <button class="icon-btn visibility-btn" title="全付箋の表示/非表示">${ICONS.visibility}</button>
         <button class="icon-btn clear-btn" title="全付箋を削除">${ICONS.delete}</button>
         <button class="icon-btn copy-btn" title="メモをコピー">${ICONS.copy}</button>
+        <button class="icon-btn settings-btn" title="設定">${ICONS.settings}</button>
       </div>
       <div class="menu-spacer"></div>
       <button class="icon-btn close-btn" title="閉じる">${ICONS.close}</button>
@@ -247,6 +246,11 @@ export class MenuBar {
     // コピーボタン
     menuBar.querySelector('.copy-btn')?.addEventListener('click', () => {
       this.copyAllCallback?.();
+    });
+
+    // 設定ボタン
+    menuBar.querySelector('.settings-btn')?.addEventListener('click', () => {
+      this.settingsCallback?.();
     });
 
     // カラースウォッチのセットアップ
@@ -324,5 +328,23 @@ export class MenuBar {
 
   public onCopyAll(callback: CopyAllCallback): void {
     this.copyAllCallback = callback;
+  }
+
+  public onSettings(callback: SettingsCallback): void {
+    this.settingsCallback = callback;
+  }
+
+  /** 設定変更後にカラースウォッチを更新 */
+  public updateColorSwatches(): void {
+    const settings = StorageService.getInstance().getSettings();
+    const menuBar = this.shadowRoot.querySelector('.sticky-notes-menu-bar');
+    if (!menuBar) return;
+
+    COLORS.forEach((color) => {
+      const swatch = menuBar.querySelector(`.color-swatch.${color}`) as HTMLElement;
+      if (swatch) {
+        swatch.style.backgroundColor = settings.colors[color];
+      }
+    });
   }
 }

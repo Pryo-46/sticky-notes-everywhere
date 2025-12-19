@@ -1,6 +1,6 @@
 import type { StickyColor, StickySize } from '../types';
-import { SIZE_PRESETS, COLOR_VALUES } from '../types';
 import type { StickyManager } from './StickyManager';
+import { StorageService } from './StorageService';
 
 export class DragCreateHandler {
   private stickyManager: StickyManager;
@@ -89,13 +89,14 @@ export class DragCreateHandler {
   }
 
   private showPreview(color: StickyColor, x: number, y: number): void {
-    const size = SIZE_PRESETS[this.getSizeCallback()];
+    const settings = StorageService.getInstance().getSettings();
+    const size = settings.sizes[this.getSizeCallback()];
 
     this.dragPreview = document.createElement('div');
     this.dragPreview.className = 'drag-preview';
     this.dragPreview.style.width = `${size.width}px`;
     this.dragPreview.style.height = `${size.height}px`;
-    this.dragPreview.style.backgroundColor = COLOR_VALUES[color];
+    this.dragPreview.style.backgroundColor = settings.colors[color];
     this.dragPreview.style.left = `${x - size.width / 2}px`;
     this.dragPreview.style.top = `${y - size.height / 2}px`;
     this.dragPreview.textContent = 'ここにドロップ';
@@ -105,7 +106,8 @@ export class DragCreateHandler {
 
   private updatePreviewPosition(x: number, y: number): void {
     if (this.dragPreview) {
-      const size = SIZE_PRESETS[this.getSizeCallback()];
+      const settings = StorageService.getInstance().getSettings();
+      const size = settings.sizes[this.getSizeCallback()];
       this.dragPreview.style.left = `${x - size.width / 2}px`;
       this.dragPreview.style.top = `${y - size.height / 2}px`;
     }
@@ -122,7 +124,8 @@ export class DragCreateHandler {
   private createNoteAtPosition(x: number, y: number): void {
     if (!this.currentColor) return;
 
-    const size = SIZE_PRESETS[this.getSizeCallback()];
+    const settings = StorageService.getInstance().getSettings();
+    const size = settings.sizes[this.getSizeCallback()];
 
     // 付箋の中心がドロップ位置になるよう調整
     const position = {
