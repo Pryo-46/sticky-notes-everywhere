@@ -151,7 +151,7 @@ export class StickyManager {
       }
 
       .sticky-note-textarea::placeholder {
-        color: rgba(0, 0, 0, 0.35);
+        color: var(--placeholder-color, rgba(0, 0, 0, 0.35));
       }
 
       .sticky-note-resize {

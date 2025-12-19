@@ -1,23 +1,20 @@
-import type { ExtensionSettings, StickyColor, StickySize } from '../types';
-import { DEFAULT_SETTINGS } from '../types';
+import type { ColorPresetName, ExtensionSettings, StickyColor, StickySize } from '../types';
+import { DEFAULT_SETTINGS, LIGHT_PRESET, DARK_PRESET } from '../types';
 import { StorageService } from './StorageService';
 import { ICONS } from './icons';
 
-const COLORS: StickyColor[] = ['red', 'orange', 'yellow', 'green', 'cyan', 'gray', 'white'];
+const COLORS: StickyColor[] = ['color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'color8'];
 const SIZES: StickySize[] = ['small', 'medium', 'large'];
 const SIZE_LABELS: Record<StickySize, string> = {
   small: 'S（小）',
   medium: 'M（中）',
   large: 'L（大）',
 };
-const COLOR_LABELS: Record<StickyColor, string> = {
-  red: '赤',
-  orange: 'オレンジ',
-  yellow: '黄',
-  green: '緑',
-  cyan: '水色',
-  gray: 'グレー',
-  white: '白',
+const PRESET_LABELS: Record<ColorPresetName, string> = {
+  light: 'ライト',
+  dark: 'ダーク',
+  user1: 'ユーザー1',
+  user2: 'ユーザー2',
 };
 
 type SettingsSavedCallback = (settings: ExtensionSettings) => void;
@@ -31,13 +28,30 @@ export class SettingsModal {
 
   constructor() {
     this.storageService = StorageService.getInstance();
-    this.tempSettings = { ...this.storageService.getSettings() };
+    this.tempSettings = this.deepCopySettings(this.storageService.getSettings());
 
     this.element = document.createElement('div');
     this.element.id = 'sticky-notes-settings-host';
     this.shadowRoot = this.element.attachShadow({ mode: 'closed' });
 
     this.render();
+  }
+
+  private deepCopySettings(settings: ExtensionSettings): ExtensionSettings {
+    return {
+      activePreset: settings.activePreset,
+      colors: { ...settings.colors },
+      userPresets: {
+        user1: { ...settings.userPresets.user1 },
+        user2: { ...settings.userPresets.user2 },
+      },
+      sizes: {
+        small: { ...settings.sizes.small },
+        medium: { ...settings.sizes.medium },
+        large: { ...settings.sizes.large },
+      },
+      defaultSize: settings.defaultSize,
+    };
   }
 
   private render(): void {
@@ -143,6 +157,40 @@ export class SettingsModal {
         letter-spacing: 0.5px;
       }
 
+      .preset-selector {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .preset-btn {
+        flex: 1;
+        padding: 8px 12px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        background: #fff;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        color: #495057;
+        transition: all 0.15s ease;
+      }
+
+      .preset-btn:hover {
+        border-color: #adb5bd;
+        background: #f8f9fa;
+      }
+
+      .preset-btn.active {
+        border-color: #4dabf7;
+        background: #e7f5ff;
+        color: #1c7ed6;
+      }
+
+      .preset-btn.user-preset {
+        border-style: dashed;
+      }
+
       .color-settings {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -179,10 +227,13 @@ export class SettingsModal {
         border-radius: 4px;
       }
 
-      .color-label {
-        font-size: 13px;
-        color: #495057;
-        min-width: 60px;
+      .color-picker-input:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .color-picker-input:disabled:hover {
+        transform: none;
       }
 
       .color-input {
@@ -198,6 +249,12 @@ export class SettingsModal {
         outline: none;
         border-color: #4dabf7;
         box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.2);
+      }
+
+      .color-input:disabled {
+        opacity: 0.6;
+        background: #f8f9fa;
+        cursor: not-allowed;
       }
 
       .size-settings {
@@ -317,13 +374,22 @@ export class SettingsModal {
 
   private getModalHTML(): string {
     const settings = this.storageService.getSettings();
+    const activePreset = settings.activePreset || 'light';
+    const isUserPreset = activePreset === 'user1' || activePreset === 'user2';
+
+    const presetButtons = (['light', 'dark', 'user1', 'user2'] as ColorPresetName[]).map(
+      (preset) => {
+        const isActive = preset === activePreset;
+        const isUser = preset === 'user1' || preset === 'user2';
+        return `<button class="preset-btn${isActive ? ' active' : ''}${isUser ? ' user-preset' : ''}" data-preset="${preset}">${PRESET_LABELS[preset]}</button>`;
+      }
+    ).join('');
 
     const colorSettings = COLORS.map(
       (color) => `
         <div class="color-setting-item">
-          <input type="color" class="color-picker-input" data-color="${color}" value="${settings.colors[color]}">
-          <span class="color-label">${COLOR_LABELS[color]}</span>
-          <input type="text" class="color-input" data-color="${color}" value="${settings.colors[color]}" placeholder="#ffffff">
+          <input type="color" class="color-picker-input" data-color="${color}" value="${settings.colors[color]}"${!isUserPreset ? ' disabled' : ''}>
+          <input type="text" class="color-input" data-color="${color}" value="${settings.colors[color]}" placeholder="#ffffff"${!isUserPreset ? ' disabled' : ''}>
         </div>
       `
     ).join('');
@@ -355,6 +421,9 @@ export class SettingsModal {
         <div class="settings-body">
           <div class="settings-section">
             <h3>カラープリセット</h3>
+            <div class="preset-selector">
+              ${presetButtons}
+            </div>
             <div class="color-settings">
               ${colorSettings}
             </div>
@@ -399,6 +468,15 @@ export class SettingsModal {
       }
     });
 
+    // プリセット切り替え
+    modal.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const target = e.target as HTMLButtonElement;
+        const preset = target.dataset.preset as ColorPresetName;
+        this.switchPreset(modal, preset);
+      });
+    });
+
     // カラーピッカー（input[type="color"]）の変更
     modal.querySelectorAll('.color-picker-input').forEach((picker) => {
       picker.addEventListener('input', (e) => {
@@ -407,6 +485,11 @@ export class SettingsModal {
         const newColor = target.value;
 
         this.tempSettings.colors[color] = newColor;
+        // ユーザープリセットの場合は保存用にも更新
+        const activePreset = this.tempSettings.activePreset;
+        if (activePreset === 'user1' || activePreset === 'user2') {
+          this.tempSettings.userPresets[activePreset][color] = newColor;
+        }
 
         // テキスト入力も同期
         const textInput = modal.querySelector(`.color-input[data-color="${color}"]`) as HTMLInputElement;
@@ -425,6 +508,11 @@ export class SettingsModal {
 
         if (this.isValidHexColor(value)) {
           this.tempSettings.colors[color] = value;
+          // ユーザープリセットの場合は保存用にも更新
+          const activePreset = this.tempSettings.activePreset;
+          if (activePreset === 'user1' || activePreset === 'user2') {
+            this.tempSettings.userPresets[activePreset][color] = value;
+          }
 
           // カラーピッカーも同期
           const picker = modal.querySelector(`.color-picker-input[data-color="${color}"]`) as HTMLInputElement;
@@ -450,6 +538,49 @@ export class SettingsModal {
     });
   }
 
+  private switchPreset(modal: HTMLDivElement, preset: ColorPresetName): void {
+    this.tempSettings.activePreset = preset;
+
+    // プリセットに応じた色を設定
+    let colors;
+    switch (preset) {
+      case 'light':
+        colors = { ...LIGHT_PRESET };
+        break;
+      case 'dark':
+        colors = { ...DARK_PRESET };
+        break;
+      case 'user1':
+        colors = { ...this.tempSettings.userPresets.user1 };
+        break;
+      case 'user2':
+        colors = { ...this.tempSettings.userPresets.user2 };
+        break;
+    }
+    this.tempSettings.colors = colors;
+
+    // ボタンのactive状態を更新
+    modal.querySelectorAll('.preset-btn').forEach((btn) => {
+      const btnPreset = (btn as HTMLButtonElement).dataset.preset;
+      btn.classList.toggle('active', btnPreset === preset);
+    });
+
+    // 色入力の値を更新し、ユーザープリセット以外は無効化
+    const isUserPreset = preset === 'user1' || preset === 'user2';
+    COLORS.forEach((color) => {
+      const picker = modal.querySelector(`.color-picker-input[data-color="${color}"]`) as HTMLInputElement;
+      const textInput = modal.querySelector(`.color-input[data-color="${color}"]`) as HTMLInputElement;
+      if (picker) {
+        picker.value = colors[color];
+        picker.disabled = !isUserPreset;
+      }
+      if (textInput) {
+        textInput.value = colors[color];
+        textInput.disabled = !isUserPreset;
+      }
+    });
+  }
+
   private isValidHexColor(color: string): boolean {
     return /^#[0-9A-Fa-f]{6}$/.test(color);
   }
@@ -464,7 +595,7 @@ export class SettingsModal {
     const confirmed = window.confirm('設定をデフォルトに戻しますか？');
     if (!confirmed) return;
 
-    this.tempSettings = { ...DEFAULT_SETTINGS };
+    this.tempSettings = this.deepCopySettings(DEFAULT_SETTINGS);
     await this.storageService.resetToDefaults();
     this.updateUIFromSettings();
     this.savedCallback?.(this.tempSettings);
@@ -474,6 +605,15 @@ export class SettingsModal {
     const modal = this.shadowRoot.querySelector('.settings-overlay');
     if (!modal) return;
 
+    const activePreset = this.tempSettings.activePreset || 'light';
+    const isUserPreset = activePreset === 'user1' || activePreset === 'user2';
+
+    // プリセットボタンの状態を更新
+    modal.querySelectorAll('.preset-btn').forEach((btn) => {
+      const btnPreset = (btn as HTMLButtonElement).dataset.preset;
+      btn.classList.toggle('active', btnPreset === activePreset);
+    });
+
     // カラー設定を更新
     COLORS.forEach((color) => {
       const textInput = modal.querySelector(`.color-input[data-color="${color}"]`) as HTMLInputElement;
@@ -481,9 +621,11 @@ export class SettingsModal {
 
       if (textInput) {
         textInput.value = this.tempSettings.colors[color];
+        textInput.disabled = !isUserPreset;
       }
       if (picker) {
         picker.value = this.tempSettings.colors[color];
+        picker.disabled = !isUserPreset;
       }
     });
 
@@ -507,7 +649,7 @@ export class SettingsModal {
     }
 
     // 現在の設定を読み込む
-    this.tempSettings = JSON.parse(JSON.stringify(this.storageService.getSettings()));
+    this.tempSettings = this.deepCopySettings(this.storageService.getSettings());
     this.updateUIFromSettings();
 
     this.shadowRoot.querySelector('.settings-overlay')?.classList.remove('hidden');

@@ -1,5 +1,5 @@
-/** 付箋の色 */
-export type StickyColor = 'red' | 'orange' | 'yellow' | 'green' | 'cyan' | 'gray' | 'white';
+/** 付箋の色（8色） */
+export type StickyColor = 'color1' | 'color2' | 'color3' | 'color4' | 'color5' | 'color6' | 'color7' | 'color8';
 
 /** 付箋のサイズプリセット */
 export type StickySize = 'small' | 'medium' | 'large';
@@ -17,16 +17,46 @@ export const SIZE_PRESETS: Record<StickySize, StickyDimensions> = {
   large: { width: 300, height: 200 },
 };
 
-/** カラー値の定義 */
-export const COLOR_VALUES: Record<StickyColor, string> = {
-  red: '#ff6b6b',
-  orange: '#ffa94d',
-  yellow: '#ffd43b',
-  green: '#69db7c',
-  cyan: '#66d9e8',
-  gray: '#adb5bd',
-  white: '#ffffff',
+/** カラープリセット名 */
+export type ColorPresetName = 'light' | 'dark' | 'user1' | 'user2';
+
+/** カラープリセットの定義 */
+export type ColorPreset = Record<StickyColor, string>;
+
+/** ライトモードプリセット */
+export const LIGHT_PRESET: ColorPreset = {
+  color1: '#FFF59D', // 黄色
+  color2: '#FFCC80', // オレンジ
+  color3: '#F8BBD9', // ピンク
+  color4: '#EF9A9A', // 赤
+  color5: '#C5E1A5', // 緑
+  color6: '#90CAF9', // 青
+  color7: '#CE93D8', // 紫
+  color8: '#E0E0E0', // グレー
 };
+
+/** ダークモードプリセット */
+export const DARK_PRESET: ColorPreset = {
+  color1: '#A59730', // 黄色
+  color2: '#B37332', // オレンジ
+  color3: '#9E4D6E', // ピンク
+  color4: '#A54545', // 赤
+  color5: '#5E8C4A', // 緑
+  color6: '#4A7AB3', // 青
+  color7: '#7E5A9E', // 紫
+  color8: '#5A5A5A', // グレー
+};
+
+/** 全カラープリセット */
+export const COLOR_PRESETS: Record<ColorPresetName, ColorPreset> = {
+  light: LIGHT_PRESET,
+  dark: DARK_PRESET,
+  user1: { ...LIGHT_PRESET },
+  user2: { ...DARK_PRESET },
+};
+
+/** カラー値の定義（後方互換性のため、ライトプリセットをデフォルトとして使用） */
+export const COLOR_VALUES: ColorPreset = LIGHT_PRESET;
 
 /** 付箋データ */
 export interface StickyNoteData {
@@ -47,8 +77,15 @@ export type ExtensionMessage = ToggleMenuMessage;
 
 /** 拡張機能の設定 */
 export interface ExtensionSettings {
-  /** カスタムカラー値 */
-  colors: Record<StickyColor, string>;
+  /** 現在のカラープリセット */
+  activePreset: ColorPresetName;
+  /** カスタムカラー値（現在のプリセットに基づく） */
+  colors: ColorPreset;
+  /** ユーザー定義プリセット */
+  userPresets: {
+    user1: ColorPreset;
+    user2: ColorPreset;
+  };
   /** カスタムサイズプリセット */
   sizes: Record<StickySize, StickyDimensions>;
   /** デフォルトサイズ */
@@ -57,7 +94,12 @@ export interface ExtensionSettings {
 
 /** デフォルト設定 */
 export const DEFAULT_SETTINGS: ExtensionSettings = {
-  colors: { ...COLOR_VALUES },
+  activePreset: 'light',
+  colors: { ...LIGHT_PRESET },
+  userPresets: {
+    user1: { ...LIGHT_PRESET },
+    user2: { ...DARK_PRESET },
+  },
   sizes: { ...SIZE_PRESETS },
   defaultSize: 'medium',
 };

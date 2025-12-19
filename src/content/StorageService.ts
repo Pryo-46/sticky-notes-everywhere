@@ -87,11 +87,25 @@ export class StorageService {
   /** 保存されたデータとデフォルト値をマージ */
   private mergeWithDefaults(saved: Partial<ExtensionSettings> | undefined): ExtensionSettings {
     if (!saved) {
-      return { ...DEFAULT_SETTINGS };
+      return {
+        activePreset: DEFAULT_SETTINGS.activePreset,
+        colors: { ...DEFAULT_SETTINGS.colors },
+        userPresets: {
+          user1: { ...DEFAULT_SETTINGS.userPresets.user1 },
+          user2: { ...DEFAULT_SETTINGS.userPresets.user2 },
+        },
+        sizes: { ...DEFAULT_SETTINGS.sizes },
+        defaultSize: DEFAULT_SETTINGS.defaultSize,
+      };
     }
 
     return {
+      activePreset: saved.activePreset ?? DEFAULT_SETTINGS.activePreset,
       colors: { ...DEFAULT_SETTINGS.colors, ...saved.colors },
+      userPresets: {
+        user1: { ...DEFAULT_SETTINGS.userPresets.user1, ...saved.userPresets?.user1 },
+        user2: { ...DEFAULT_SETTINGS.userPresets.user2, ...saved.userPresets?.user2 },
+      },
       sizes: {
         small: { ...DEFAULT_SETTINGS.sizes.small, ...saved.sizes?.small },
         medium: { ...DEFAULT_SETTINGS.sizes.medium, ...saved.sizes?.medium },

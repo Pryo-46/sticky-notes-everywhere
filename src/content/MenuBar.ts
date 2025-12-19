@@ -2,7 +2,7 @@ import type { StickyColor, StickySize } from '../types';
 import { ICONS } from './icons';
 import { StorageService } from './StorageService';
 
-const COLORS: StickyColor[] = ['red', 'orange', 'yellow', 'green', 'cyan', 'gray', 'white'];
+const COLORS: StickyColor[] = ['color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'color8'];
 const SIZES: StickySize[] = ['small', 'medium', 'large'];
 const SIZE_LABELS: Record<StickySize, string> = {
   small: 'S',
