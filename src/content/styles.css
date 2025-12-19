@@ -133,3 +133,75 @@
   color: #495057;
   background: #ffe3e3;
 }
+
+/* 付箋ヘッダーアクションボタン */
+.sticky-note-header-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
+.sticky-note-action-btn {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  color: #666;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.sticky-note-action-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+.sticky-note-delete:hover {
+  background: rgba(255, 0, 0, 0.15);
+  color: #c00;
+}
+
+/* 付箋のピッカー共通スタイル */
+.sticky-note-picker {
+  position: absolute;
+  top: 28px;
+  right: 4px;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  z-index: 2147483645;
+  display: flex;
+  gap: 4px;
+}
+
+/* カラーピッカー */
+.sticky-note-color-picker {
+  flex-wrap: wrap;
+  width: 116px;
+}
+
+.sticky-note-picker-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sticky-note-picker-swatch:hover {
+  transform: scale(1.1);
+}
+
+.sticky-note-picker-swatch.active {
+  border-color: #333;
+}
+

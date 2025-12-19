@@ -56,14 +56,21 @@ export class StickyManager {
         letter-spacing: -2px;
       }
 
-      .sticky-note-delete {
+      .sticky-note-header-actions {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .sticky-note-action-btn {
         width: 20px;
         height: 20px;
         border: none;
         background: transparent;
         cursor: pointer;
         font-size: 14px;
-        color: rgba(0, 0, 0, 0.4);
+        color: rgba(0, 0, 0, 0.8);
         border-radius: 4px;
         display: flex;
         align-items: center;
@@ -72,9 +79,50 @@ export class StickyManager {
         transition: all 0.15s ease;
       }
 
-      .sticky-note-delete:hover {
+      .sticky-note-action-btn:hover {
         background: rgba(0, 0, 0, 0.1);
+        color: #333;
+      }
+
+      .sticky-note-delete:hover {
+        background: rgba(255, 0, 0, 0.15);
         color: #e03131;
+      }
+
+      /* カラーピッカー */
+      .sticky-note-picker {
+        position: absolute;
+        top: 28px;
+        right: 4px;
+        background: #fff;
+        border-radius: 6px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        padding: 8px;
+        z-index: 2147483645;
+        display: flex;
+        gap: 4px;
+      }
+
+      .sticky-note-color-picker {
+        flex-wrap: wrap;
+        width: 116px;
+      }
+
+      .sticky-note-picker-swatch {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+
+      .sticky-note-picker-swatch:hover {
+        transform: scale(1.1);
+      }
+
+      .sticky-note-picker-swatch.active {
+        border-color: #333;
       }
 
       .sticky-note-textarea {

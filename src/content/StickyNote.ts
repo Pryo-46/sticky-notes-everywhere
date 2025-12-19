@@ -1,11 +1,14 @@
 import type { StickyColor, StickyDimensions, StickyNoteData } from '../types';
 import { COLOR_VALUES } from '../types';
 
+const STICKY_COLORS: StickyColor[] = ['red', 'orange', 'yellow', 'green', 'cyan', 'gray', 'white'];
+
 export class StickyNote {
   private element: HTMLDivElement;
   private data: StickyNoteData;
   private textArea: HTMLTextAreaElement;
   private onDelete: ((id: string) => void) | null = null;
+  private colorPicker: HTMLDivElement | null = null;
 
   constructor(data: StickyNoteData) {
     this.data = data;
@@ -25,16 +28,33 @@ export class StickyNote {
     header.className = 'sticky-note-header';
     header.innerHTML = '<span class="drag-icon">⋮⋮</span>';
 
+    // ヘッダー右側のボタンコンテナ
+    const headerActions = document.createElement('div');
+    headerActions.className = 'sticky-note-header-actions';
+
+    // 色変更ボタン
+    const colorBtn = document.createElement('button');
+    colorBtn.className = 'sticky-note-action-btn sticky-note-color-btn';
+    colorBtn.innerHTML = '🎨';
+    colorBtn.title = '色を変更';
+    colorBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleColorPicker();
+    });
+    headerActions.appendChild(colorBtn);
+
     // 削除ボタン
     const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'sticky-note-delete';
+    deleteBtn.className = 'sticky-note-action-btn sticky-note-delete';
     deleteBtn.textContent = '×';
     deleteBtn.title = '削除';
     deleteBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       this.onDelete?.(this.data.id);
     });
-    header.appendChild(deleteBtn);
+    headerActions.appendChild(deleteBtn);
+
+    header.appendChild(headerActions);
 
     // テキストエリア
     this.textArea.className = 'sticky-note-textarea';
@@ -130,7 +150,56 @@ export class StickyNote {
     return this.element.querySelector('.sticky-note-resize');
   }
 
+  private toggleColorPicker(): void {
+    // 既にピッカーが表示されていれば閉じる
+    if (this.colorPicker) {
+      this.closeColorPicker();
+      return;
+    }
+
+    // カラーピッカーを作成
+    this.colorPicker = document.createElement('div');
+    this.colorPicker.className = 'sticky-note-picker sticky-note-color-picker';
+
+    STICKY_COLORS.forEach((color) => {
+      const swatch = document.createElement('button');
+      swatch.className = `sticky-note-picker-swatch${color === this.data.color ? ' active' : ''}`;
+      swatch.style.backgroundColor = COLOR_VALUES[color];
+      swatch.title = color;
+      swatch.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.setColor(color);
+        this.closeColorPicker();
+      });
+      this.colorPicker!.appendChild(swatch);
+    });
+
+    this.element.appendChild(this.colorPicker);
+
+    // 外側クリックで閉じるリスナーを追加
+    setTimeout(() => {
+      document.addEventListener('click', this.handleOutsideClick);
+    }, 0);
+  }
+
+  private closeColorPicker(): void {
+    if (this.colorPicker) {
+      this.colorPicker.remove();
+      this.colorPicker = null;
+      document.removeEventListener('click', this.handleOutsideClick);
+    }
+  }
+
+  private handleOutsideClick = (e: MouseEvent): void => {
+    const target = e.target as HTMLElement;
+    if (!this.element.contains(target)) {
+      this.closeColorPicker();
+    }
+  };
+
   public destroy(): void {
+    this.closeColorPicker();
+    document.removeEventListener('click', this.handleOutsideClick);
     this.element.remove();
   }
 }
