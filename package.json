@@ -1,0 +1,18 @@
+{
+  "name": "sticky-notes-everywhere",
+  "version": "1.0.0",
+  "description": "Webページ上にどこでも付箋を貼れるChrome拡張機能",
+  "type": "module",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chrome": "^0.1.32",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.0"
+  }
+}
