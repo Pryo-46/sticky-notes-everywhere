@@ -1,5 +1,6 @@
 import type { StickyColor, StickyDimensions, StickyNoteData } from '../types';
 import { COLOR_VALUES } from '../types';
+import { ICONS } from './icons';
 
 const STICKY_COLORS: StickyColor[] = ['red', 'orange', 'yellow', 'green', 'cyan', 'gray', 'white'];
 
@@ -26,7 +27,7 @@ export class StickyNote {
     // ヘッダー部分（移動用）
     const header = document.createElement('div');
     header.className = 'sticky-note-header';
-    header.innerHTML = '<span class="drag-icon">⋮⋮</span>';
+    header.innerHTML = `<span class="drag-icon">${ICONS.dragHandle}</span>`;
 
     // ヘッダー右側のボタンコンテナ
     const headerActions = document.createElement('div');
@@ -35,7 +36,7 @@ export class StickyNote {
     // 色変更ボタン
     const colorBtn = document.createElement('button');
     colorBtn.className = 'sticky-note-action-btn sticky-note-color-btn';
-    colorBtn.innerHTML = '🎨';
+    colorBtn.innerHTML = this.createColorIcon(this.data.color);
     colorBtn.title = '色を変更';
     colorBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -46,7 +47,7 @@ export class StickyNote {
     // 削除ボタン
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'sticky-note-action-btn sticky-note-delete';
-    deleteBtn.textContent = '×';
+    deleteBtn.innerHTML = this.createDeleteIcon(this.data.color);
     deleteBtn.title = '削除';
     deleteBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -64,10 +65,10 @@ export class StickyNote {
       this.data.text = this.textArea.value;
     });
 
-    // リサイズハンドル（Phase 5で実装）
+    // リサイズハンドル
     const resizeHandle = document.createElement('div');
     resizeHandle.className = 'sticky-note-resize';
-    resizeHandle.innerHTML = '⋱';
+    resizeHandle.innerHTML = ICONS.resize;
 
     this.element.appendChild(header);
     this.element.appendChild(this.textArea);
@@ -128,6 +129,42 @@ export class StickyNote {
   public setColor(color: StickyColor): void {
     this.data.color = color;
     this.element.style.backgroundColor = COLOR_VALUES[color];
+    // 色変更ボタンのアイコンも更新
+    const colorBtn = this.element.querySelector('.sticky-note-color-btn');
+    if (colorBtn) {
+      colorBtn.innerHTML = this.createColorIcon(color);
+    }
+    // 削除ボタンのアイコンも更新
+    const deleteBtn = this.element.querySelector('.sticky-note-delete');
+    if (deleteBtn) {
+      deleteBtn.innerHTML = this.createDeleteIcon(color);
+    }
+  }
+
+  private createColorIcon(color: StickyColor): string {
+    const fillColor = COLOR_VALUES[color];
+    const strokeColor = this.darkenColor(fillColor, 30);
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="8" fill="${fillColor}" stroke="${strokeColor}" stroke-width="2"/>
+    </svg>`;
+  }
+
+  private createDeleteIcon(color: StickyColor): string {
+    const fillColor = COLOR_VALUES[color];
+    const strokeColor = this.darkenColor(fillColor, 30);
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="8" fill="${fillColor}" stroke="${strokeColor}" stroke-width="2"/>
+      <path d="M9 9L15 15M15 9L9 15" stroke="${strokeColor}" stroke-width="2" stroke-linecap="round"/>
+    </svg>`;
+  }
+
+  private darkenColor(hex: string, percent: number): string {
+    // #RRGGBB形式のHEXを暗くする
+    const num = parseInt(hex.slice(1), 16);
+    const r = Math.max(0, (num >> 16) - Math.round(255 * percent / 100));
+    const g = Math.max(0, ((num >> 8) & 0x00FF) - Math.round(255 * percent / 100));
+    const b = Math.max(0, (num & 0x0000FF) - Math.round(255 * percent / 100));
+    return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
   }
 
   public setOnDelete(callback: (id: string) => void): void {

@@ -54,6 +54,8 @@ export class StickyManager {
         color: rgba(0, 0, 0, 0.3);
         font-size: 12px;
         letter-spacing: -2px;
+        display: flex;
+        align-items: center;
       }
 
       .sticky-note-header-actions {
@@ -94,7 +96,8 @@ export class StickyManager {
         position: absolute;
         top: 28px;
         right: 4px;
-        background: #fff;
+        background: linear-gradient(180deg, #ffffff 0%, #f5f5f5 100%);
+        border: 1px solid #ddd;
         border-radius: 6px;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
         padding: 8px;

@@ -1,4 +1,5 @@
 import type { StickyColor, StickySize } from '../types';
+import { ICONS } from './icons';
 
 const COLORS: StickyColor[] = ['red', 'orange', 'yellow', 'green', 'cyan', 'gray', 'white'];
 const SIZES: StickySize[] = ['small', 'medium', 'large'];
@@ -194,12 +195,12 @@ export class MenuBar {
       </div>
       <div class="menu-divider"></div>
       <div class="menu-section">
-        <button class="icon-btn visibility-btn" title="全付箋の表示/非表示">👁</button>
-        <button class="icon-btn clear-btn" title="全付箋を削除">🗑️</button>
-        <button class="icon-btn copy-btn" title="メモをコピー">📋</button>
+        <button class="icon-btn visibility-btn" title="全付箋の表示/非表示">${ICONS.visibility}</button>
+        <button class="icon-btn clear-btn" title="全付箋を削除">${ICONS.delete}</button>
+        <button class="icon-btn copy-btn" title="メモをコピー">${ICONS.copy}</button>
       </div>
       <div class="menu-spacer"></div>
-      <button class="icon-btn close-btn" title="閉じる">✕</button>
+      <button class="icon-btn close-btn" title="閉じる">${ICONS.close}</button>
     `;
   }
 
