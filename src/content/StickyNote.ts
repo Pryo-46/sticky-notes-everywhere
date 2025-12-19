@@ -33,6 +33,17 @@ export class StickyNote {
     const headerActions = document.createElement('div');
     headerActions.className = 'sticky-note-header-actions';
 
+    // コピーボタン
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'sticky-note-action-btn sticky-note-copy';
+    copyBtn.innerHTML = this.createCopyIcon(this.data.color);
+    copyBtn.title = 'テキストをコピー';
+    copyBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.copyText();
+    });
+    headerActions.appendChild(copyBtn);
+
     // 色変更ボタン
     const colorBtn = document.createElement('button');
     colorBtn.className = 'sticky-note-action-btn sticky-note-color-btn';
@@ -129,6 +140,11 @@ export class StickyNote {
   public setColor(color: StickyColor): void {
     this.data.color = color;
     this.element.style.backgroundColor = COLOR_VALUES[color];
+    // コピーボタンのアイコンも更新
+    const copyBtn = this.element.querySelector('.sticky-note-copy');
+    if (copyBtn) {
+      copyBtn.innerHTML = this.createCopyIcon(color);
+    }
     // 色変更ボタンのアイコンも更新
     const colorBtn = this.element.querySelector('.sticky-note-color-btn');
     if (colorBtn) {
@@ -156,6 +172,30 @@ export class StickyNote {
       <circle cx="12" cy="12" r="8" fill="${fillColor}" stroke="${strokeColor}" stroke-width="2"/>
       <path d="M9 9L15 15M15 9L9 15" stroke="${strokeColor}" stroke-width="2" stroke-linecap="round"/>
     </svg>`;
+  }
+
+  private createCopyIcon(color: StickyColor): string {
+    const strokeColor = this.darkenColor(COLOR_VALUES[color], 30);
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="${strokeColor}">
+      <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+    </svg>`;
+  }
+
+  private async copyText(): Promise<void> {
+    const text = this.data.text.trim();
+    if (!text) return;
+
+    try {
+      await navigator.clipboard.writeText(text);
+      // コピー成功のフィードバック（ボタンを一時的にハイライト）
+      const copyBtn = this.element.querySelector('.sticky-note-copy');
+      if (copyBtn) {
+        copyBtn.classList.add('copied');
+        setTimeout(() => copyBtn.classList.remove('copied'), 1000);
+      }
+    } catch {
+      // コピー失敗時は何もしない
+    }
   }
 
   private darkenColor(hex: string, percent: number): string {

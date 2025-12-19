@@ -62,7 +62,7 @@ export class StickyManager {
         display: flex;
         flex-direction: row;
         align-items: center;
-        gap: 4px;
+        gap: 6px;
       }
 
       .sticky-note-action-btn {
@@ -79,6 +79,11 @@ export class StickyManager {
         justify-content: center;
         padding: 0;
         transition: all 0.15s ease;
+        line-height: 0;
+      }
+
+      .sticky-note-action-btn svg {
+        display: block;
       }
 
       .sticky-note-action-btn:hover {
@@ -89,6 +94,10 @@ export class StickyManager {
       .sticky-note-delete:hover {
         background: rgba(255, 0, 0, 0.15);
         color: #e03131;
+      }
+
+      .sticky-note-copy.copied {
+        background: rgba(47, 158, 68, 0.2);
       }
 
       /* カラーピッカー */
@@ -103,7 +112,7 @@ export class StickyManager {
         padding: 8px;
         z-index: 2147483645;
         display: flex;
-        gap: 4px;
+        gap: 6px;
       }
 
       .sticky-note-color-picker {

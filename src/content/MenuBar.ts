@@ -10,6 +10,9 @@ const SIZE_LABELS: Record<StickySize, string> = {
 };
 
 type ColorSwatchCallback = (element: HTMLElement, color: StickyColor) => void;
+type VisibilityToggleCallback = () => boolean;
+type ClearAllCallback = () => void;
+type CopyAllCallback = () => void;
 
 export class MenuBar {
   private element: HTMLDivElement;
@@ -17,6 +20,10 @@ export class MenuBar {
   private selectedSize: StickySize = 'medium';
   private isVisible = false;
   private colorSwatchCallback: ColorSwatchCallback | null = null;
+  private visibilityToggleCallback: VisibilityToggleCallback | null = null;
+  private clearAllCallback: ClearAllCallback | null = null;
+  private copyAllCallback: CopyAllCallback | null = null;
+  private notesVisible = true;
 
   constructor() {
     // Shadow DOMホストを作成
@@ -219,8 +226,38 @@ export class MenuBar {
       this.hide();
     });
 
+    // 表示/非表示トグルボタン
+    menuBar.querySelector('.visibility-btn')?.addEventListener('click', () => {
+      if (this.visibilityToggleCallback) {
+        this.notesVisible = this.visibilityToggleCallback();
+        this.updateVisibilityIcon(menuBar);
+      }
+    });
+
+    // 一括クリアボタン
+    menuBar.querySelector('.clear-btn')?.addEventListener('click', () => {
+      if (this.clearAllCallback) {
+        const confirmed = window.confirm('すべての付箋を削除しますか？');
+        if (confirmed) {
+          this.clearAllCallback();
+        }
+      }
+    });
+
+    // コピーボタン
+    menuBar.querySelector('.copy-btn')?.addEventListener('click', () => {
+      this.copyAllCallback?.();
+    });
+
     // カラースウォッチのセットアップ
     this.setupColorSwatches(menuBar);
+  }
+
+  private updateVisibilityIcon(menuBar: HTMLDivElement): void {
+    const btn = menuBar.querySelector('.visibility-btn');
+    if (btn) {
+      btn.innerHTML = this.notesVisible ? ICONS.visibility : ICONS.visibilityOff;
+    }
   }
 
   private setupColorSwatches(menuBar: HTMLDivElement): void {
@@ -275,5 +312,17 @@ export class MenuBar {
 
   public isMenuVisible(): boolean {
     return this.isVisible;
+  }
+
+  public onVisibilityToggle(callback: VisibilityToggleCallback): void {
+    this.visibilityToggleCallback = callback;
+  }
+
+  public onClearAll(callback: ClearAllCallback): void {
+    this.clearAllCallback = callback;
+  }
+
+  public onCopyAll(callback: CopyAllCallback): void {
+    this.copyAllCallback = callback;
   }
 }
