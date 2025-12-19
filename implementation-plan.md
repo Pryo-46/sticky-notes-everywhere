@@ -174,7 +174,7 @@ interface StickyNoteData {
 - [ ] 一括非表示/表示トグル実装（目アイコン）
   - 表示状態をStickyManagerで管理
   - 全付箋のvisibilityを切り替え
-  - アイコンの見た目も切り替え（👁 ↔ 👁‍🗨）
+  - アイコンの見た目も切り替え（Visibility ↔ VisibilityOff）
 - [ ] 一括クリア実装（ゴミ箱アイコン）
   - 確認ダイアログ表示
   - 全付箋の削除
