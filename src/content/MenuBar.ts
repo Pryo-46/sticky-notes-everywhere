@@ -8,11 +8,14 @@ const SIZE_LABELS: Record<StickySize, string> = {
   large: 'L',
 };
 
+type ColorSwatchCallback = (element: HTMLElement, color: StickyColor) => void;
+
 export class MenuBar {
   private element: HTMLDivElement;
   private shadowRoot: ShadowRoot;
   private selectedSize: StickySize = 'medium';
   private isVisible = false;
+  private colorSwatchCallback: ColorSwatchCallback | null = null;
 
   constructor() {
     // Shadow DOMホストを作成
@@ -215,7 +218,26 @@ export class MenuBar {
       this.hide();
     });
 
-    // TODO: Phase 3以降で他のイベントを追加
+    // カラースウォッチのセットアップ
+    this.setupColorSwatches(menuBar);
+  }
+
+  private setupColorSwatches(menuBar: HTMLDivElement): void {
+    menuBar.querySelectorAll('.color-swatch').forEach((swatch) => {
+      const color = (swatch as HTMLElement).dataset.color as StickyColor;
+      if (this.colorSwatchCallback) {
+        this.colorSwatchCallback(swatch as HTMLElement, color);
+      }
+    });
+  }
+
+  public onColorSwatchSetup(callback: ColorSwatchCallback): void {
+    this.colorSwatchCallback = callback;
+    // 既に表示されている場合は再セットアップ
+    const menuBar = this.shadowRoot.querySelector('.sticky-notes-menu-bar') as HTMLDivElement;
+    if (menuBar) {
+      this.setupColorSwatches(menuBar);
+    }
   }
 
   private setSelectedSize(size: StickySize, menuBar: HTMLDivElement): void {

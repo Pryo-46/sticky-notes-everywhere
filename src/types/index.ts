@@ -17,6 +17,17 @@ export const SIZE_PRESETS: Record<StickySize, StickyDimensions> = {
   large: { width: 300, height: 200 },
 };
 
+/** カラー値の定義 */
+export const COLOR_VALUES: Record<StickyColor, string> = {
+  red: '#ff6b6b',
+  orange: '#ffa94d',
+  yellow: '#ffd43b',
+  green: '#69db7c',
+  cyan: '#66d9e8',
+  gray: '#adb5bd',
+  white: '#ffffff',
+};
+
 /** 付箋データ */
 export interface StickyNoteData {
   id: string;
