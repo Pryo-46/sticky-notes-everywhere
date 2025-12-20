@@ -1,4 +1,4 @@
-import type { ButtonSize, ColorPresetName, ExtensionSettings, StickyColor, StickySize } from '../types';
+import type { ButtonSize, ColorPresetName, ExtensionSettings, FloatingIconPosition, StickyColor, StickySize } from '../types';
 import { DEFAULT_SETTINGS, LIGHT_PRESET, DARK_PRESET } from '../types';
 import { StorageService } from './StorageService';
 import { ICONS } from './icons';
@@ -22,6 +22,13 @@ const PRESET_LABELS: Record<ColorPresetName, string> = {
   dark: 'ダーク',
   user1: 'ユーザー1',
   user2: 'ユーザー2',
+};
+const ICON_POSITIONS: FloatingIconPosition[] = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+const ICON_POSITION_LABELS: Record<FloatingIconPosition, string> = {
+  'top-left': '左上',
+  'top-right': '右上',
+  'bottom-left': '左下',
+  'bottom-right': '右下',
 };
 
 type SettingsSavedCallback = (settings: ExtensionSettings) => void;
@@ -63,6 +70,7 @@ export class SettingsModal {
       menuBarPosition: settings.menuBarPosition,
       floatingPosition: { ...settings.floatingPosition },
       baseZIndex: settings.baseZIndex,
+      floatingIconPosition: settings.floatingIconPosition,
     };
   }
 
@@ -462,6 +470,36 @@ export class SettingsModal {
         display: flex;
         gap: 8px;
       }
+
+      .icon-position-selector {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        max-width: 240px;
+      }
+
+      .icon-position-btn {
+        padding: 10px 12px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        background: #fff;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        color: #495057;
+        transition: all 0.15s ease;
+      }
+
+      .icon-position-btn:hover {
+        border-color: #adb5bd;
+        background: #f8f9fa;
+      }
+
+      .icon-position-btn.active {
+        border-color: #4dabf7;
+        background: #e7f5ff;
+        color: #1c7ed6;
+      }
     `;
   }
 
@@ -513,6 +551,10 @@ export class SettingsModal {
       (size) => `<button class="button-size-btn${settings.buttonSize === size ? ' active' : ''}" data-button-size="${size}">${BUTTON_SIZE_LABELS[size]}</button>`
     ).join('');
 
+    const iconPositionButtons = ICON_POSITIONS.map(
+      (pos) => `<button class="icon-position-btn${settings.floatingIconPosition === pos ? ' active' : ''}" data-icon-position="${pos}">${ICON_POSITION_LABELS[pos]}</button>`
+    ).join('');
+
     return `
       <div class="settings-modal">
         <div class="settings-header">
@@ -539,6 +581,12 @@ export class SettingsModal {
             <h3>メニューボタンサイズ</h3>
             <div class="button-size-selector">
               ${buttonSizeButtons}
+            </div>
+          </div>
+          <div class="settings-section">
+            <h3>常駐アイコン位置</h3>
+            <div class="icon-position-selector">
+              ${iconPositionButtons}
             </div>
           </div>
           <div class="settings-section">
@@ -672,6 +720,19 @@ export class SettingsModal {
       });
     });
 
+    // 常駐アイコン位置の変更
+    modal.querySelectorAll('.icon-position-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const target = e.target as HTMLButtonElement;
+        const pos = target.dataset.iconPosition as FloatingIconPosition;
+        this.tempSettings.floatingIconPosition = pos;
+
+        // アクティブ状態を更新
+        modal.querySelectorAll('.icon-position-btn').forEach((b) => b.classList.remove('active'));
+        target.classList.add('active');
+      });
+    });
+
     // z-index基準値の変更
     const zIndexInput = modal.querySelector('#baseZIndex') as HTMLInputElement;
     zIndexInput?.addEventListener('input', (e) => {
@@ -792,6 +853,12 @@ export class SettingsModal {
     if (zIndexInput) {
       zIndexInput.value = String(this.tempSettings.baseZIndex);
     }
+
+    // アイコン位置設定を更新
+    modal.querySelectorAll('.icon-position-btn').forEach((btn) => {
+      const btnPos = (btn as HTMLButtonElement).dataset.iconPosition;
+      btn.classList.toggle('active', btnPos === this.tempSettings.floatingIconPosition);
+    });
   }
 
   public show(): void {

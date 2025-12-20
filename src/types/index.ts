@@ -90,6 +90,9 @@ export interface FloatingPosition {
 /** メニューボタンサイズ */
 export type ButtonSize = 'small' | 'medium' | 'large';
 
+/** 常駐アイコンの位置 */
+export type FloatingIconPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+
 /** ボタンサイズの定義（ピクセル） */
 export const BUTTON_SIZE_PRESETS: Record<ButtonSize, number> = {
   small: 32,
@@ -122,6 +125,8 @@ export interface ExtensionSettings {
   floatingPosition: FloatingPosition;
   /** 付箋のz-index基準値 */
   baseZIndex: number;
+  /** 常駐アイコンの位置 */
+  floatingIconPosition: FloatingIconPosition;
 }
 
 /** デフォルト設定 */
@@ -139,4 +144,5 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   menuBarPosition: 'top',
   floatingPosition: { x: 100, y: 100 },
   baseZIndex: 10000,
+  floatingIconPosition: 'bottom-right',
 };
