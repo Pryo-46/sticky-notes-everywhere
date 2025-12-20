@@ -51,6 +51,9 @@ export class SettingsModal {
         large: { ...settings.sizes.large },
       },
       defaultSize: settings.defaultSize,
+      menuBarMode: settings.menuBarMode,
+      menuBarPosition: settings.menuBarPosition,
+      floatingPosition: { ...settings.floatingPosition },
     };
   }
 

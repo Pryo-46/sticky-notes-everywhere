@@ -75,6 +75,18 @@ export interface ToggleMenuMessage {
 
 export type ExtensionMessage = ToggleMenuMessage;
 
+/** メニューバーのモード */
+export type MenuBarMode = 'bar' | 'floating';
+
+/** メニューバーの位置（バーモード時） */
+export type MenuBarPosition = 'top' | 'bottom' | 'left' | 'right';
+
+/** フローティング位置 */
+export interface FloatingPosition {
+  x: number;
+  y: number;
+}
+
 /** 拡張機能の設定 */
 export interface ExtensionSettings {
   /** 現在のカラープリセット */
@@ -90,6 +102,12 @@ export interface ExtensionSettings {
   sizes: Record<StickySize, StickyDimensions>;
   /** デフォルトサイズ */
   defaultSize: StickySize;
+  /** メニューバーのモード */
+  menuBarMode: MenuBarMode;
+  /** メニューバーの位置（バーモード時） */
+  menuBarPosition: MenuBarPosition;
+  /** フローティング時の位置 */
+  floatingPosition: FloatingPosition;
 }
 
 /** デフォルト設定 */
@@ -102,4 +120,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   },
   sizes: { ...SIZE_PRESETS },
   defaultSize: 'medium',
+  menuBarMode: 'bar',
+  menuBarPosition: 'top',
+  floatingPosition: { x: 100, y: 100 },
 };

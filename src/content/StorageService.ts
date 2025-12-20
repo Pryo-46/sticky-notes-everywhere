@@ -15,7 +15,7 @@ export class StorageService {
     // 設定変更を監視
     chrome.storage.onChanged.addListener((changes, areaName) => {
       if (areaName === 'local' && changes[STORAGE_KEY]) {
-        this.settings = this.mergeWithDefaults(changes[STORAGE_KEY].newValue);
+        this.settings = this.mergeWithDefaults(changes[STORAGE_KEY].newValue as Partial<ExtensionSettings> | undefined);
         this.notifyChange();
       }
     });
@@ -36,7 +36,7 @@ export class StorageService {
 
     try {
       const result = await chrome.storage.local.get(STORAGE_KEY);
-      this.settings = this.mergeWithDefaults(result[STORAGE_KEY]);
+      this.settings = this.mergeWithDefaults(result[STORAGE_KEY] as Partial<ExtensionSettings> | undefined);
       this.initialized = true;
     } catch (error) {
       console.error('Failed to load settings:', error);
@@ -96,6 +96,9 @@ export class StorageService {
         },
         sizes: { ...DEFAULT_SETTINGS.sizes },
         defaultSize: DEFAULT_SETTINGS.defaultSize,
+        menuBarMode: DEFAULT_SETTINGS.menuBarMode,
+        menuBarPosition: DEFAULT_SETTINGS.menuBarPosition,
+        floatingPosition: { ...DEFAULT_SETTINGS.floatingPosition },
       };
     }
 
@@ -112,6 +115,9 @@ export class StorageService {
         large: { ...DEFAULT_SETTINGS.sizes.large, ...saved.sizes?.large },
       },
       defaultSize: saved.defaultSize ?? DEFAULT_SETTINGS.defaultSize,
+      menuBarMode: saved.menuBarMode ?? DEFAULT_SETTINGS.menuBarMode,
+      menuBarPosition: saved.menuBarPosition ?? DEFAULT_SETTINGS.menuBarPosition,
+      floatingPosition: { ...DEFAULT_SETTINGS.floatingPosition, ...saved.floatingPosition },
     };
   }
 }
