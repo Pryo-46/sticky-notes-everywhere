@@ -22,7 +22,7 @@ export const BUTTON_GAP = 8;
 // アニメーション定数
 const ANIMATION_DURATION = '0.3s'; // メニューバーのアニメーション時間
 const ANIMATION_EASING = 'cubic-bezier(0.34, 1.56, 0.64, 1)'; // メニューバーのアニメーションイージング
-const OPACITY_DURATION = '0.35s'; // メニューバーの不透明度アニメーション時間
+const OPACITY_DURATION = '0.3s'; // メニューバーの不透明度アニメーション時間
 
 const SIZE_LABELS: Record<StickySize, string> = {
   small: 'S',
@@ -307,12 +307,17 @@ export class MenuBar {
         align-items: flex-start;
       }
       .sticky-menu-container.floating .sticky-icon-btn {
-        margin-bottom: 8px;
+        position: relative;
+        z-index: 2;
+        margin-top: 8px;
       }
       .sticky-menu-container.floating .sticky-notes-menu-bar {
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        padding: 12px;
+        position: absolute;
+        top: 0;
+        left: ${BUTTON_SIZE / 2}px;
+        transform: translateX(-50%);
+        border-radius: 9999px;
+        padding: ${BUTTON_SIZE + 16}px 16px 20px 16px;
         flex-direction: column;
         gap: 8px;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
@@ -332,6 +337,7 @@ export class MenuBar {
         display: flex;
         flex-direction: row;
         gap: 12px;
+        padding-bottom: 16px;
       }
 
       /* 左列：ボタン群 */
