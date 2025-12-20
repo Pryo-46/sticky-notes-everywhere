@@ -1,12 +1,11 @@
 import type { ButtonSize, ColorPresetName, ExtensionSettings, StickyColor, StickySize } from '../types';
-import { DEFAULT_SETTINGS, LIGHT_PRESET, DARK_PRESET } from '../types';
+import { DEFAULT_SETTINGS, LIGHT_PRESET, DARK_PRESET, STICKY_COLORS, STICKY_SIZES } from '../types';
 import { StorageService } from './StorageService';
 import { ICONS } from './icons';
 import { getSettingsModalStyles } from './styles/settings-modal.css';
+import { isValidHexColor } from './utils/colorUtils';
 
-const COLORS: StickyColor[] = ['color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'color8'];
-const SIZES: StickySize[] = ['small', 'medium', 'large'];
-const SIZE_LABELS: Record<StickySize, string> = {
+const SIZE_LABELS_FULL: Record<StickySize, string> = {
   small: 'S（小）',
   medium: 'M（中）',
   large: 'L（大）',
@@ -97,7 +96,7 @@ export class SettingsModal {
       }
     ).join('');
 
-    const colorSettings = COLORS.map(
+    const colorSettings = STICKY_COLORS.map(
       (color) => `
         <div class="color-setting-item">
           <input type="color" class="color-picker-input" data-color="${color}" value="${settings.colors[color]}"${!isUserPreset ? ' disabled' : ''}>
@@ -106,10 +105,10 @@ export class SettingsModal {
       `
     ).join('');
 
-    const sizeSettings = SIZES.map(
+    const sizeSettings = STICKY_SIZES.map(
       (size) => `
         <div class="size-setting-item">
-          <span class="size-label">${SIZE_LABELS[size]}</span>
+          <span class="size-label">${SIZE_LABELS_FULL[size]}</span>
           <div class="size-inputs">
             <div class="size-input-group">
               <label>幅</label>
@@ -240,7 +239,7 @@ export class SettingsModal {
         const color = target.dataset.color as StickyColor;
         const value = target.value;
 
-        if (this.isValidHexColor(value)) {
+        if (isValidHexColor(value)) {
           this.tempSettings.colors[color] = value;
           // ユーザープリセットの場合は保存用にも更新
           const activePreset = this.tempSettings.activePreset;
@@ -332,7 +331,7 @@ export class SettingsModal {
 
     // 色入力の値を更新し、ユーザープリセット以外は無効化
     const isUserPreset = preset === 'user1' || preset === 'user2';
-    COLORS.forEach((color) => {
+    STICKY_COLORS.forEach((color) => {
       const picker = modal.querySelector(`.color-picker-input[data-color="${color}"]`) as HTMLInputElement;
       const textInput = modal.querySelector(`.color-input[data-color="${color}"]`) as HTMLInputElement;
       if (picker) {
@@ -344,10 +343,6 @@ export class SettingsModal {
         textInput.disabled = !isUserPreset;
       }
     });
-  }
-
-  private isValidHexColor(color: string): boolean {
-    return /^#[0-9A-Fa-f]{6}$/.test(color);
   }
 
   private async save(): Promise<void> {
@@ -380,7 +375,7 @@ export class SettingsModal {
     });
 
     // カラー設定を更新
-    COLORS.forEach((color) => {
+    STICKY_COLORS.forEach((color) => {
       const textInput = modal.querySelector(`.color-input[data-color="${color}"]`) as HTMLInputElement;
       const picker = modal.querySelector(`.color-picker-input[data-color="${color}"]`) as HTMLInputElement;
 
@@ -395,7 +390,7 @@ export class SettingsModal {
     });
 
     // サイズ設定を更新
-    SIZES.forEach((size) => {
+    STICKY_SIZES.forEach((size) => {
       const widthInput = modal.querySelector(`.size-input[data-size="${size}"][data-dim="width"]`) as HTMLInputElement;
       const heightInput = modal.querySelector(`.size-input[data-size="${size}"][data-dim="height"]`) as HTMLInputElement;
 

@@ -1,8 +1,21 @@
 /** 付箋の色（8色） */
 export type StickyColor = 'color1' | 'color2' | 'color3' | 'color4' | 'color5' | 'color6' | 'color7' | 'color8';
 
+/** 全カラー定数 */
+export const STICKY_COLORS: StickyColor[] = ['color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'color8'];
+
 /** 付箋のサイズプリセット */
 export type StickySize = 'small' | 'medium' | 'large';
+
+/** 全サイズ定数 */
+export const STICKY_SIZES: StickySize[] = ['small', 'medium', 'large'];
+
+/** サイズラベル */
+export const SIZE_LABELS: Record<StickySize, string> = {
+  small: 'S',
+  medium: 'M',
+  large: 'L',
+};
 
 /** 付箋のサイズ（ピクセル） */
 export interface StickyDimensions {

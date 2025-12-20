@@ -1,22 +1,8 @@
 import type { StickyColor, StickyDimensions, StickyNoteData } from '../types';
+import { STICKY_COLORS } from '../types';
 import { ICONS } from './icons';
 import { StorageService } from './StorageService';
-
-const STICKY_COLORS: StickyColor[] = ['color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'color8'];
-
-// UI色のコントラスト設定
-// 暗い色のUI色（黒に近い付箋用）: #000000〜#ffffff の範囲で調整可能
-const DARK_COLOR_UI = '#cccccc';
-// 暗い色と判定する輝度の閾値（0.0〜1.0）: 低いほど黒に近い色のみが対象
-const DARK_LUMINANCE_THRESHOLD = 0.15;
-// フォント色設定
-const LIGHT_TEXT_COLOR = '#ffffff'; // 暗い背景用
-const DARK_TEXT_COLOR = '#333333';  // 明るい背景用
-// プレースホルダー色設定
-const LIGHT_PLACEHOLDER_COLOR = 'rgba(255, 255, 255, 0.9)'; // 暗い背景用
-const DARK_PLACEHOLDER_COLOR = 'rgba(0, 0, 0, 0.35)';       // 明るい背景用
-// フォント色を切り替える輝度の閾値（0.0〜1.0）
-const TEXT_LUMINANCE_THRESHOLD = 0.5;
+import { getTextColor, getPlaceholderColor, getContrastColor } from './utils/colorUtils';
 
 export class StickyNote {
   private element: HTMLDivElement;
@@ -45,7 +31,7 @@ export class StickyNote {
     // ヘッダー部分（移動用）
     const header = document.createElement('div');
     header.className = 'sticky-note-header';
-    const uiColor = this.getContrastColor(this.getColorValue(this.data.color), 30);
+    const uiColor = getContrastColor(this.getColorValue(this.data.color), 30);
     header.style.borderBottomColor = uiColor;
     header.innerHTML = `<span class="drag-icon" style="color: ${uiColor}">${ICONS.dragHandle}</span>`;
 
@@ -93,7 +79,7 @@ export class StickyNote {
     this.textArea.placeholder = 'メモを入力...';
     this.textArea.value = this.data.text;
     const colorValue = this.getColorValue(this.data.color);
-    this.textArea.style.color = this.getTextColor(colorValue);
+    this.textArea.style.color = getTextColor(colorValue);
     this.updatePlaceholderStyle(colorValue);
     this.textArea.addEventListener('input', () => {
       this.data.text = this.textArea.value;
@@ -171,7 +157,7 @@ export class StickyNote {
   public setColor(color: StickyColor): void {
     this.data.color = color;
     const colorValue = this.getColorValue(color);
-    const uiColor = this.getContrastColor(colorValue, 30);
+    const uiColor = getContrastColor(colorValue, 30);
     this.element.style.backgroundColor = colorValue;
     // ヘッダー下線の色も更新
     const header = this.element.querySelector('.sticky-note-header') as HTMLElement;
@@ -204,13 +190,13 @@ export class StickyNote {
       deleteBtn.innerHTML = this.createDeleteIcon(color);
     }
     // テキストエリアのフォント色とプレースホルダー色も更新
-    this.textArea.style.color = this.getTextColor(colorValue);
+    this.textArea.style.color = getTextColor(colorValue);
     this.updatePlaceholderStyle(colorValue);
   }
 
   private createColorIcon(color: StickyColor): string {
     const fillColor = this.getColorValue(color);
-    const strokeColor = this.getContrastColor(fillColor, 30);
+    const strokeColor = getContrastColor(fillColor, 30);
     return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="12" cy="12" r="8" fill="${fillColor}" stroke="${strokeColor}" stroke-width="2"/>
     </svg>`;
@@ -218,7 +204,7 @@ export class StickyNote {
 
   private createDeleteIcon(color: StickyColor): string {
     const fillColor = this.getColorValue(color);
-    const strokeColor = this.getContrastColor(fillColor, 30);
+    const strokeColor = getContrastColor(fillColor, 30);
     return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="12" cy="12" r="8" fill="${fillColor}" stroke="${strokeColor}" stroke-width="2"/>
       <path d="M9 9L15 15M15 9L9 15" stroke="${strokeColor}" stroke-width="2" stroke-linecap="round"/>
@@ -226,7 +212,7 @@ export class StickyNote {
   }
 
   private createCopyIcon(color: StickyColor): string {
-    const strokeColor = this.getContrastColor(this.getColorValue(color), 30);
+    const strokeColor = getContrastColor(this.getColorValue(color), 30);
     return `<svg width="16" height="16" viewBox="0 0 24 24" fill="${strokeColor}">
       <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
     </svg>`;
@@ -249,27 +235,6 @@ export class StickyNote {
     }
   }
 
-  private getLuminance(hex: string): number {
-    // 輝度を計算（0-1の範囲、0が暗い、1が明るい）
-    const num = parseInt(hex.slice(1), 16);
-    const r = (num >> 16) / 255;
-    const g = ((num >> 8) & 0xFF) / 255;
-    const b = (num & 0xFF) / 255;
-    return 0.299 * r + 0.587 * g + 0.114 * b;
-  }
-
-  private getTextColor(hex: string): string {
-    // 背景色の輝度に応じてテキスト色を返す
-    const luminance = this.getLuminance(hex);
-    return luminance < TEXT_LUMINANCE_THRESHOLD ? LIGHT_TEXT_COLOR : DARK_TEXT_COLOR;
-  }
-
-  private getPlaceholderColor(hex: string): string {
-    // 背景色の輝度に応じてプレースホルダー色を返す
-    const luminance = this.getLuminance(hex);
-    return luminance < TEXT_LUMINANCE_THRESHOLD ? LIGHT_PLACEHOLDER_COLOR : DARK_PLACEHOLDER_COLOR;
-  }
-
   private updatePlaceholderStyle(colorValue: string): void {
     // 既存のスタイルを削除
     if (this.placeholderStyle) {
@@ -279,42 +244,10 @@ export class StickyNote {
     this.placeholderStyle = document.createElement('style');
     this.placeholderStyle.textContent = `
       #${this.textArea.id}::placeholder {
-        color: ${this.getPlaceholderColor(colorValue)} !important;
+        color: ${getPlaceholderColor(colorValue)} !important;
       }
     `;
     this.element.appendChild(this.placeholderStyle);
-  }
-
-  private getContrastColor(hex: string, percent: number): string {
-    // 暗い色なら明るく、明るい色なら暗くする
-    const luminance = this.getLuminance(hex);
-
-    // 非常に暗い色（黒に近い）の場合は白っぽい色を直接返す
-    if (luminance < DARK_LUMINANCE_THRESHOLD) {
-      return DARK_COLOR_UI;
-    }
-
-    const num = parseInt(hex.slice(1), 16);
-    const r = (num >> 16);
-    const g = ((num >> 8) & 0xFF);
-    const b = (num & 0xFF);
-    // 暗い色の場合はより強いコントラストを適用
-    const adjustedPercent = luminance < 0.5 ? percent * 2.2 : percent;
-    const delta = Math.round(255 * adjustedPercent / 100);
-
-    if (luminance < 0.5) {
-      // 明るくする
-      const newR = Math.min(255, r + delta);
-      const newG = Math.min(255, g + delta);
-      const newB = Math.min(255, b + delta);
-      return `#${(newR << 16 | newG << 8 | newB).toString(16).padStart(6, '0')}`;
-    } else {
-      // 暗くする
-      const newR = Math.max(0, r - delta);
-      const newG = Math.max(0, g - delta);
-      const newB = Math.max(0, b - delta);
-      return `#${(newR << 16 | newG << 8 | newB).toString(16).padStart(6, '0')}`;
-    }
   }
 
   public setOnDelete(callback: (id: string) => void): void {

@@ -1,5 +1,5 @@
 import type { StickyColor, StickySize, MenuBarMode, MenuBarPosition } from '../types';
-import { BUTTON_SIZE_PRESETS } from '../types';
+import { BUTTON_SIZE_PRESETS, STICKY_COLORS, STICKY_SIZES, SIZE_LABELS } from '../types';
 import { ICONS } from './icons';
 import { StorageService } from './StorageService';
 import { getMenuBarStyles } from './styles/menubar.css';
@@ -13,18 +13,9 @@ const NEXT_POSITION_ICONS: Record<MenuBarPosition, string> = {
   right: ICONS.moveUp,    // 右にいる → 上へ移動
 };
 
-const COLORS: StickyColor[] = ['color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'color8'];
-const SIZES: StickySize[] = ['small', 'medium', 'large'];
-
 // UI定数
 export const BUTTON_RADIUS = 4;
 export const BUTTON_GAP = 8;
-
-const SIZE_LABELS: Record<StickySize, string> = {
-  small: 'S',
-  medium: 'M',
-  large: 'L',
-};
 
 type ColorSwatchCallback = (element: HTMLElement, color: StickyColor) => void;
 type VisibilityToggleCallback = () => boolean;
@@ -122,11 +113,11 @@ export class MenuBar {
   /** メニューバー内部のHTML */
   private getMenuBarHTML(): string {
     const settings = StorageService.getInstance().getSettings();
-    const colorSwatches = COLORS.map(
+    const colorSwatches = STICKY_COLORS.map(
       (color) => `<div class="color-swatch ${color}" data-color="${color}" draggable="true" style="background-color: ${settings.colors[color]}"></div>`
     ).join('');
 
-    const sizeButtons = SIZES.map(
+    const sizeButtons = STICKY_SIZES.map(
       (size) =>
         `<button class="size-btn ${size === this.selectedSize ? 'active' : ''}" data-size="${size}">${SIZE_LABELS[size]}</button>`
     ).join('');
@@ -329,7 +320,7 @@ export class MenuBar {
     const menuBar = this.shadowRoot.querySelector('.sticky-notes-menu-bar');
     if (!menuBar) return;
 
-    COLORS.forEach((color) => {
+    STICKY_COLORS.forEach((color) => {
       const swatch = menuBar.querySelector(`.color-swatch.${color}`) as HTMLElement;
       if (swatch) {
         swatch.style.backgroundColor = settings.colors[color];
