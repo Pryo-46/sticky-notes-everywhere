@@ -19,6 +19,11 @@ const SIZES: StickySize[] = ['small', 'medium', 'large'];
 export const BUTTON_RADIUS = 4;
 export const BUTTON_GAP = 8;
 
+// アニメーション定数
+const ANIMATION_DURATION = '0.3s'; // メニューバーのアニメーション時間
+const ANIMATION_EASING = 'cubic-bezier(0.34, 1.56, 0.64, 1)'; // メニューバーのアニメーションイージング
+const OPACITY_DURATION = '0.35s'; // メニューバーの不透明度アニメーション時間
+
 const SIZE_LABELS: Record<StickySize, string> = {
   small: 'S',
   medium: 'M',
@@ -66,6 +71,13 @@ export class MenuBar {
     this.selectedSize = settings.defaultSize;
 
     this.render();
+
+    // DOMに追加し、モード・位置を適用（アイコンを表示するため）
+    document.body.appendChild(this.element);
+    const container = this.shadowRoot.querySelector('.sticky-menu-container') as HTMLDivElement;
+    if (container) {
+      this.applyModeAndPosition(container);
+    }
   }
 
   private render(): void {
@@ -74,13 +86,13 @@ export class MenuBar {
     style.textContent = this.getStyles();
     this.shadowRoot.appendChild(style);
 
-    // メニューバーを作成
-    const menuBar = document.createElement('div');
-    menuBar.className = 'sticky-notes-menu-bar hidden';
-    menuBar.innerHTML = this.getMenuBarHTML();
-    this.shadowRoot.appendChild(menuBar);
+    // コンテナを作成（アイコン + メニューバー）
+    const container = document.createElement('div');
+    container.className = 'sticky-menu-container hidden';
+    container.innerHTML = this.getContainerHTML();
+    this.shadowRoot.appendChild(container);
 
-    this.setupEventListeners(menuBar);
+    this.setupEventListeners(container);
   }
 
   private getStyles(): string {
@@ -88,125 +100,215 @@ export class MenuBar {
     const BUTTON_SIZE = BUTTON_SIZE_PRESETS[settings.buttonSize];
 
     return `
-      .sticky-notes-menu-bar {
+      /* コンテナ：アイコンとメニューバーを含む */
+      .sticky-menu-container {
         position: fixed;
+        z-index: 2147483647;
+        display: flex;
+        align-items: flex-start;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 14px;
+      }
+
+      /* 付箋アイコンボタン（常に表示） */
+      .sticky-icon-btn {
+        width: ${BUTTON_SIZE}px;
+        height: ${BUTTON_SIZE}px;
+        border-radius: 50%;
+        border: none;
+        background: linear-gradient(135deg, #FFF59D 0%, #FFCC80 100%);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: box-shadow 0.15s ease;
+        z-index: 1;
+      }
+
+      .sticky-icon-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+      }
+
+      .sticky-icon-btn:active {
+        transform: scale(0.95);
+      }
+
+      .sticky-icon-btn svg {
+        width: ${Math.round(BUTTON_SIZE * 0.6)}px;
+        height: ${Math.round(BUTTON_SIZE * 0.6)}px;
+        color: #5D4037;
+      }
+
+      /* メニューバー本体 */
+      .sticky-notes-menu-bar {
         background: linear-gradient(180deg, #ffffff 0%, #f5f5f5 100%);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         display: flex;
         align-items: center;
         gap: 12px;
-        z-index: 2147483647;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 14px;
         box-sizing: border-box;
         overflow: hidden;
       }
 
-      /* 非表示状態 */
-      .sticky-notes-menu-bar.hidden {
-        pointer-events: none;
+      /* === バーモード - 上部 === */
+      .sticky-menu-container.bar-top {
+        top: 0;
+        left: 0;
+        flex-direction: row;
+        align-items: stretch;
+      }
+      .sticky-menu-container.bar-top .sticky-icon-btn {
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 2;
+      }
+      .sticky-menu-container.bar-top .sticky-icon-btn:hover {
+        transform: translateY(-50%) scale(1.1);
+      }
+      .sticky-menu-container.bar-top .sticky-icon-btn:active {
+        transform: translateY(-50%) scale(0.95);
+      }
+      .sticky-menu-container.bar-top .sticky-notes-menu-bar {
+        height: ${BUTTON_SIZE + 16}px;
+        flex-direction: row;
+        padding: 0 16px 0 ${BUTTON_SIZE + 16}px;
+        border-radius: ${(BUTTON_SIZE + 16) / 2}px;
+        max-width: 100vw;
+        transition: max-width ${ANIMATION_DURATION} ${ANIMATION_EASING}, opacity ${OPACITY_DURATION} ease;
+      }
+      .sticky-menu-container.bar-top.hidden .sticky-notes-menu-bar {
+        max-width: ${BUTTON_SIZE + 16}px;
         opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s 0.2s;
       }
 
-      /* バーモード - 上部 */
-      .sticky-notes-menu-bar.bar-top {
-        top: 0;
+      /* === バーモード - 下部 === */
+      .sticky-menu-container.bar-bottom {
+        bottom: 0;
         left: 0;
-        right: 0;
+        flex-direction: row;
+        align-items: stretch;
+      }
+      .sticky-menu-container.bar-bottom .sticky-icon-btn {
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 2;
+      }
+      .sticky-menu-container.bar-bottom .sticky-icon-btn:hover {
+        transform: translateY(-50%) scale(1.1);
+      }
+      .sticky-menu-container.bar-bottom .sticky-icon-btn:active {
+        transform: translateY(-50%) scale(0.95);
+      }
+      .sticky-menu-container.bar-bottom .sticky-notes-menu-bar {
         height: ${BUTTON_SIZE + 16}px;
         flex-direction: row;
-        padding: 0 16px;
-        border-bottom: 1px solid #ddd;
-        transform: translateY(0);
-        opacity: 1;
-        visibility: visible;
-        transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-                    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-                    visibility 0s;
+        padding: 0 16px 0 ${BUTTON_SIZE + 16}px;
+        border-radius: ${(BUTTON_SIZE + 16) / 2}px;
+        max-width: 100vw;
+        transition: max-width ${ANIMATION_DURATION} ${ANIMATION_EASING}, opacity ${OPACITY_DURATION} ease;
       }
-      .sticky-notes-menu-bar.bar-top.hidden {
-        transform: translateY(-100%);
+      .sticky-menu-container.bar-bottom.hidden .sticky-notes-menu-bar {
+        max-width: ${BUTTON_SIZE + 16}px;
+        opacity: 0;
       }
 
-      /* バーモード - 下部 */
-      .sticky-notes-menu-bar.bar-bottom {
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: ${BUTTON_SIZE + 16}px;
-        flex-direction: row;
-        padding: 0 16px;
-        border-top: 1px solid #ddd;
-        transform: translateY(0);
-        opacity: 1;
-        visibility: visible;
-        transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-                    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-                    visibility 0s;
-      }
-      .sticky-notes-menu-bar.bar-bottom.hidden {
-        transform: translateY(100%);
-      }
-
-      /* バーモード - 左部 */
-      .sticky-notes-menu-bar.bar-left {
+      /* === バーモード - 左部 === */
+      .sticky-menu-container.bar-left {
         top: 0;
         left: 0;
-        bottom: 0;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .sticky-menu-container.bar-left .sticky-icon-btn {
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+      }
+      .sticky-menu-container.bar-left .sticky-icon-btn:hover {
+        transform: translateX(-50%) scale(1.1);
+      }
+      .sticky-menu-container.bar-left .sticky-icon-btn:active {
+        transform: translateX(-50%) scale(0.95);
+      }
+      .sticky-menu-container.bar-left .sticky-notes-menu-bar {
         width: ${BUTTON_SIZE + 16}px;
         flex-direction: column;
-        padding: 16px 0;
-        border-right: 1px solid #ddd;
-        transform: translateX(0);
-        opacity: 1;
-        visibility: visible;
-        transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-                    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-                    visibility 0s;
+        padding: ${BUTTON_SIZE + 16}px 0 16px 0;
+        border-radius: ${(BUTTON_SIZE + 16) / 2}px;
+        max-height: 100vh;
+        transition: max-height ${ANIMATION_DURATION} ${ANIMATION_EASING}, opacity ${OPACITY_DURATION} ease;
       }
-      .sticky-notes-menu-bar.bar-left.hidden {
-        transform: translateX(-100%);
+      .sticky-menu-container.bar-left.hidden .sticky-notes-menu-bar {
+        max-height: ${BUTTON_SIZE + 16}px;
+        opacity: 0;
       }
 
-      /* バーモード - 右部 */
-      .sticky-notes-menu-bar.bar-right {
+      /* === バーモード - 右部 === */
+      .sticky-menu-container.bar-right {
         top: 0;
         right: 0;
-        bottom: 0;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .sticky-menu-container.bar-right .sticky-icon-btn {
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+      }
+      .sticky-menu-container.bar-right .sticky-icon-btn:hover {
+        transform: translateX(-50%) scale(1.1);
+      }
+      .sticky-menu-container.bar-right .sticky-icon-btn:active {
+        transform: translateX(-50%) scale(0.95);
+      }
+      .sticky-menu-container.bar-right .sticky-notes-menu-bar {
         width: ${BUTTON_SIZE + 16}px;
         flex-direction: column;
-        padding: 16px 0;
-        border-left: 1px solid #ddd;
-        transform: translateX(0);
-        opacity: 1;
-        visibility: visible;
-        transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-                    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-                    visibility 0s;
+        padding: ${BUTTON_SIZE + 16}px 0 16px 0;
+        border-radius: ${(BUTTON_SIZE + 16) / 2}px;
+        max-height: 100vh;
+        transition: max-height ${ANIMATION_DURATION} ${ANIMATION_EASING}, opacity ${OPACITY_DURATION} ease;
       }
-      .sticky-notes-menu-bar.bar-right.hidden {
-        transform: translateX(100%);
+      .sticky-menu-container.bar-right.hidden .sticky-notes-menu-bar {
+        max-height: ${BUTTON_SIZE + 16}px;
+        opacity: 0;
       }
 
-      /* フローティングモード */
-      .sticky-notes-menu-bar.floating {
+      /* === フローティングモード === */
+      .sticky-menu-container.floating {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .sticky-menu-container.floating .sticky-icon-btn {
+        margin-bottom: 8px;
+      }
+      .sticky-menu-container.floating .sticky-notes-menu-bar {
         border-radius: 8px;
         border: 1px solid #ddd;
         padding: 12px;
         flex-direction: column;
         gap: 8px;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-        transform: scale(1);
-        opacity: 1;
-        visibility: visible;
-        transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-                    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-                    visibility 0s;
+        max-height: 100vh;
+        max-width: 100vw;
+        transition: max-height ${ANIMATION_DURATION} ${ANIMATION_EASING}, max-width ${ANIMATION_DURATION} ${ANIMATION_EASING}, opacity ${OPACITY_DURATION} ease;
       }
-      .sticky-notes-menu-bar.floating.hidden {
-        transform: scale(0.9);
+      .sticky-menu-container.floating.hidden .sticky-notes-menu-bar {
+        max-height: 0;
+        max-width: 0;
+        opacity: 0;
+        padding: 0;
       }
 
       /* フローティング時は2列レイアウト */
@@ -223,7 +325,6 @@ export class MenuBar {
         gap: 8px;
         align-items: stretch;
       }
-
 
       /* ドラッグハンドル */
       .drag-handle {
@@ -386,15 +487,6 @@ export class MenuBar {
         display: none;
       }
 
-      .close-btn {
-        color: #868e96;
-      }
-
-      .close-btn:hover {
-        color: #495057;
-        background: #ffe3e3;
-      }
-
       /* 位置切替ボタン（フローティング時は非表示） */
       .floating .position-btn {
         display: none;
@@ -413,6 +505,17 @@ export class MenuBar {
     `;
   }
 
+  /** コンテナ全体のHTML（アイコン + メニューバー） */
+  private getContainerHTML(): string {
+    return `
+      <button class="sticky-icon-btn" title="メニューを開閉">${ICONS.stickyNote}</button>
+      <div class="sticky-notes-menu-bar">
+        ${this.getMenuBarHTML()}
+      </div>
+    `;
+  }
+
+  /** メニューバー内部のHTML */
   private getMenuBarHTML(): string {
     const settings = StorageService.getInstance().getSettings();
     const colorSwatches = COLORS.map(
@@ -427,8 +530,29 @@ export class MenuBar {
     const positionIcon = NEXT_POSITION_ICONS[this.currentPosition];
     const modeIcon = this.currentMode === 'bar' ? ICONS.floating : ICONS.barMode;
 
-    // メニューバーレイアウト（バーモード用）
-    const barLayout = `
+    // フローティングモード用（2列レイアウト）
+    if (this.currentMode === 'floating') {
+      return `
+        <div class="menu-content">
+          <div class="button-column">
+            <div class="menu-section size-presets">
+              ${sizeButtons}
+            </div>
+            <button class="icon-btn visibility-btn" title="全付箋の表示/非表示">${ICONS.visibility}</button>
+            <button class="icon-btn copy-btn" title="メモをコピー">${ICONS.copy}</button>
+            <button class="icon-btn clear-btn" title="全付箋を削除">${ICONS.delete}</button>
+            <button class="icon-btn mode-btn" title="表示モードを変更">${modeIcon}</button>
+            <button class="icon-btn settings-btn" title="設定">${ICONS.settings}</button>
+          </div>
+          <div class="menu-section color-palette">
+            ${colorSwatches}
+          </div>
+        </div>
+      `;
+    }
+
+    // バーモード用
+    return `
       <div class="menu-section color-palette">
         ${colorSwatches}
       </div>
@@ -447,39 +571,7 @@ export class MenuBar {
         <div class="menu-divider"></div>
         <button class="icon-btn settings-btn" title="設定">${ICONS.settings}</button>
       </div>
-    `;
-
-    // フローティングモード用（2列レイアウト）
-    const floatingLayout = `
-      <div class="drag-handle">${ICONS.dragHandle}</div>
-      <div class="menu-content">
-        <div class="button-column">
-          <div class="menu-section size-presets">
-            ${sizeButtons}
-          </div>
-          <button class="icon-btn visibility-btn" title="全付箋の表示/非表示">${ICONS.visibility}</button>
-          <button class="icon-btn copy-btn" title="メモをコピー">${ICONS.copy}</button>
-          <button class="icon-btn clear-btn" title="全付箋を削除">${ICONS.delete}</button>
-          <button class="icon-btn mode-btn" title="表示モードを変更">${modeIcon}</button>
-          <button class="icon-btn settings-btn" title="設定">${ICONS.settings}</button>
-        </div>
-        <div class="menu-section color-palette">
-          ${colorSwatches}
-        </div>
-      </div>
-      <button class="icon-btn close-btn" title="閉じる">${ICONS.close}</button>
-    `;
-
-    // モードに応じてレイアウトを返す
-    if (this.currentMode === 'floating') {
-      return floatingLayout;
-    }
-
-    return `
-      <div class="drag-handle">${ICONS.dragHandle}</div>
-      ${barLayout}
       <div class="menu-spacer"></div>
-      <button class="icon-btn close-btn" title="閉じる">${ICONS.close}</button>
     `;
   }
 
@@ -493,10 +585,13 @@ export class MenuBar {
       });
     });
 
-    // 閉じるボタン
-    menuBar.querySelector('.close-btn')?.addEventListener('click', () => {
-      this.hide();
-    });
+    // 付箋アイコンボタン（トグル）- バーモードのみクリックで処理
+    // フローティングモードではドラッグハンドラー内で処理
+    if (this.currentMode !== 'floating') {
+      menuBar.querySelector('.sticky-icon-btn')?.addEventListener('click', () => {
+        this.toggle();
+      });
+    }
 
     // 表示/非表示トグルボタン
     menuBar.querySelector('.visibility-btn')?.addEventListener('click', () => {
@@ -588,23 +683,19 @@ export class MenuBar {
   }
 
   public show(): void {
-    if (!this.element.parentElement) {
-      document.body.appendChild(this.element);
-    }
-    const menuBar = this.shadowRoot.querySelector('.sticky-notes-menu-bar') as HTMLDivElement;
-    if (menuBar) {
-      this.applyModeAndPosition(menuBar);
+    const container = this.shadowRoot.querySelector('.sticky-menu-container') as HTMLDivElement;
+    if (container) {
       // 次のフレームで hidden を外す（transition を発火させるため）
       requestAnimationFrame(() => {
-        menuBar.classList.remove('hidden');
+        container.classList.remove('hidden');
       });
     }
     this.isVisible = true;
   }
 
   public hide(): void {
-    const menuBar = this.shadowRoot.querySelector('.sticky-notes-menu-bar');
-    menuBar?.classList.add('hidden');
+    const container = this.shadowRoot.querySelector('.sticky-menu-container');
+    container?.classList.add('hidden');
     this.isVisible = false;
   }
 
@@ -663,57 +754,58 @@ export class MenuBar {
   }
 
   /** モードと位置に応じたクラスを適用 */
-  private applyModeAndPosition(menuBar: HTMLDivElement): void {
+  private applyModeAndPosition(container: HTMLDivElement): void {
     // すべてのモード・位置クラスを削除
-    menuBar.classList.remove('bar-top', 'bar-bottom', 'bar-left', 'bar-right', 'floating');
+    container.classList.remove('bar-top', 'bar-bottom', 'bar-left', 'bar-right', 'floating');
 
     if (this.currentMode === 'floating') {
-      menuBar.classList.add('floating');
-      menuBar.style.left = `${this.floatingPosition.x}px`;
-      menuBar.style.top = `${this.floatingPosition.y}px`;
-      menuBar.style.right = '';
-      menuBar.style.bottom = '';
+      container.classList.add('floating');
+      container.style.left = `${this.floatingPosition.x}px`;
+      container.style.top = `${this.floatingPosition.y}px`;
+      container.style.right = '';
+      container.style.bottom = '';
     } else {
-      menuBar.classList.add(`bar-${this.currentPosition}`);
-      menuBar.style.left = '';
-      menuBar.style.top = '';
-      menuBar.style.right = '';
-      menuBar.style.bottom = '';
+      container.classList.add(`bar-${this.currentPosition}`);
+      container.style.left = '';
+      container.style.top = '';
+      container.style.right = '';
+      container.style.bottom = '';
     }
   }
 
   /** 位置をサイクルで切り替え */
-  private cyclePosition(menuBar: HTMLDivElement): void {
+  private cyclePosition(container: HTMLDivElement): void {
     const currentIndex = POSITION_CYCLE.indexOf(this.currentPosition);
     const nextIndex = (currentIndex + 1) % POSITION_CYCLE.length;
     this.currentPosition = POSITION_CYCLE[nextIndex];
 
     // アイコンを更新
-    const btn = menuBar.querySelector('.position-btn');
+    const btn = container.querySelector('.position-btn');
     if (btn) {
       btn.innerHTML = NEXT_POSITION_ICONS[this.currentPosition];
     }
 
-    this.applyModeAndPosition(menuBar);
+    this.applyModeAndPosition(container);
     this.saveSettings();
   }
 
   /** モードを切り替え */
-  private toggleMode(menuBar: HTMLDivElement): void {
+  private toggleMode(container: HTMLDivElement): void {
     this.currentMode = this.currentMode === 'bar' ? 'floating' : 'bar';
 
     // HTMLを再生成（レイアウトが異なるため）
-    menuBar.innerHTML = this.getMenuBarHTML();
-    this.setupEventListeners(menuBar);
+    container.innerHTML = this.getContainerHTML();
+    this.setupEventListeners(container);
 
-    this.applyModeAndPosition(menuBar);
+    this.applyModeAndPosition(container);
     this.saveSettings();
   }
 
-  /** ドラッグハンドラーのセットアップ */
-  private setupDragHandlers(menuBar: HTMLDivElement): void {
-    const dragHandle = menuBar.querySelector('.drag-handle') as HTMLElement;
-    if (!dragHandle) return;
+  /** ドラッグハンドラーのセットアップ（フローティング時のアイコンドラッグ） */
+  private setupDragHandlers(container: HTMLDivElement): void {
+    // フローティングモードでアイコンをドラッグ可能にする
+    const iconBtn = container.querySelector('.sticky-icon-btn') as HTMLElement;
+    if (!iconBtn) return;
 
     const onMouseMove = (e: MouseEvent) => {
       if (!this.isDragging) return;
@@ -722,7 +814,7 @@ export class MenuBar {
       let newY = e.clientY - this.dragOffset.y;
 
       // 画面外に出ないように制限
-      const rect = menuBar.getBoundingClientRect();
+      const rect = container.getBoundingClientRect();
       const maxX = window.innerWidth - rect.width;
       const maxY = window.innerHeight - rect.height;
 
@@ -730,8 +822,8 @@ export class MenuBar {
       newY = Math.max(0, Math.min(newY, maxY));
 
       this.floatingPosition = { x: newX, y: newY };
-      menuBar.style.left = `${newX}px`;
-      menuBar.style.top = `${newY}px`;
+      container.style.left = `${newX}px`;
+      container.style.top = `${newY}px`;
     };
 
     const onMouseUp = () => {
@@ -743,18 +835,45 @@ export class MenuBar {
       }
     };
 
-    dragHandle.addEventListener('mousedown', (e: MouseEvent) => {
+    iconBtn.addEventListener('mousedown', (e: MouseEvent) => {
       if (this.currentMode !== 'floating') return;
 
-      this.isDragging = true;
-      const rect = menuBar.getBoundingClientRect();
-      this.dragOffset = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
+      // クリックとドラッグを区別するためのフラグ
+      const startX = e.clientX;
+      const startY = e.clientY;
+      let hasMoved = false;
+
+      const checkMove = (moveE: MouseEvent) => {
+        const dx = Math.abs(moveE.clientX - startX);
+        const dy = Math.abs(moveE.clientY - startY);
+        if (dx > 5 || dy > 5) {
+          hasMoved = true;
+          this.isDragging = true;
+          const rect = container.getBoundingClientRect();
+          this.dragOffset = {
+            x: startX - rect.left,
+            y: startY - rect.top,
+          };
+          document.removeEventListener('mousemove', checkMove);
+          document.addEventListener('mousemove', onMouseMove);
+        }
       };
 
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
+      const handleUp = () => {
+        document.removeEventListener('mousemove', checkMove);
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', handleUp);
+        if (this.isDragging) {
+          this.isDragging = false;
+          this.saveSettings();
+        } else if (!hasMoved) {
+          // ドラッグしなかった場合はトグル
+          this.toggle();
+        }
+      };
+
+      document.addEventListener('mousemove', checkMove);
+      document.addEventListener('mouseup', handleUp);
       e.preventDefault();
     });
   }

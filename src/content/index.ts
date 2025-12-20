@@ -7,7 +7,6 @@ import { ResizeHandler } from './ResizeHandler';
 import { ExportHandler } from './ExportHandler';
 import { StorageService } from './StorageService';
 import { SettingsModal } from './SettingsModal';
-import { FloatingIcon } from './FloatingIcon';
 import type { ExtensionMessage } from '../types';
 
 // シングルトンインスタンス
@@ -19,7 +18,6 @@ let resizeHandler: ResizeHandler | null = null;
 let exportHandler: ExportHandler | null = null;
 let settingsModal: SettingsModal | null = null;
 let storageService: StorageService | null = null;
-let floatingIcon: FloatingIcon | null = null;
 
 /** 全付箋データを保存 */
 async function saveAllNotes(): Promise<void> {
@@ -91,17 +89,10 @@ async function initialize(): Promise<void> {
     settingsModal!.show();
   });
 
-  // 設定保存後にメニューバーと常駐アイコンを更新
+  // 設定保存後にメニューバーを更新
   settingsModal.onSettingsSaved(() => {
     menuBar!.updateColorSwatches();
     menuBar!.refreshStyles();
-    floatingIcon!.refreshStyles();
-  });
-
-  // 常駐アイコンを初期化
-  floatingIcon = new FloatingIcon();
-  floatingIcon.onClick(() => {
-    menuBar!.toggle();
   });
 }
 
