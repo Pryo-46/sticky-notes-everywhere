@@ -1,4 +1,5 @@
 import type { StickyColor, StickySize, MenuBarMode, MenuBarPosition } from '../types';
+import { BUTTON_SIZE_PRESETS } from '../types';
 import { ICONS } from './icons';
 import { StorageService } from './StorageService';
 
@@ -13,6 +14,11 @@ const NEXT_POSITION_ICONS: Record<MenuBarPosition, string> = {
 
 const COLORS: StickyColor[] = ['color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'color8'];
 const SIZES: StickySize[] = ['small', 'medium', 'large'];
+
+// UI定数
+export const BUTTON_RADIUS = 4;
+export const BUTTON_GAP = 8;
+
 const SIZE_LABELS: Record<StickySize, string> = {
   small: 'S',
   medium: 'M',
@@ -57,6 +63,7 @@ export class MenuBar {
     this.currentMode = settings.menuBarMode;
     this.currentPosition = settings.menuBarPosition;
     this.floatingPosition = { ...settings.floatingPosition };
+    this.selectedSize = settings.defaultSize;
 
     this.render();
   }
@@ -77,6 +84,9 @@ export class MenuBar {
   }
 
   private getStyles(): string {
+    const settings = StorageService.getInstance().getSettings();
+    const BUTTON_SIZE = BUTTON_SIZE_PRESETS[settings.buttonSize];
+
     return `
       .sticky-notes-menu-bar {
         position: fixed;
@@ -100,7 +110,7 @@ export class MenuBar {
         top: 0;
         left: 0;
         right: 0;
-        height: 48px;
+        height: ${BUTTON_SIZE + 16}px;
         flex-direction: row;
         padding: 0 16px;
         border-bottom: 1px solid #ddd;
@@ -111,7 +121,7 @@ export class MenuBar {
         bottom: 0;
         left: 0;
         right: 0;
-        height: 48px;
+        height: ${BUTTON_SIZE + 16}px;
         flex-direction: row;
         padding: 0 16px;
         border-top: 1px solid #ddd;
@@ -122,7 +132,7 @@ export class MenuBar {
         top: 0;
         left: 0;
         bottom: 0;
-        width: 48px;
+        width: ${BUTTON_SIZE + 16}px;
         flex-direction: column;
         padding: 16px 0;
         border-right: 1px solid #ddd;
@@ -133,7 +143,7 @@ export class MenuBar {
         top: 0;
         right: 0;
         bottom: 0;
-        width: 48px;
+        width: ${BUTTON_SIZE + 16}px;
         flex-direction: column;
         padding: 16px 0;
         border-left: 1px solid #ddd;
@@ -160,7 +170,7 @@ export class MenuBar {
       .floating .button-column {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 8px;
         align-items: stretch;
       }
 
@@ -195,7 +205,7 @@ export class MenuBar {
       .bar-right .menu-section,
       .floating .menu-section {
         flex-direction: column;
-        gap: 4px;
+        gap: 8px;
       }
 
       .menu-divider {
@@ -214,13 +224,14 @@ export class MenuBar {
 
       .color-palette {
         display: flex;
-        gap: 4px;
+        gap: ${BUTTON_GAP}px;
       }
 
       /* 縦向きカラーパレット */
       .bar-left .color-palette,
       .bar-right .color-palette {
         flex-direction: column;
+        gap: ${BUTTON_GAP}px;
       }
 
       .floating .color-palette {
@@ -230,13 +241,14 @@ export class MenuBar {
       }
 
       .color-swatch {
-        width: 24px;
-        height: 24px;
-        border-radius: 4px;
+        width: ${BUTTON_SIZE}px;
+        height: ${BUTTON_SIZE}px;
+        border-radius: ${BUTTON_RADIUS}px;
         cursor: grab;
         border: 1px solid rgba(0, 0, 0, 0.2);
         transition: transform 0.15s ease, box-shadow 0.15s ease;
         flex-shrink: 0;
+        box-sizing: border-box;
       }
 
       .color-swatch:hover {
@@ -250,7 +262,7 @@ export class MenuBar {
 
       .size-presets {
         display: flex;
-        gap: 4px;
+        gap: 8px;
       }
 
       /* 縦向きサイズプリセット */
@@ -260,15 +272,18 @@ export class MenuBar {
       }
 
       .size-btn {
-        padding: 4px 10px;
+        width: ${BUTTON_SIZE}px;
+        height: ${BUTTON_SIZE}px;
+        padding: 0;
         border: 1px solid #ccc;
-        border-radius: 4px;
+        border-radius: ${BUTTON_RADIUS}px;
         background: #fff;
         cursor: pointer;
         font-size: 12px;
         font-weight: 500;
         color: #333;
         transition: all 0.15s ease;
+        box-sizing: border-box;
       }
 
       .size-btn:hover {
@@ -282,19 +297,20 @@ export class MenuBar {
       }
 
       .icon-btn {
-        width: 32px;
-        height: 32px;
+        width: ${BUTTON_SIZE}px;
+        height: ${BUTTON_SIZE}px;
         display: flex;
         align-items: center;
         justify-content: center;
         border: none;
-        border-radius: 4px;
+        border-radius: ${BUTTON_RADIUS}px;
         background: transparent;
         cursor: pointer;
         font-size: 18px;
         color: #495057;
         transition: all 0.15s ease;
         flex-shrink: 0;
+        box-sizing: border-box;
       }
 
       .icon-btn:hover {
@@ -336,7 +352,7 @@ export class MenuBar {
 
       .actions-row {
         display: flex;
-        gap: 4px;
+        gap: 8px;
         align-items: center;
       }
 
@@ -570,6 +586,26 @@ export class MenuBar {
         swatch.style.backgroundColor = settings.colors[color];
       }
     });
+  }
+
+  /** 設定変更後にスタイルを再適用 */
+  public refreshStyles(): void {
+    const styleElement = this.shadowRoot.querySelector('style');
+    if (styleElement) {
+      styleElement.textContent = this.getStyles();
+    }
+
+    // デフォルトサイズも更新
+    const settings = StorageService.getInstance().getSettings();
+    this.selectedSize = settings.defaultSize;
+
+    // サイズボタンのアクティブ状態を更新
+    const menuBar = this.shadowRoot.querySelector('.sticky-notes-menu-bar') as HTMLDivElement;
+    if (menuBar) {
+      menuBar.querySelectorAll('.size-btn').forEach((btn) => {
+        btn.classList.toggle('active', (btn as HTMLButtonElement).dataset.size === this.selectedSize);
+      });
+    }
   }
 
   /** モードと位置に応じたクラスを適用 */

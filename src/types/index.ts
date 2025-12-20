@@ -12,9 +12,9 @@ export interface StickyDimensions {
 
 /** サイズプリセットの定義 */
 export const SIZE_PRESETS: Record<StickySize, StickyDimensions> = {
-  small: { width: 150, height: 100 },
-  medium: { width: 200, height: 150 },
-  large: { width: 300, height: 200 },
+  small: { width: 200, height: 150 },
+  medium: { width: 250, height: 200 },
+  large: { width: 350, height: 250 },
 };
 
 /** カラープリセット名 */
@@ -87,6 +87,16 @@ export interface FloatingPosition {
   y: number;
 }
 
+/** メニューボタンサイズ */
+export type ButtonSize = 'small' | 'medium' | 'large';
+
+/** ボタンサイズの定義（ピクセル） */
+export const BUTTON_SIZE_PRESETS: Record<ButtonSize, number> = {
+  small: 32,
+  medium: 40,
+  large: 48,
+};
+
 /** 拡張機能の設定 */
 export interface ExtensionSettings {
   /** 現在のカラープリセット */
@@ -102,6 +112,8 @@ export interface ExtensionSettings {
   sizes: Record<StickySize, StickyDimensions>;
   /** デフォルトサイズ */
   defaultSize: StickySize;
+  /** メニューボタンサイズ */
+  buttonSize: ButtonSize;
   /** メニューバーのモード */
   menuBarMode: MenuBarMode;
   /** メニューバーの位置（バーモード時） */
@@ -120,6 +132,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   },
   sizes: { ...SIZE_PRESETS },
   defaultSize: 'medium',
+  buttonSize: 'medium',
   menuBarMode: 'bar',
   menuBarPosition: 'top',
   floatingPosition: { x: 100, y: 100 },

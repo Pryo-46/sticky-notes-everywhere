@@ -61,9 +61,9 @@ interface StickyDimensions {
 
 /** サイズプリセットの定義 */
 const SIZE_PRESETS: Record<StickySize, StickyDimensions> = {
-  small: { width: 150, height: 100 },
-  medium: { width: 200, height: 150 },
-  large: { width: 300, height: 200 },
+  small: { width: 200, height: 150 },
+  medium: { width: 250, height: 200 },
+  large: { width: 300, height: 250 },
 };
 
 /** 付箋データ */

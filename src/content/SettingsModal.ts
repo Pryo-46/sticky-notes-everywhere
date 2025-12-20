@@ -1,7 +1,8 @@
-import type { ColorPresetName, ExtensionSettings, StickyColor, StickySize } from '../types';
+import type { ButtonSize, ColorPresetName, ExtensionSettings, StickyColor, StickySize } from '../types';
 import { DEFAULT_SETTINGS, LIGHT_PRESET, DARK_PRESET } from '../types';
 import { StorageService } from './StorageService';
 import { ICONS } from './icons';
+import { BUTTON_RADIUS } from './MenuBar';
 
 const COLORS: StickyColor[] = ['color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'color8'];
 const SIZES: StickySize[] = ['small', 'medium', 'large'];
@@ -9,6 +10,12 @@ const SIZE_LABELS: Record<StickySize, string> = {
   small: 'S（小）',
   medium: 'M（中）',
   large: 'L（大）',
+};
+const BUTTON_SIZES: ButtonSize[] = ['small', 'medium', 'large'];
+const BUTTON_SIZE_LABELS: Record<ButtonSize, string> = {
+  small: '小（32px）',
+  medium: '中（40px）',
+  large: '大（48px）',
 };
 const PRESET_LABELS: Record<ColorPresetName, string> = {
   light: 'ライト',
@@ -51,6 +58,7 @@ export class SettingsModal {
         large: { ...settings.sizes.large },
       },
       defaultSize: settings.defaultSize,
+      buttonSize: settings.buttonSize,
       menuBarMode: settings.menuBarMode,
       menuBarPosition: settings.menuBarPosition,
       floatingPosition: { ...settings.floatingPosition },
@@ -125,7 +133,7 @@ export class SettingsModal {
         align-items: center;
         justify-content: center;
         border: none;
-        border-radius: 4px;
+        border-radius: ${BUTTON_RADIUS}px;
         background: transparent;
         cursor: pointer;
         color: #868e96;
@@ -211,7 +219,7 @@ export class SettingsModal {
         height: 32px;
         padding: 0;
         border: 1px solid rgba(0, 0, 0, 0.15);
-        border-radius: 6px;
+        border-radius: ${BUTTON_RADIUS}px;
         cursor: pointer;
         background: none;
         transition: transform 0.15s ease;
@@ -314,6 +322,61 @@ export class SettingsModal {
         box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.2);
       }
 
+      .size-default-radio {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: auto;
+        cursor: pointer;
+      }
+
+      .size-default-radio input[type="radio"] {
+        width: 16px;
+        height: 16px;
+        margin: 0;
+        cursor: pointer;
+        accent-color: #4dabf7;
+      }
+
+      .size-default-radio span {
+        font-size: 12px;
+        color: #868e96;
+      }
+
+      .size-default-radio:has(input:checked) span {
+        color: #4dabf7;
+        font-weight: 500;
+      }
+
+      .button-size-selector {
+        display: flex;
+        gap: 8px;
+      }
+
+      .button-size-btn {
+        flex: 1;
+        padding: 8px 12px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        background: #fff;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        color: #495057;
+        transition: all 0.15s ease;
+      }
+
+      .button-size-btn:hover {
+        border-color: #adb5bd;
+        background: #f8f9fa;
+      }
+
+      .button-size-btn.active {
+        border-color: #4dabf7;
+        background: #e7f5ff;
+        color: #1c7ed6;
+      }
+
       .settings-footer {
         display: flex;
         align-items: center;
@@ -404,15 +467,23 @@ export class SettingsModal {
           <div class="size-inputs">
             <div class="size-input-group">
               <label>幅</label>
-              <input type="number" class="size-input" data-size="${size}" data-dim="width" value="${settings.sizes[size].width}" min="100" max="600">
+              <input type="number" class="size-input" data-size="${size}" data-dim="width" value="${settings.sizes[size].width}" min="150" max="600">
             </div>
             <div class="size-input-group">
               <label>高さ</label>
-              <input type="number" class="size-input" data-size="${size}" data-dim="height" value="${settings.sizes[size].height}" min="80" max="400">
+              <input type="number" class="size-input" data-size="${size}" data-dim="height" value="${settings.sizes[size].height}" min="100" max="400">
             </div>
           </div>
+          <label class="size-default-radio">
+            <input type="radio" name="defaultSize" value="${size}" ${settings.defaultSize === size ? 'checked' : ''}>
+            <span>デフォルト</span>
+          </label>
         </div>
       `
+    ).join('');
+
+    const buttonSizeButtons = BUTTON_SIZES.map(
+      (size) => `<button class="button-size-btn${settings.buttonSize === size ? ' active' : ''}" data-button-size="${size}">${BUTTON_SIZE_LABELS[size]}</button>`
     ).join('');
 
     return `
@@ -435,6 +506,12 @@ export class SettingsModal {
             <h3>サイズプリセット（ピクセル）</h3>
             <div class="size-settings">
               ${sizeSettings}
+            </div>
+          </div>
+          <div class="settings-section">
+            <h3>メニューボタンサイズ</h3>
+            <div class="button-size-selector">
+              ${buttonSizeButtons}
             </div>
           </div>
         </div>
@@ -537,6 +614,27 @@ export class SettingsModal {
         if (!isNaN(value) && value > 0) {
           this.tempSettings.sizes[size][dim] = value;
         }
+      });
+    });
+
+    // デフォルトサイズの変更
+    modal.querySelectorAll('input[name="defaultSize"]').forEach((radio) => {
+      radio.addEventListener('change', (e) => {
+        const target = e.target as HTMLInputElement;
+        this.tempSettings.defaultSize = target.value as StickySize;
+      });
+    });
+
+    // メニューボタンサイズの変更
+    modal.querySelectorAll('.button-size-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const target = e.target as HTMLButtonElement;
+        const size = target.dataset.buttonSize as ButtonSize;
+        this.tempSettings.buttonSize = size;
+
+        // アクティブ状態を更新
+        modal.querySelectorAll('.button-size-btn').forEach((b) => b.classList.remove('active'));
+        target.classList.add('active');
       });
     });
   }

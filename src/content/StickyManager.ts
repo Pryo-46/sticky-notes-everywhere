@@ -150,6 +150,23 @@ export class StickyManager {
         outline: none;
       }
 
+      .sticky-note-textarea::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .sticky-note-textarea::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .sticky-note-textarea::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+      }
+
+      .sticky-note-textarea::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.3);
+      }
+
       .sticky-note-textarea::placeholder {
         color: var(--placeholder-color, rgba(0, 0, 0, 0.35));
       }

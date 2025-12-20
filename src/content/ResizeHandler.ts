@@ -10,8 +10,8 @@ interface ResizeState {
 }
 
 // 最小サイズの制限
-const MIN_WIDTH = 100;
-const MIN_HEIGHT = 80;
+const MIN_WIDTH = 150;
+const MIN_HEIGHT = 100;
 
 export class ResizeHandler {
   private stickyManager: StickyManager;

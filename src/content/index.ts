@@ -66,9 +66,10 @@ async function initialize(): Promise<void> {
     settingsModal!.show();
   });
 
-  // 設定保存後にメニューバーの色を更新
+  // 設定保存後にメニューバーを更新
   settingsModal.onSettingsSaved(() => {
     menuBar!.updateColorSwatches();
+    menuBar!.refreshStyles();
   });
 }
 
