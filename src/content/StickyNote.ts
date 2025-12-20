@@ -23,8 +23,10 @@ export class StickyNote {
   private data: StickyNoteData;
   private textArea: HTMLTextAreaElement;
   private onDelete: ((id: string) => void) | null = null;
+  private onDataChanged: (() => void) | null = null;
   private colorPicker: HTMLDivElement | null = null;
   private placeholderStyle: HTMLStyleElement | null = null;
+  private saveTimeout: number | null = null;
 
   constructor(data: StickyNoteData) {
     this.data = data;
@@ -95,6 +97,7 @@ export class StickyNote {
     this.updatePlaceholderStyle(colorValue);
     this.textArea.addEventListener('input', () => {
       this.data.text = this.textArea.value;
+      this.scheduleSave();
     });
 
     // リサイズハンドル
@@ -316,6 +319,31 @@ export class StickyNote {
 
   public setOnDelete(callback: (id: string) => void): void {
     this.onDelete = callback;
+  }
+
+  /** データ変更時のコールバックを設定 */
+  public setOnDataChanged(callback: () => void): void {
+    this.onDataChanged = callback;
+  }
+
+  /** デバウンス付きで保存をスケジュール */
+  private scheduleSave(): void {
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+    }
+    this.saveTimeout = window.setTimeout(() => {
+      this.onDataChanged?.();
+      this.saveTimeout = null;
+    }, 1000); // 1秒後に保存
+  }
+
+  /** 即座に保存を通知 */
+  public notifyChange(): void {
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+      this.saveTimeout = null;
+    }
+    this.onDataChanged?.();
   }
 
   public setVisible(visible: boolean): void {

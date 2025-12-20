@@ -19,6 +19,13 @@ let exportHandler: ExportHandler | null = null;
 let settingsModal: SettingsModal | null = null;
 let storageService: StorageService | null = null;
 
+/** 全付箋データを保存 */
+async function saveAllNotes(): Promise<void> {
+  if (!stickyManager || !storageService) return;
+  const notesData = stickyManager.getAllNotesData();
+  await storageService.saveStickyNotes(notesData);
+}
+
 async function initialize(): Promise<void> {
   if (menuBar) return; // 既に初期化済み
 
@@ -39,7 +46,22 @@ async function initialize(): Promise<void> {
   stickyManager.onNoteCreated((note) => {
     dragMoveHandler!.setupNote(note);
     resizeHandler!.setupNote(note);
+    // データ変更時の保存コールバックを設定
+    note.setOnDataChanged(() => saveAllNotes());
+    // 新規作成時は即座に保存
+    saveAllNotes();
   });
+
+  // 付箋削除時に保存
+  stickyManager.onNoteDeleted(() => {
+    saveAllNotes();
+  });
+
+  // 保存済み付箋を復元
+  const savedNotes = await storageService.loadStickyNotes();
+  for (const noteData of savedNotes) {
+    stickyManager.createNoteFromData(noteData);
+  }
 
   // メニューバーのカラースウォッチにドラッグハンドラーを設定
   menuBar.onColorSwatchSetup((element, color) => {
@@ -52,8 +74,9 @@ async function initialize(): Promise<void> {
   });
 
   // 一括クリア
-  menuBar.onClearAll(() => {
+  menuBar.onClearAll(async () => {
     stickyManager!.clearAll();
+    await storageService!.clearStickyNotes();
   });
 
   // クリップボードにコピー

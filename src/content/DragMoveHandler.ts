@@ -104,12 +104,17 @@ export class DragMoveHandler {
   private handleMouseUp(_e: MouseEvent): void {
     if (!this.dragState) return;
 
+    const { note } = this.dragState;
+
     // ドラッグ状態をリセット
     this.dragState = null;
 
     // カーソルを戻す
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
+
+    // 位置変更を通知して保存
+    note.notifyChange();
   }
 
   /**

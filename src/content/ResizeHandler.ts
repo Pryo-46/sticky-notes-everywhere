@@ -85,12 +85,17 @@ export class ResizeHandler {
   private handleMouseUp(_e: MouseEvent): void {
     if (!this.resizeState) return;
 
+    const { note } = this.resizeState;
+
     // リサイズ状態をリセット
     this.resizeState = null;
 
     // カーソルを戻す
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
+
+    // サイズ変更を通知して保存
+    note.notifyChange();
   }
 
   /**

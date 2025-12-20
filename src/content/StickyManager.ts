@@ -10,6 +10,8 @@ export class StickyManager {
   private maxZIndex: number;
   private areNotesVisible = true;
   private onNoteCreatedCallback: ((note: StickyNote) => void) | null = null;
+  private onNoteChangedCallback: ((note: StickyNote) => void) | null = null;
+  private onNoteDeletedCallback: (() => void) | null = null;
 
   constructor() {
     const settings = StorageService.getInstance().getSettings();
@@ -229,11 +231,53 @@ export class StickyManager {
     this.onNoteCreatedCallback = callback;
   }
 
+  /** 付箋変更時のコールバックを設定 */
+  public onNoteChanged(callback: (note: StickyNote) => void): void {
+    this.onNoteChangedCallback = callback;
+  }
+
+  /** 付箋変更を通知 */
+  public notifyNoteChanged(note: StickyNote): void {
+    this.onNoteChangedCallback?.(note);
+  }
+
+  /** 付箋削除時のコールバックを設定 */
+  public onNoteDeleted(callback: () => void): void {
+    this.onNoteDeletedCallback = callback;
+  }
+
+  /** 保存データから付箋を復元 */
+  public createNoteFromData(data: StickyNoteData): StickyNote {
+    const note = new StickyNote(data);
+    note.setOnDelete((id) => this.deleteNote(id));
+    note.bringToFront(++this.maxZIndex);
+
+    this.notes.set(data.id, note);
+    this.shadowRoot.appendChild(note.getElement());
+
+    // 非表示状態なら復元した付箋も非表示に
+    if (!this.areNotesVisible) {
+      note.setVisible(false);
+    }
+
+    // 付箋作成コールバックを呼び出し
+    this.onNoteCreatedCallback?.(note);
+
+    return note;
+  }
+
+  /** 全付箋のデータを取得 */
+  public getAllNotesData(): StickyNoteData[] {
+    return Array.from(this.notes.values()).map((note) => note.getData());
+  }
+
   public deleteNote(id: string): void {
     const note = this.notes.get(id);
     if (note) {
       note.destroy();
       this.notes.delete(id);
+      // 削除後に保存を通知
+      this.onNoteDeletedCallback?.();
     }
   }
 

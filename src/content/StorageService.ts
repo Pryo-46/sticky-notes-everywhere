@@ -1,7 +1,8 @@
-import type { ExtensionSettings } from '../types';
+import type { ExtensionSettings, StickyNoteData } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
 
 const STORAGE_KEY = 'stickyNotesSettings';
+const STICKY_NOTES_KEY = 'stickyNotesData';
 
 type SettingsChangeCallback = (settings: ExtensionSettings) => void;
 
@@ -82,6 +83,39 @@ export class StorageService {
 
   private notifyChange(): void {
     this.changeCallbacks.forEach((callback) => callback(this.settings));
+  }
+
+  // ========================================
+  // 付箋データの保存・読み込み
+  // ========================================
+
+  /** 付箋データを読み込む */
+  public async loadStickyNotes(): Promise<StickyNoteData[]> {
+    try {
+      const result = await chrome.storage.local.get(STICKY_NOTES_KEY);
+      return (result[STICKY_NOTES_KEY] as StickyNoteData[]) || [];
+    } catch (error) {
+      console.error('Failed to load sticky notes:', error);
+      return [];
+    }
+  }
+
+  /** 付箋データを保存する */
+  public async saveStickyNotes(notes: StickyNoteData[]): Promise<void> {
+    try {
+      await chrome.storage.local.set({ [STICKY_NOTES_KEY]: notes });
+    } catch (error) {
+      console.error('Failed to save sticky notes:', error);
+    }
+  }
+
+  /** 全付箋データを削除する */
+  public async clearStickyNotes(): Promise<void> {
+    try {
+      await chrome.storage.local.remove(STICKY_NOTES_KEY);
+    } catch (error) {
+      console.error('Failed to clear sticky notes:', error);
+    }
   }
 
   /** 保存されたデータとデフォルト値をマージ */
