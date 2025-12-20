@@ -2,6 +2,7 @@ import type { StickyColor, StickySize } from '../types';
 import type { StickyManager } from './StickyManager';
 import { StorageService } from './StorageService';
 import { createShadowDOM } from './utils/shadowDOM';
+import { DRAG_PREVIEW_ZINDEX } from './constants';
 
 export class DragCreateHandler {
   private stickyManager: StickyManager;
@@ -31,7 +32,7 @@ export class DragCreateHandler {
         opacity: 0.8;
         border-radius: 4px;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-        z-index: 2147483647;
+        z-index: ${DRAG_PREVIEW_ZINDEX};
         display: flex;
         align-items: center;
         justify-content: center;

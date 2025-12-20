@@ -5,9 +5,10 @@ import { DragCreateHandler } from './DragCreateHandler';
 import { DragMoveHandler } from './DragMoveHandler';
 import { ResizeHandler } from './ResizeHandler';
 import { ExportHandler } from './ExportHandler';
-import { StorageService } from './StorageService';
+import { getStorageService } from './ServiceContainer';
 import { SettingsModal } from './SettingsModal';
 import type { ExtensionMessage } from '../types';
+import type { IStorageService } from './types/storage';
 
 // シングルトンインスタンス
 let menuBar: MenuBar | null = null;
@@ -17,7 +18,7 @@ let dragMoveHandler: DragMoveHandler | null = null;
 let resizeHandler: ResizeHandler | null = null;
 let exportHandler: ExportHandler | null = null;
 let settingsModal: SettingsModal | null = null;
-let storageService: StorageService | null = null;
+let storageService: IStorageService | null = null;
 
 /** 全付箋データを保存 */
 async function saveAllNotes(): Promise<void> {
@@ -29,8 +30,8 @@ async function saveAllNotes(): Promise<void> {
 async function initialize(): Promise<void> {
   if (menuBar) return; // 既に初期化済み
 
-  // ストレージサービスを初期化し、設定を読み込む
-  storageService = StorageService.getInstance();
+  // ストレージサービスを取得し、設定を読み込む
+  storageService = getStorageService();
   await storageService.loadSettings();
 
   // 各コンポーネントを初期化

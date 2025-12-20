@@ -2,6 +2,7 @@ import type { StickyColor, StickyDimensions, StickyNoteData } from '../types';
 import { StickyNote } from './StickyNote';
 import { StorageService } from './StorageService';
 import { createShadowDOM } from './utils/shadowDOM';
+import { MAX_SAFE_ZINDEX } from './constants';
 
 export class StickyManager {
   private notes: Map<string, StickyNote> = new Map();
@@ -305,7 +306,6 @@ export class StickyManager {
     const note = this.notes.get(id);
     if (note) {
       // オーバーフロー防止: 上限に近づいたらz-indexを再計算
-      const MAX_SAFE_ZINDEX = 2147483600;
       if (this.maxZIndex >= MAX_SAFE_ZINDEX) {
         this.rebalanceZIndices();
       }

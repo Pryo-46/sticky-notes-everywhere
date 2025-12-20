@@ -1,5 +1,6 @@
 import { StickyManager } from './StickyManager';
 import { StickyNote } from './StickyNote';
+import { MIN_VISIBLE_AREA } from './constants';
 
 interface DragState {
   note: StickyNote;
@@ -91,12 +92,9 @@ export class DragMoveHandler {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
-    // 最小表示領域（付箋の一部が必ず見えるように）
-    const minVisible = 50;
-
     // 画面外に出ないように制限
-    newX = Math.max(-noteWidth + minVisible, Math.min(newX, viewportWidth - minVisible));
-    newY = Math.max(0, Math.min(newY, viewportHeight - minVisible));
+    newX = Math.max(-noteWidth + MIN_VISIBLE_AREA, Math.min(newX, viewportWidth - MIN_VISIBLE_AREA));
+    newY = Math.max(0, Math.min(newY, viewportHeight - MIN_VISIBLE_AREA));
 
     note.setPosition(newX, newY);
   }

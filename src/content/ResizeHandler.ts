@@ -1,5 +1,6 @@
 import { StickyManager } from './StickyManager';
 import { StickyNote } from './StickyNote';
+import { MIN_STICKY_WIDTH, MIN_STICKY_HEIGHT } from './constants';
 
 interface ResizeState {
   note: StickyNote;
@@ -8,10 +9,6 @@ interface ResizeState {
   initialWidth: number;
   initialHeight: number;
 }
-
-// 最小サイズの制限
-const MIN_WIDTH = 150;
-const MIN_HEIGHT = 100;
 
 export class ResizeHandler {
   private stickyManager: StickyManager;
@@ -76,8 +73,8 @@ export class ResizeHandler {
     const deltaY = e.clientY - startY;
 
     // 新しいサイズを計算（最小サイズで制限）
-    const newWidth = Math.max(MIN_WIDTH, initialWidth + deltaX);
-    const newHeight = Math.max(MIN_HEIGHT, initialHeight + deltaY);
+    const newWidth = Math.max(MIN_STICKY_WIDTH, initialWidth + deltaX);
+    const newHeight = Math.max(MIN_STICKY_HEIGHT, initialHeight + deltaY);
 
     note.setSize({ width: newWidth, height: newHeight });
   }

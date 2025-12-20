@@ -1,12 +1,13 @@
 import type { ExtensionSettings, StickyNoteData } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
+import type { IStorageService } from './types/storage';
 
 const STORAGE_KEY = 'stickyNotesSettings';
 const STICKY_NOTES_KEY = 'stickyNotesData';
 
 type SettingsChangeCallback = (settings: ExtensionSettings) => void;
 
-export class StorageService {
+export class StorageService implements IStorageService {
   private static instance: StorageService | null = null;
   private settings: ExtensionSettings = DEFAULT_SETTINGS;
   private changeCallbacks: SettingsChangeCallback[] = [];
