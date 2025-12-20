@@ -1,8 +1,8 @@
 import type { StickyColor, StickyDimensions, StickyNoteData } from '../../../types';
-import { STICKY_COLORS } from '../../../types';
 import { ICONS } from '../../icons';
 import { StorageService } from '../../managers/StorageService';
 import { getTextColor, getPlaceholderColor, getContrastColor } from '../../utils/colorUtils';
+import { ColorPicker } from './ColorPicker';
 
 export class StickyNote {
   private element: HTMLDivElement;
@@ -10,7 +10,7 @@ export class StickyNote {
   private textArea: HTMLTextAreaElement;
   private onDelete: ((id: string) => void) | null = null;
   private onDataChanged: (() => void) | null = null;
-  private colorPicker: HTMLDivElement | null = null;
+  private colorPicker: ColorPicker;
   private placeholderStyle: HTMLStyleElement | null = null;
   private saveTimeout: number | null = null;
 
@@ -21,6 +21,9 @@ export class StickyNote {
     this.element.dataset.id = data.id;
     this.textArea = document.createElement('textarea');
     this.textArea.id = `sticky-textarea-${data.id}`;
+    this.colorPicker = new ColorPicker(this.element, data.color, (color) => {
+      this.setColor(color);
+    });
     this.render();
   }
 
@@ -57,7 +60,7 @@ export class StickyNote {
     colorBtn.title = '色を変更';
     colorBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      this.toggleColorPicker();
+      this.colorPicker.toggle();
     });
     headerActions.appendChild(colorBtn);
 
@@ -156,6 +159,7 @@ export class StickyNote {
 
   public setColor(color: StickyColor): void {
     this.data.color = color;
+    this.colorPicker.updateCurrentColor(color);
     const colorValue = this.getColorValue(color);
     const uiColor = getContrastColor(colorValue, 30);
     this.element.style.backgroundColor = colorValue;
@@ -295,56 +299,8 @@ export class StickyNote {
     return this.element.querySelector('.sticky-note-resize');
   }
 
-  private toggleColorPicker(): void {
-    // 既にピッカーが表示されていれば閉じる
-    if (this.colorPicker) {
-      this.closeColorPicker();
-      return;
-    }
-
-    // カラーピッカーを作成
-    this.colorPicker = document.createElement('div');
-    this.colorPicker.className = 'sticky-note-picker sticky-note-color-picker';
-
-    STICKY_COLORS.forEach((color) => {
-      const swatch = document.createElement('button');
-      swatch.className = `sticky-note-picker-swatch${color === this.data.color ? ' active' : ''}`;
-      swatch.style.backgroundColor = this.getColorValue(color);
-      swatch.title = color;
-      swatch.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.setColor(color);
-        this.closeColorPicker();
-      });
-      this.colorPicker!.appendChild(swatch);
-    });
-
-    this.element.appendChild(this.colorPicker);
-
-    // 外側クリックで閉じるリスナーを追加
-    setTimeout(() => {
-      document.addEventListener('click', this.handleOutsideClick);
-    }, 0);
-  }
-
-  private closeColorPicker(): void {
-    if (this.colorPicker) {
-      this.colorPicker.remove();
-      this.colorPicker = null;
-      document.removeEventListener('click', this.handleOutsideClick);
-    }
-  }
-
-  private handleOutsideClick = (e: MouseEvent): void => {
-    const target = e.target as HTMLElement;
-    if (!this.element.contains(target)) {
-      this.closeColorPicker();
-    }
-  };
-
   public destroy(): void {
-    this.closeColorPicker();
-    document.removeEventListener('click', this.handleOutsideClick);
+    this.colorPicker.destroy();
     this.element.remove();
   }
 }

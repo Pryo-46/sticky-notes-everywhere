@@ -1,15 +1,14 @@
 import type { StickyColor, StickyDimensions, StickyNoteData } from '../../types';
 import { StickyNote } from '../components/StickyNote';
 import { StorageService } from './StorageService';
+import { ZIndexManager } from './ZIndexManager';
 import { createShadowDOM } from '../utils/shadowDOM';
-import { MAX_SAFE_ZINDEX } from '../constants';
 
 export class StickyManager {
   private notes: Map<string, StickyNote> = new Map();
   private container: HTMLDivElement;
   private shadowRoot: ShadowRoot;
-  private baseZIndex: number;
-  private maxZIndex: number;
+  private zIndexManager: ZIndexManager;
   private areNotesVisible = true;
   private onNoteCreatedCallback: ((note: StickyNote) => void) | null = null;
   private onNoteChangedCallback: ((note: StickyNote) => void) | null = null;
@@ -17,8 +16,7 @@ export class StickyManager {
 
   constructor() {
     const settings = StorageService.getInstance().getSettings();
-    this.baseZIndex = settings.baseZIndex;
-    this.maxZIndex = this.baseZIndex;
+    this.zIndexManager = new ZIndexManager(settings.baseZIndex);
 
     const { host, shadowRoot } = createShadowDOM({
       id: 'sticky-notes-container',
@@ -209,7 +207,7 @@ export class StickyManager {
 
     const note = new StickyNote(data);
     note.setOnDelete((id) => this.deleteNote(id));
-    note.bringToFront(++this.maxZIndex);
+    note.bringToFront(this.zIndexManager.getNext());
 
     this.notes.set(data.id, note);
     this.shadowRoot.appendChild(note.getElement());
@@ -248,7 +246,7 @@ export class StickyManager {
   public createNoteFromData(data: StickyNoteData): StickyNote {
     const note = new StickyNote(data);
     note.setOnDelete((id) => this.deleteNote(id));
-    note.bringToFront(++this.maxZIndex);
+    note.bringToFront(this.zIndexManager.getNext());
 
     this.notes.set(data.id, note);
     this.shadowRoot.appendChild(note.getElement());
@@ -306,26 +304,23 @@ export class StickyManager {
     const note = this.notes.get(id);
     if (note) {
       // オーバーフロー防止: 上限に近づいたらz-indexを再計算
-      if (this.maxZIndex >= MAX_SAFE_ZINDEX) {
+      if (this.zIndexManager.needsRebalance()) {
         this.rebalanceZIndices();
       }
-      ++this.maxZIndex;
-      note.bringToFront(this.maxZIndex);
+      note.bringToFront(this.zIndexManager.getNext());
     }
   }
 
   private rebalanceZIndices(): void {
     // 全付箋のz-indexを基準値から再割り当て
-    this.maxZIndex = this.baseZIndex;
+    this.zIndexManager.reset();
     this.notes.forEach((n) => {
-      n.bringToFront(++this.maxZIndex);
+      n.bringToFront(this.zIndexManager.getNext());
     });
   }
 
   public updateBaseZIndex(newBaseZIndex: number): void {
-    const offset = this.maxZIndex - this.baseZIndex;
-    this.baseZIndex = newBaseZIndex;
-    this.maxZIndex = newBaseZIndex + offset;
+    this.zIndexManager.updateBaseZIndex(newBaseZIndex);
     // 全付箋のz-indexを再計算
     this.rebalanceZIndices();
   }
