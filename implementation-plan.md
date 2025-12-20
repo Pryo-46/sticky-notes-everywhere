@@ -61,9 +61,9 @@ interface StickyDimensions {
 
 /** サイズプリセットの定義 */
 const SIZE_PRESETS: Record<StickySize, StickyDimensions> = {
-  small: { width: 150, height: 100 },
-  medium: { width: 200, height: 150 },
-  large: { width: 300, height: 200 },
+  small: { width: 200, height: 150 },
+  medium: { width: 250, height: 200 },
+  large: { width: 300, height: 250 },
 };
 
 /** 付箋データ */
@@ -174,7 +174,7 @@ interface StickyNoteData {
 - [ ] 一括非表示/表示トグル実装（目アイコン）
   - 表示状態をStickyManagerで管理
   - 全付箋のvisibilityを切り替え
-  - アイコンの見た目も切り替え（👁 ↔ 👁‍🗨）
+  - アイコンの見た目も切り替え（Visibility ↔ VisibilityOff）
 - [ ] 一括クリア実装（ゴミ箱アイコン）
   - 確認ダイアログ表示
   - 全付箋の削除
@@ -196,14 +196,47 @@ interface StickyNoteData {
 
 ---
 
-### Phase 8: 仕上げ
-**目標：品質向上とリリース準備**
+### Phase 9: 設定画面
+目標：プリセットのカスタマイズ
 
-- [ ] Shadow DOMで付箋スタイルをカプセル化
-- [ ] キーボードショートカット（付箋追加など）
-- [ ] エッジケース対応（テキスト未入力の付箋除外など）
-- [ ] アイコン作成
-- [ ] READMEの整備
+ 設定画面UI実装
+
+メニューバーに歯車アイコン追加
+モーダルまたはパネルで表示
+
+
+ プリセットカラーのカスタマイズ
+
+7色それぞれにカラーピッカー
+
+
+ プリセットサイズのカスタマイズ
+
+S/M/Lの幅・高さを数値入力
+
+
+ 設定の保存（chrome.storage.local）
+
+完了条件：設定画面でプリセットの色とサイズを変更でき、次回以降も反映される
+想定時間：2時間
+
+### Phase 10: 仕上げ
+目標：品質向上とリリース準備
+
+ Shadow DOMで付箋・メニューバーのスタイルをカプセル化
+ キーボードショートカット（メニューバー表示、付箋追加など）
+ エッジケース対応
+
+テキスト未入力の付箋をエクスポートから除外
+画面リサイズ時の付箋位置調整
+
+
+ アイコン作成（16x16, 48x48, 128x128）
+ READMEの整備
+ Chrome Web Store用の説明文・スクリーンショット準備
+
+完了条件：Chrome Web Storeに公開できる状態
+
 
 **完了条件：Chrome Web Storeに公開できる状態**
 

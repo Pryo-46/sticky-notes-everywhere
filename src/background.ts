@@ -4,21 +4,25 @@
 chrome.action.onClicked.addListener(async (tab) => {
   if (!tab.id) return;
 
-  // Content Scriptを注入（まだ注入されていない場合）
+  // まずメッセージを送信してみる（Content Scriptが既に存在するか確認）
+  try {
+    await chrome.tabs.sendMessage(tab.id, { action: 'toggleMenu' });
+    // 成功したら既に注入済み
+    return;
+  } catch {
+    // Content Scriptがまだ存在しない場合、注入する
+  }
+
+  // Content Scriptを注入
   try {
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       files: ['content.js'],
     });
-  } catch (error) {
-    // 既に注入済みの場合はエラーになる可能性があるが無視
-    console.log('Script injection skipped or failed:', error);
-  }
 
-  // Content Scriptにトグルメッセージを送信
-  try {
+    // 注入後にメッセージを送信
     await chrome.tabs.sendMessage(tab.id, { action: 'toggleMenu' });
   } catch (error) {
-    console.error('Failed to send message:', error);
+    console.error('Failed to inject or send message:', error);
   }
 });
