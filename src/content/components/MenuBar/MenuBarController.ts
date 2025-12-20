@@ -1,29 +1,21 @@
 import type { StickyColor, StickySize, MenuBarMode, MenuBarPosition } from '../../../types';
+import { STICKY_COLORS } from '../../../types';
 import { DRAG_THRESHOLD } from '../../constants';
+import { MenuBarRenderer } from './MenuBarRenderer';
 
 const POSITION_CYCLE: MenuBarPosition[] = ['top', 'left', 'bottom', 'right'];
 
-type ColorSwatchCallback = (element: HTMLElement, color: StickyColor) => void;
-type VisibilityToggleCallback = () => boolean;
-type ClearAllCallback = () => void;
-type CopyAllCallback = () => void;
-type SettingsCallback = () => void;
-type SizeChangeCallback = (size: StickySize) => void;
-type ModeChangeCallback = (mode: MenuBarMode) => void;
-type PositionChangeCallback = (position: MenuBarPosition) => void;
-type DragEndCallback = (position: { x: number; y: number }) => void;
-
 export interface MenuBarCallbacks {
-  onColorSwatchSetup?: ColorSwatchCallback;
-  onVisibilityToggle?: VisibilityToggleCallback;
-  onClearAll?: ClearAllCallback;
-  onCopyAll?: CopyAllCallback;
-  onSettings?: SettingsCallback;
-  onSizeChange?: SizeChangeCallback;
-  onModeChange?: ModeChangeCallback;
-  onPositionChange?: PositionChangeCallback;
+  onColorSwatchSetup?: (element: HTMLElement, color: StickyColor) => void;
+  onVisibilityToggle?: () => boolean;
+  onClearAll?: () => void;
+  onCopyAll?: () => void;
+  onSettings?: () => void;
+  onSizeChange?: (size: StickySize) => void;
+  onModeChange?: () => void;
+  onPositionChange?: () => void;
   onToggle?: () => void;
-  onDragEnd?: DragEndCallback;
+  onDragEnd?: (position: { x: number; y: number }) => void;
 }
 
 /**
@@ -95,15 +87,13 @@ export class MenuBarController {
 
   private setupPositionButton(container: HTMLDivElement): void {
     container.querySelector('.position-btn')?.addEventListener('click', () => {
-      // position cycle is handled by the callback
-      this.callbacks.onPositionChange?.(this.getNextPosition('top')); // placeholder
+      this.callbacks.onPositionChange?.();
     });
   }
 
   private setupModeButton(container: HTMLDivElement): void {
     container.querySelector('.mode-btn')?.addEventListener('click', () => {
-      // mode toggle is handled by the callback
-      this.callbacks.onModeChange?.('floating'); // placeholder
+      this.callbacks.onModeChange?.();
     });
   }
 
@@ -196,5 +186,62 @@ export class MenuBarController {
     const currentIndex = POSITION_CYCLE.indexOf(current);
     const nextIndex = (currentIndex + 1) % POSITION_CYCLE.length;
     return POSITION_CYCLE[nextIndex];
+  }
+
+  /** サイズボタンのアクティブ状態を更新 */
+  public updateSizeButtonUI(container: HTMLElement, selectedSize: StickySize): void {
+    container.querySelectorAll('.size-btn').forEach((btn) => {
+      btn.classList.toggle('active', (btn as HTMLButtonElement).dataset.size === selectedSize);
+    });
+  }
+
+  /** 表示/非表示ボタンのアイコンを更新 */
+  public updateVisibilityIcon(container: HTMLElement, renderer: MenuBarRenderer, visible: boolean): void {
+    const btn = container.querySelector('.visibility-btn');
+    if (btn) {
+      btn.innerHTML = renderer.getVisibilityIcon(visible);
+    }
+  }
+
+  /** ポジションボタンのアイコンを更新 */
+  public updatePositionIcon(container: HTMLElement, renderer: MenuBarRenderer, position: MenuBarPosition): void {
+    const btn = container.querySelector('.position-btn');
+    if (btn) {
+      btn.innerHTML = renderer.getPositionIcon(position);
+    }
+  }
+
+  /** モードとポジションに応じたコンテナのクラスとスタイルを適用 */
+  public applyModeAndPosition(
+    container: HTMLDivElement,
+    mode: MenuBarMode,
+    position: MenuBarPosition,
+    floatingPosition: { x: number; y: number }
+  ): void {
+    container.classList.remove('bar-top', 'bar-bottom', 'bar-left', 'bar-right', 'floating');
+
+    if (mode === 'floating') {
+      container.classList.add('floating');
+      container.style.left = `${floatingPosition.x}px`;
+      container.style.top = `${floatingPosition.y}px`;
+      container.style.right = '';
+      container.style.bottom = '';
+    } else {
+      container.classList.add(`bar-${position}`);
+      container.style.left = '';
+      container.style.top = '';
+      container.style.right = '';
+      container.style.bottom = '';
+    }
+  }
+
+  /** カラースウォッチの色を更新 */
+  public updateColorSwatches(container: HTMLElement, colors: Record<StickyColor, string>): void {
+    STICKY_COLORS.forEach((color) => {
+      const swatch = container.querySelector(`.color-swatch.${color}`) as HTMLElement;
+      if (swatch) {
+        swatch.style.backgroundColor = colors[color];
+      }
+    });
   }
 }

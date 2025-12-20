@@ -10,6 +10,7 @@ export class DragCreateHandler {
   private dragPreview: HTMLDivElement | null = null;
   private currentColor: StickyColor | null = null;
   private shadowRoot: ShadowRoot;
+  private setupSwatches = new WeakSet<HTMLElement>();
 
   constructor(stickyManager: StickyManager, getSizeCallback: () => StickySize) {
     this.stickyManager = stickyManager;
@@ -68,6 +69,12 @@ export class DragCreateHandler {
   }
 
   public setupColorSwatch(element: HTMLElement, color: StickyColor): void {
+    // 既にセットアップ済みの要素は無視（イベントリスナーの重複防止）
+    if (this.setupSwatches.has(element)) {
+      return;
+    }
+    this.setupSwatches.add(element);
+
     element.addEventListener('dragstart', (e) => {
       this.currentColor = color;
 
@@ -85,6 +92,12 @@ export class DragCreateHandler {
   }
 
   private showPreview(color: StickyColor, x: number, y: number): void {
+    // 既存のプレビューがあれば削除（currentColorはリセットしない）
+    if (this.dragPreview) {
+      this.dragPreview.remove();
+      this.dragPreview = null;
+    }
+
     const settings = StorageService.getInstance().getSettings();
     const size = settings.sizes[this.getSizeCallback()];
 

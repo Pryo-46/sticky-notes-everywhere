@@ -1,6 +1,5 @@
 import type { StickyColor, StickySize, MenuBarMode, MenuBarPosition } from '../../../types';
-import { BUTTON_SIZE_PRESETS, STICKY_COLORS } from '../../../types';
-import { ICONS } from '../../icons';
+import { BUTTON_SIZE_PRESETS } from '../../../types';
 import { StorageService } from '../../managers/StorageService';
 import { getMenuBarStyles } from '../../styles/menubar.css';
 import { createShadowDOM } from '../../utils/shadowDOM';
@@ -59,10 +58,14 @@ export class MenuBar {
     this.updateCSSVariables();
 
     document.body.appendChild(this.element);
-    const container = this.shadowRoot.querySelector('.sticky-menu-container') as HTMLDivElement;
+    const container = this.getContainer();
     if (container) {
-      this.applyModeAndPosition(container);
+      this.controller.applyModeAndPosition(container, this.currentMode, this.currentPosition, this.floatingPosition);
     }
+  }
+
+  private getContainer(): HTMLDivElement | null {
+    return this.shadowRoot.querySelector('.sticky-menu-container') as HTMLDivElement;
   }
 
   private setupControllerCallbacks(): void {
@@ -73,7 +76,10 @@ export class MenuBar {
       onVisibilityToggle: () => {
         if (this.visibilityToggleCallback) {
           this.notesVisible = this.visibilityToggleCallback();
-          this.updateVisibilityIcon();
+          const container = this.getContainer();
+          if (container) {
+            this.controller.updateVisibilityIcon(container, this.renderer, this.notesVisible);
+          }
         }
         return this.notesVisible;
       },
@@ -87,7 +93,11 @@ export class MenuBar {
         this.settingsCallback?.();
       },
       onSizeChange: (size) => {
-        this.setSelectedSize(size);
+        this.selectedSize = size;
+        const container = this.getContainer();
+        if (container) {
+          this.controller.updateSizeButtonUI(container, size);
+        }
       },
       onModeChange: () => {
         this.toggleMode();
@@ -112,10 +122,26 @@ export class MenuBar {
 
     const container = document.createElement('div');
     container.className = 'sticky-menu-container hidden';
-    container.innerHTML = this.getContainerHTML();
+    container.innerHTML = this.renderer.renderContainer();
     this.shadowRoot.appendChild(container);
 
-    this.setupEventListeners(container);
+    // メニューバーの内容を設定
+    this.updateMenuBarContent();
+
+    this.controller.setupEventListeners(container, this.currentMode, this.floatingPosition);
+  }
+
+  private updateMenuBarContent(): void {
+    const menuBar = this.shadowRoot.querySelector('.sticky-notes-menu-bar');
+    if (!menuBar) return;
+
+    const settings = StorageService.getInstance().getSettings();
+    menuBar.innerHTML = this.renderer.renderMenuBar({
+      selectedSize: this.selectedSize,
+      currentMode: this.currentMode,
+      currentPosition: this.currentPosition,
+      settings,
+    });
   }
 
   private updateCSSVariables(): void {
@@ -130,37 +156,6 @@ export class MenuBar {
     this.element.style.setProperty('--icon-size', `${iconSize}px`);
   }
 
-  private getContainerHTML(): string {
-    return `
-      <button class="sticky-icon-btn" title="メニューを開閉">${ICONS.stickyNote}</button>
-      <div class="sticky-notes-menu-bar">
-        ${this.getMenuBarHTML()}
-      </div>
-    `;
-  }
-
-  private getMenuBarHTML(): string {
-    const settings = StorageService.getInstance().getSettings();
-    return this.renderer.renderMenuBar({
-      selectedSize: this.selectedSize,
-      currentMode: this.currentMode,
-      currentPosition: this.currentPosition,
-      settings,
-    });
-  }
-
-  private setupEventListeners(container: HTMLDivElement): void {
-    this.controller.setupEventListeners(container, this.currentMode, this.floatingPosition);
-  }
-
-  private updateVisibilityIcon(): void {
-    const menuBar = this.shadowRoot.querySelector('.sticky-menu-container');
-    const btn = menuBar?.querySelector('.visibility-btn');
-    if (btn) {
-      btn.innerHTML = this.renderer.getVisibilityIcon(this.notesVisible);
-    }
-  }
-
   public onColorSwatchSetup(callback: ColorSwatchCallback): void {
     this.colorSwatchCallback = callback;
     this.controller.setCallbacks({
@@ -169,21 +164,13 @@ export class MenuBar {
       },
     });
     // 既に表示されている場合は再セットアップ
-    const container = this.shadowRoot.querySelector('.sticky-menu-container') as HTMLDivElement;
+    const container = this.getContainer();
     if (container) {
       container.querySelectorAll('.color-swatch').forEach((swatch) => {
         const color = (swatch as HTMLElement).dataset.color as StickyColor;
         callback(swatch as HTMLElement, color);
       });
     }
-  }
-
-  private setSelectedSize(size: StickySize): void {
-    this.selectedSize = size;
-    const menuBar = this.shadowRoot.querySelector('.sticky-menu-container');
-    menuBar?.querySelectorAll('.size-btn').forEach((btn) => {
-      btn.classList.toggle('active', (btn as HTMLButtonElement).dataset.size === size);
-    });
   }
 
   public getSelectedSize(): StickySize {
@@ -199,7 +186,7 @@ export class MenuBar {
   }
 
   public show(): void {
-    const container = this.shadowRoot.querySelector('.sticky-menu-container') as HTMLDivElement;
+    const container = this.getContainer();
     if (container) {
       requestAnimationFrame(() => {
         container.classList.remove('hidden');
@@ -209,7 +196,7 @@ export class MenuBar {
   }
 
   public hide(): void {
-    const container = this.shadowRoot.querySelector('.sticky-menu-container');
+    const container = this.getContainer();
     container?.classList.add('hidden');
     this.isVisible = false;
   }
@@ -237,14 +224,9 @@ export class MenuBar {
   public updateColorSwatches(): void {
     const settings = StorageService.getInstance().getSettings();
     const menuBar = this.shadowRoot.querySelector('.sticky-notes-menu-bar');
-    if (!menuBar) return;
-
-    STICKY_COLORS.forEach((color) => {
-      const swatch = menuBar.querySelector(`.color-swatch.${color}`) as HTMLElement;
-      if (swatch) {
-        swatch.style.backgroundColor = settings.colors[color];
-      }
-    });
+    if (menuBar) {
+      this.controller.updateColorSwatches(menuBar as HTMLElement, settings.colors);
+    }
   }
 
   public refreshStyles(): void {
@@ -253,57 +235,52 @@ export class MenuBar {
     const settings = StorageService.getInstance().getSettings();
     this.selectedSize = settings.defaultSize;
 
-    const menuBar = this.shadowRoot.querySelector('.sticky-notes-menu-bar') as HTMLDivElement;
-    if (menuBar) {
-      menuBar.querySelectorAll('.size-btn').forEach((btn) => {
-        btn.classList.toggle('active', (btn as HTMLButtonElement).dataset.size === this.selectedSize);
-      });
-    }
-  }
-
-  private applyModeAndPosition(container: HTMLDivElement): void {
-    container.classList.remove('bar-top', 'bar-bottom', 'bar-left', 'bar-right', 'floating');
-
-    if (this.currentMode === 'floating') {
-      container.classList.add('floating');
-      container.style.left = `${this.floatingPosition.x}px`;
-      container.style.top = `${this.floatingPosition.y}px`;
-      container.style.right = '';
-      container.style.bottom = '';
-    } else {
-      container.classList.add(`bar-${this.currentPosition}`);
-      container.style.left = '';
-      container.style.top = '';
-      container.style.right = '';
-      container.style.bottom = '';
+    const container = this.getContainer();
+    if (container) {
+      this.controller.updateSizeButtonUI(container, this.selectedSize);
     }
   }
 
   private cyclePosition(): void {
-    const container = this.shadowRoot.querySelector('.sticky-menu-container') as HTMLDivElement;
+    const container = this.getContainer();
     if (!container) return;
 
     this.currentPosition = this.controller.getNextPosition(this.currentPosition);
-
-    const btn = container.querySelector('.position-btn');
-    if (btn) {
-      btn.innerHTML = this.renderer.getPositionIcon(this.currentPosition);
-    }
-
-    this.applyModeAndPosition(container);
+    this.controller.updatePositionIcon(container, this.renderer, this.currentPosition);
+    this.controller.applyModeAndPosition(container, this.currentMode, this.currentPosition, this.floatingPosition);
     this.saveSettings();
   }
 
   private toggleMode(): void {
-    const container = this.shadowRoot.querySelector('.sticky-menu-container') as HTMLDivElement;
+    const container = this.getContainer();
     if (!container) return;
 
     this.currentMode = this.currentMode === 'bar' ? 'floating' : 'bar';
 
-    container.innerHTML = this.getContainerHTML();
-    this.setupEventListeners(container);
+    // コンテナ内部を再レンダリング
+    const settings = StorageService.getInstance().getSettings();
+    container.innerHTML = this.renderer.renderContainer();
+    const menuBar = container.querySelector('.sticky-notes-menu-bar');
+    if (menuBar) {
+      menuBar.innerHTML = this.renderer.renderMenuBar({
+        selectedSize: this.selectedSize,
+        currentMode: this.currentMode,
+        currentPosition: this.currentPosition,
+        settings,
+      });
+    }
 
-    this.applyModeAndPosition(container);
+    this.controller.setupEventListeners(container, this.currentMode, this.floatingPosition);
+    this.controller.applyModeAndPosition(container, this.currentMode, this.currentPosition, this.floatingPosition);
+
+    // コールバックを再設定
+    if (this.colorSwatchCallback) {
+      container.querySelectorAll('.color-swatch').forEach((swatch) => {
+        const color = (swatch as HTMLElement).dataset.color as StickyColor;
+        this.colorSwatchCallback!(swatch as HTMLElement, color);
+      });
+    }
+
     this.saveSettings();
   }
 
