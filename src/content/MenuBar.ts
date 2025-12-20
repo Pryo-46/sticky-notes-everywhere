@@ -99,10 +99,15 @@ export class MenuBar {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         font-size: 14px;
         box-sizing: border-box;
+        overflow: hidden;
       }
 
+      /* 非表示状態 */
       .sticky-notes-menu-bar.hidden {
-        display: none;
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s 0.2s;
       }
 
       /* バーモード - 上部 */
@@ -114,6 +119,15 @@ export class MenuBar {
         flex-direction: row;
         padding: 0 16px;
         border-bottom: 1px solid #ddd;
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    visibility 0s;
+      }
+      .sticky-notes-menu-bar.bar-top.hidden {
+        transform: translateY(-100%);
       }
 
       /* バーモード - 下部 */
@@ -125,6 +139,15 @@ export class MenuBar {
         flex-direction: row;
         padding: 0 16px;
         border-top: 1px solid #ddd;
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    visibility 0s;
+      }
+      .sticky-notes-menu-bar.bar-bottom.hidden {
+        transform: translateY(100%);
       }
 
       /* バーモード - 左部 */
@@ -136,6 +159,15 @@ export class MenuBar {
         flex-direction: column;
         padding: 16px 0;
         border-right: 1px solid #ddd;
+        transform: translateX(0);
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    visibility 0s;
+      }
+      .sticky-notes-menu-bar.bar-left.hidden {
+        transform: translateX(-100%);
       }
 
       /* バーモード - 右部 */
@@ -147,6 +179,15 @@ export class MenuBar {
         flex-direction: column;
         padding: 16px 0;
         border-left: 1px solid #ddd;
+        transform: translateX(0);
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    visibility 0s;
+      }
+      .sticky-notes-menu-bar.bar-right.hidden {
+        transform: translateX(100%);
       }
 
       /* フローティングモード */
@@ -157,6 +198,15 @@ export class MenuBar {
         flex-direction: column;
         gap: 8px;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        transform: scale(1);
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    visibility 0s;
+      }
+      .sticky-notes-menu-bar.floating.hidden {
+        transform: scale(0.9);
       }
 
       /* フローティング時は2列レイアウト */
@@ -543,14 +593,18 @@ export class MenuBar {
     }
     const menuBar = this.shadowRoot.querySelector('.sticky-notes-menu-bar') as HTMLDivElement;
     if (menuBar) {
-      menuBar.classList.remove('hidden');
       this.applyModeAndPosition(menuBar);
+      // 次のフレームで hidden を外す（transition を発火させるため）
+      requestAnimationFrame(() => {
+        menuBar.classList.remove('hidden');
+      });
     }
     this.isVisible = true;
   }
 
   public hide(): void {
-    this.shadowRoot.querySelector('.sticky-notes-menu-bar')?.classList.add('hidden');
+    const menuBar = this.shadowRoot.querySelector('.sticky-notes-menu-bar');
+    menuBar?.classList.add('hidden');
     this.isVisible = false;
   }
 
