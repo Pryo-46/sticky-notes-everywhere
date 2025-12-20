@@ -1,5 +1,5 @@
-import type { IStorageService } from './types/storage';
-import { StorageService } from './StorageService';
+import type { IStorageService } from '../types/storage';
+import { StorageService } from '../managers/StorageService';
 
 /**
  * 依存性注入用のサービスコンテナ

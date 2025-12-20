@@ -1,6 +1,6 @@
-import type { ButtonSize, ColorPresetName, ExtensionSettings, StickySize } from '../types';
-import { STICKY_COLORS, STICKY_SIZES } from '../types';
-import { ICONS } from './icons';
+import type { ButtonSize, ColorPresetName, ExtensionSettings, StickySize } from '../../../types';
+import { STICKY_COLORS, STICKY_SIZES } from '../../../types';
+import { ICONS } from '../../icons';
 
 const SIZE_LABELS_FULL: Record<StickySize, string> = {
   small: 'S（小）',

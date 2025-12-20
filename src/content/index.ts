@@ -1,12 +1,12 @@
 // Content Script エントリポイント
-import { MenuBar } from './MenuBar';
-import { StickyManager } from './StickyManager';
-import { DragCreateHandler } from './DragCreateHandler';
-import { DragMoveHandler } from './DragMoveHandler';
-import { ResizeHandler } from './ResizeHandler';
-import { ExportHandler } from './ExportHandler';
-import { getStorageService } from './ServiceContainer';
-import { SettingsModal } from './SettingsModal';
+import { MenuBar } from './components/MenuBar';
+import { StickyManager } from './managers/StickyManager';
+import { DragCreateHandler } from './handlers/DragCreateHandler';
+import { DragMoveHandler } from './handlers/DragMoveHandler';
+import { ResizeHandler } from './handlers/ResizeHandler';
+import { ExportHandler } from './handlers/ExportHandler';
+import { getStorageService } from './services/ServiceContainer';
+import { SettingsModal } from './components/SettingsModal';
 import type { ExtensionMessage } from '../types';
 import type { IStorageService } from './types/storage';
 

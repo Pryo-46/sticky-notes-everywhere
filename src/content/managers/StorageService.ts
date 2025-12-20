@@ -1,6 +1,6 @@
-import type { ExtensionSettings, StickyNoteData } from '../types';
-import { DEFAULT_SETTINGS } from '../types';
-import type { IStorageService } from './types/storage';
+import type { ExtensionSettings, StickyNoteData } from '../../types';
+import { DEFAULT_SETTINGS } from '../../types';
+import type { IStorageService } from '../types/storage';
 
 const STORAGE_KEY = 'stickyNotesSettings';
 const STICKY_NOTES_KEY = 'stickyNotesData';

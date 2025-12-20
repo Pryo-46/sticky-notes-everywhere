@@ -1,12 +1,12 @@
-import type { StickyColor, StickySize, MenuBarMode, MenuBarPosition } from '../types';
-import { BUTTON_SIZE_PRESETS, STICKY_COLORS } from '../types';
-import { ICONS } from './icons';
-import { StorageService } from './StorageService';
-import { getMenuBarStyles } from './styles/menubar.css';
-import { createShadowDOM } from './utils/shadowDOM';
+import type { StickyColor, StickySize, MenuBarMode, MenuBarPosition } from '../../../types';
+import { BUTTON_SIZE_PRESETS, STICKY_COLORS } from '../../../types';
+import { ICONS } from '../../icons';
+import { StorageService } from '../../managers/StorageService';
+import { getMenuBarStyles } from '../../styles/menubar.css';
+import { createShadowDOM } from '../../utils/shadowDOM';
 import { MenuBarRenderer } from './MenuBarRenderer';
 import { MenuBarController } from './MenuBarController';
-import { BUTTON_RADIUS, BUTTON_GAP } from './constants';
+import { BUTTON_RADIUS, BUTTON_GAP } from '../../constants';
 
 // constants.ts から再エクスポート（後方互換性）
 export { BUTTON_RADIUS, BUTTON_GAP };

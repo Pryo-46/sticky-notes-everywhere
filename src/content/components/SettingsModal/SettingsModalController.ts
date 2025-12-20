@@ -1,6 +1,6 @@
-import type { ButtonSize, ColorPresetName, ExtensionSettings, StickyColor, StickySize } from '../types';
-import { LIGHT_PRESET, DARK_PRESET, STICKY_COLORS } from '../types';
-import { isValidHexColor } from './utils/colorUtils';
+import type { ButtonSize, ColorPresetName, ExtensionSettings, StickyColor, StickySize } from '../../../types';
+import { LIGHT_PRESET, DARK_PRESET, STICKY_COLORS } from '../../../types';
+import { isValidHexColor } from '../../utils/colorUtils';
 
 export interface SettingsModalCallbacks {
   onClose?: () => void;

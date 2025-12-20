@@ -1,8 +1,8 @@
-import type { StickyColor, StickyDimensions, StickyNoteData } from '../types';
-import { STICKY_COLORS } from '../types';
-import { ICONS } from './icons';
-import { StorageService } from './StorageService';
-import { getTextColor, getPlaceholderColor, getContrastColor } from './utils/colorUtils';
+import type { StickyColor, StickyDimensions, StickyNoteData } from '../../../types';
+import { STICKY_COLORS } from '../../../types';
+import { ICONS } from '../../icons';
+import { StorageService } from '../../managers/StorageService';
+import { getTextColor, getPlaceholderColor, getContrastColor } from '../../utils/colorUtils';
 
 export class StickyNote {
   private element: HTMLDivElement;

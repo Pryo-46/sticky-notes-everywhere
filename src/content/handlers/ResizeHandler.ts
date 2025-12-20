@@ -1,6 +1,6 @@
-import { StickyManager } from './StickyManager';
-import { StickyNote } from './StickyNote';
-import { MIN_STICKY_WIDTH, MIN_STICKY_HEIGHT } from './constants';
+import { StickyManager } from '../managers/StickyManager';
+import { StickyNote } from '../components/StickyNote';
+import { MIN_STICKY_WIDTH, MIN_STICKY_HEIGHT } from '../constants';
 
 interface ResizeState {
   note: StickyNote;

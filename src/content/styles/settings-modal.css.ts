@@ -1,6 +1,6 @@
 // SettingsModal用スタイル定義
 
-import { BUTTON_RADIUS } from '../MenuBar';
+import { BUTTON_RADIUS } from '../constants';
 
 export function getSettingsModalStyles(): string {
   return `

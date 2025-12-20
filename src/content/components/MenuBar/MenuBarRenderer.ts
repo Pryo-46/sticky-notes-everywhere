@@ -1,6 +1,6 @@
-import type { StickySize, MenuBarMode, MenuBarPosition, ExtensionSettings } from '../types';
-import { STICKY_COLORS, STICKY_SIZES, SIZE_LABELS } from '../types';
-import { ICONS } from './icons';
+import type { StickySize, MenuBarMode, MenuBarPosition, ExtensionSettings } from '../../../types';
+import { STICKY_COLORS, STICKY_SIZES, SIZE_LABELS } from '../../../types';
+import { ICONS } from '../../icons';
 
 // 現在の位置から次の位置へ移動するアイコン（押したらどこに行くか）
 const NEXT_POSITION_ICONS: Record<MenuBarPosition, string> = {

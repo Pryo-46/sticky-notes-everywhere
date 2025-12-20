@@ -1,6 +1,6 @@
-import { StickyManager } from './StickyManager';
-import { StickyNote } from './StickyNote';
-import { MIN_VISIBLE_AREA } from './constants';
+import { StickyManager } from '../managers/StickyManager';
+import { StickyNote } from '../components/StickyNote';
+import { MIN_VISIBLE_AREA } from '../constants';
 
 interface DragState {
   note: StickyNote;

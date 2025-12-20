@@ -1,8 +1,8 @@
-import type { ColorPresetName, ExtensionSettings } from '../types';
-import { DEFAULT_SETTINGS, STICKY_COLORS, STICKY_SIZES } from '../types';
-import { StorageService } from './StorageService';
-import { getSettingsModalStyles } from './styles/settings-modal.css';
-import { createShadowDOM } from './utils/shadowDOM';
+import type { ColorPresetName, ExtensionSettings } from '../../../types';
+import { DEFAULT_SETTINGS, STICKY_COLORS, STICKY_SIZES } from '../../../types';
+import { StorageService } from '../../managers/StorageService';
+import { getSettingsModalStyles } from '../../styles/settings-modal.css';
+import { createShadowDOM } from '../../utils/shadowDOM';
 import { SettingsModalRenderer } from './SettingsModalRenderer';
 import { SettingsModalController } from './SettingsModalController';
 

@@ -1,5 +1,5 @@
-import type { StickyNote } from './StickyNote';
-import { createShadowDOM } from './utils/shadowDOM';
+import type { StickyNote } from '../components/StickyNote';
+import { createShadowDOM } from '../utils/shadowDOM';
 
 export class ExportHandler {
   private toastElement: HTMLDivElement | null = null;

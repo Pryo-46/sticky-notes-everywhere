@@ -1,8 +1,8 @@
-import type { StickyColor, StickyDimensions, StickyNoteData } from '../types';
-import { StickyNote } from './StickyNote';
+import type { StickyColor, StickyDimensions, StickyNoteData } from '../../types';
+import { StickyNote } from '../components/StickyNote';
 import { StorageService } from './StorageService';
-import { createShadowDOM } from './utils/shadowDOM';
-import { MAX_SAFE_ZINDEX } from './constants';
+import { createShadowDOM } from '../utils/shadowDOM';
+import { MAX_SAFE_ZINDEX } from '../constants';
 
 export class StickyManager {
   private notes: Map<string, StickyNote> = new Map();

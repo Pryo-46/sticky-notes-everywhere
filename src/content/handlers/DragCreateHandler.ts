@@ -1,8 +1,8 @@
-import type { StickyColor, StickySize } from '../types';
-import type { StickyManager } from './StickyManager';
-import { StorageService } from './StorageService';
-import { createShadowDOM } from './utils/shadowDOM';
-import { DRAG_PREVIEW_ZINDEX } from './constants';
+import type { StickyColor, StickySize } from '../../types';
+import type { StickyManager } from '../managers/StickyManager';
+import { StorageService } from '../managers/StorageService';
+import { createShadowDOM } from '../utils/shadowDOM';
+import { DRAG_PREVIEW_ZINDEX } from '../constants';
 
 export class DragCreateHandler {
   private stickyManager: StickyManager;

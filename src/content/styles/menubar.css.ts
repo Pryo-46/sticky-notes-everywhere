@@ -1,7 +1,7 @@
 // MenuBar用スタイル定義
 // CSS変数を使用して動的な値を制御
 
-import { BUTTON_GAP, BUTTON_RADIUS } from '../MenuBar';
+import { BUTTON_GAP, BUTTON_RADIUS } from '../constants';
 
 // アニメーション定数
 const ANIMATION_DURATION = '0.4s';

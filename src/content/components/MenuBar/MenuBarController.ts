@@ -1,5 +1,5 @@
-import type { StickyColor, StickySize, MenuBarMode, MenuBarPosition } from '../types';
-import { DRAG_THRESHOLD } from './constants';
+import type { StickyColor, StickySize, MenuBarMode, MenuBarPosition } from '../../../types';
+import { DRAG_THRESHOLD } from '../../constants';
 
 const POSITION_CYCLE: MenuBarPosition[] = ['top', 'left', 'bottom', 'right'];
 
