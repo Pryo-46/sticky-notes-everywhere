@@ -20,7 +20,7 @@ export const BUTTON_RADIUS = 4;
 export const BUTTON_GAP = 8;
 
 // アニメーション定数
-const ANIMATION_DURATION = '0.3s'; // メニューバーのアニメーション時間
+const ANIMATION_DURATION = '0.4s'; // メニューバーのアニメーション時間
 const ANIMATION_EASING = 'cubic-bezier(0.34, 1.56, 0.64, 1)'; // メニューバーのアニメーションイージング
 const OPACITY_DURATION = '0.3s'; // メニューバーの不透明度アニメーション時間
 
@@ -321,15 +321,15 @@ export class MenuBar {
         flex-direction: column;
         gap: 8px;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
         max-height: 100vh;
         max-width: 100vw;
         transition: max-height ${ANIMATION_DURATION} ${ANIMATION_EASING}, max-width ${ANIMATION_DURATION} ${ANIMATION_EASING}, opacity ${OPACITY_DURATION} ease;
       }
       .sticky-menu-container.floating.hidden .sticky-notes-menu-bar {
-        max-height: 0;
-        max-width: 0;
+        max-height: ${BUTTON_SIZE + 16}px;
+        max-width: ${BUTTON_SIZE + 16}px;
         opacity: 0;
-        padding: 0;
       }
 
       /* フローティング時は2列レイアウト */
