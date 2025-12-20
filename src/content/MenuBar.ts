@@ -225,6 +225,7 @@ export class MenuBar {
         left: 0;
         flex-direction: column;
         align-items: stretch;
+        max-height: 100vh;
       }
       .sticky-menu-container.bar-left .sticky-icon-btn {
         position: absolute;
@@ -245,7 +246,14 @@ export class MenuBar {
         padding: ${BUTTON_SIZE + 16}px 0 16px 0;
         border-radius: ${(BUTTON_SIZE + 16) / 2}px;
         max-height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
         transition: max-height ${ANIMATION_DURATION} ${ANIMATION_EASING}, opacity ${OPACITY_DURATION} ease;
+      }
+      .sticky-menu-container.bar-left .sticky-notes-menu-bar::-webkit-scrollbar {
+        display: none;
       }
       .sticky-menu-container.bar-left.hidden .sticky-notes-menu-bar {
         max-height: ${BUTTON_SIZE + 16}px;
@@ -258,6 +266,7 @@ export class MenuBar {
         right: 0;
         flex-direction: column;
         align-items: stretch;
+        max-height: 100vh;
       }
       .sticky-menu-container.bar-right .sticky-icon-btn {
         position: absolute;
@@ -278,7 +287,14 @@ export class MenuBar {
         padding: ${BUTTON_SIZE + 16}px 0 16px 0;
         border-radius: ${(BUTTON_SIZE + 16) / 2}px;
         max-height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
         transition: max-height ${ANIMATION_DURATION} ${ANIMATION_EASING}, opacity ${OPACITY_DURATION} ease;
+      }
+      .sticky-menu-container.bar-right .sticky-notes-menu-bar::-webkit-scrollbar {
+        display: none;
       }
       .sticky-menu-container.bar-right.hidden .sticky-notes-menu-bar {
         max-height: ${BUTTON_SIZE + 16}px;
