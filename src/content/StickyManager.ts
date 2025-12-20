@@ -1,6 +1,7 @@
 import type { StickyColor, StickyDimensions, StickyNoteData } from '../types';
 import { StickyNote } from './StickyNote';
 import { StorageService } from './StorageService';
+import { createShadowDOM } from './utils/shadowDOM';
 
 export class StickyManager {
   private notes: Map<string, StickyNote> = new Map();
@@ -17,17 +18,13 @@ export class StickyManager {
     const settings = StorageService.getInstance().getSettings();
     this.baseZIndex = settings.baseZIndex;
     this.maxZIndex = this.baseZIndex;
-    // Shadow DOMホストを作成
-    this.container = document.createElement('div');
-    this.container.id = 'sticky-notes-container';
-    this.shadowRoot = this.container.attachShadow({ mode: 'closed' });
 
-    // スタイルを注入
-    const style = document.createElement('style');
-    style.textContent = this.getStyles();
-    this.shadowRoot.appendChild(style);
-
-    document.body.appendChild(this.container);
+    const { host, shadowRoot } = createShadowDOM({
+      id: 'sticky-notes-container',
+      styles: this.getStyles(),
+    });
+    this.container = host;
+    this.shadowRoot = shadowRoot;
   }
 
   private getStyles(): string {

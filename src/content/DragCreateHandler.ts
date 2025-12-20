@@ -1,29 +1,24 @@
 import type { StickyColor, StickySize } from '../types';
 import type { StickyManager } from './StickyManager';
 import { StorageService } from './StorageService';
+import { createShadowDOM } from './utils/shadowDOM';
 
 export class DragCreateHandler {
   private stickyManager: StickyManager;
   private getSizeCallback: () => StickySize;
   private dragPreview: HTMLDivElement | null = null;
   private currentColor: StickyColor | null = null;
-  private shadowHost: HTMLDivElement;
   private shadowRoot: ShadowRoot;
 
   constructor(stickyManager: StickyManager, getSizeCallback: () => StickySize) {
     this.stickyManager = stickyManager;
     this.getSizeCallback = getSizeCallback;
 
-    // ドラッグプレビュー用のShadow DOMホスト
-    this.shadowHost = document.createElement('div');
-    this.shadowHost.id = 'sticky-drag-preview-host';
-    this.shadowRoot = this.shadowHost.attachShadow({ mode: 'closed' });
-
-    const style = document.createElement('style');
-    style.textContent = this.getStyles();
-    this.shadowRoot.appendChild(style);
-
-    document.body.appendChild(this.shadowHost);
+    const { shadowRoot } = createShadowDOM({
+      id: 'sticky-drag-preview-host',
+      styles: this.getStyles(),
+    });
+    this.shadowRoot = shadowRoot;
 
     this.setupGlobalListeners();
   }

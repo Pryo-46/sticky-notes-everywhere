@@ -4,6 +4,7 @@ import { StorageService } from './StorageService';
 import { ICONS } from './icons';
 import { getSettingsModalStyles } from './styles/settings-modal.css';
 import { isValidHexColor } from './utils/colorUtils';
+import { createShadowDOM } from './utils/shadowDOM';
 
 const SIZE_LABELS_FULL: Record<StickySize, string> = {
   small: 'S（小）',
@@ -36,9 +37,13 @@ export class SettingsModal {
     this.storageService = StorageService.getInstance();
     this.tempSettings = this.deepCopySettings(this.storageService.getSettings());
 
-    this.element = document.createElement('div');
-    this.element.id = 'sticky-notes-settings-host';
-    this.shadowRoot = this.element.attachShadow({ mode: 'closed' });
+    const { host, shadowRoot } = createShadowDOM({
+      id: 'sticky-notes-settings-host',
+      styles: '',
+      appendToBody: false,
+    });
+    this.element = host;
+    this.shadowRoot = shadowRoot;
 
     this.render();
   }

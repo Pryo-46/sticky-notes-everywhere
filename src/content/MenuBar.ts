@@ -3,6 +3,7 @@ import { BUTTON_SIZE_PRESETS, STICKY_COLORS, STICKY_SIZES, SIZE_LABELS } from '.
 import { ICONS } from './icons';
 import { StorageService } from './StorageService';
 import { getMenuBarStyles } from './styles/menubar.css';
+import { createShadowDOM } from './utils/shadowDOM';
 
 const POSITION_CYCLE: MenuBarPosition[] = ['top', 'left', 'bottom', 'right'];
 // 現在の位置から次の位置へ移動するアイコン（押したらどこに行くか）
@@ -45,17 +46,21 @@ export class MenuBar {
   private floatingPosition = { x: 100, y: 100 };
 
   constructor() {
-    // Shadow DOMホストを作成
-    this.element = document.createElement('div');
-    this.element.id = 'sticky-notes-everywhere-host';
-    this.shadowRoot = this.element.attachShadow({ mode: 'closed' });
-
     // 設定から初期値を取得
     const settings = StorageService.getInstance().getSettings();
     this.currentMode = settings.menuBarMode;
     this.currentPosition = settings.menuBarPosition;
     this.floatingPosition = { ...settings.floatingPosition };
     this.selectedSize = settings.defaultSize;
+
+    // Shadow DOMホストを作成（スタイルはrender内で追加するため空文字列）
+    const { host, shadowRoot } = createShadowDOM({
+      id: 'sticky-notes-everywhere-host',
+      styles: '',
+      appendToBody: false,
+    });
+    this.element = host;
+    this.shadowRoot = shadowRoot;
 
     this.render();
     this.updateCSSVariables();

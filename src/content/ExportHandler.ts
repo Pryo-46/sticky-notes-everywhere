@@ -1,21 +1,16 @@
 import type { StickyNote } from './StickyNote';
+import { createShadowDOM } from './utils/shadowDOM';
 
 export class ExportHandler {
   private toastElement: HTMLDivElement | null = null;
   private shadowRoot: ShadowRoot;
 
   constructor() {
-    // トースト用のShadow DOMホストを作成
-    const host = document.createElement('div');
-    host.id = 'sticky-notes-toast-host';
-    this.shadowRoot = host.attachShadow({ mode: 'closed' });
-
-    // スタイルを注入
-    const style = document.createElement('style');
-    style.textContent = this.getToastStyles();
-    this.shadowRoot.appendChild(style);
-
-    document.body.appendChild(host);
+    const { shadowRoot } = createShadowDOM({
+      id: 'sticky-notes-toast-host',
+      styles: this.getToastStyles(),
+    });
+    this.shadowRoot = shadowRoot;
   }
 
   private getToastStyles(): string {
