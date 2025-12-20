@@ -149,6 +149,22 @@ export class MenuBar {
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
       }
 
+      /* フローティング時は2列レイアウト */
+      .floating .menu-content {
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+      }
+
+      /* 左列：ボタン群 */
+      .floating .button-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        align-items: stretch;
+      }
+
+
       /* ドラッグハンドル */
       .drag-handle {
         display: none;
@@ -208,9 +224,9 @@ export class MenuBar {
       }
 
       .floating .color-palette {
-        flex-direction: row;
-        flex-wrap: wrap;
-        max-width: 120px;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        max-width: none;
       }
 
       .color-swatch {
@@ -345,9 +361,8 @@ export class MenuBar {
     const positionIcon = NEXT_POSITION_ICONS[this.currentPosition];
     const modeIcon = this.currentMode === 'bar' ? ICONS.floating : ICONS.barMode;
 
-    // メニューバーレイアウト
-    return `
-      <div class="drag-handle">${ICONS.dragHandle}</div>
+    // メニューバーレイアウト（バーモード用）
+    const barLayout = `
       <div class="menu-section color-palette">
         ${colorSwatches}
       </div>
@@ -366,6 +381,37 @@ export class MenuBar {
         <div class="menu-divider"></div>
         <button class="icon-btn settings-btn" title="設定">${ICONS.settings}</button>
       </div>
+    `;
+
+    // フローティングモード用（2列レイアウト）
+    const floatingLayout = `
+      <div class="drag-handle">${ICONS.dragHandle}</div>
+      <div class="menu-content">
+        <div class="button-column">
+          <div class="menu-section size-presets">
+            ${sizeButtons}
+          </div>
+          <button class="icon-btn visibility-btn" title="全付箋の表示/非表示">${ICONS.visibility}</button>
+          <button class="icon-btn copy-btn" title="メモをコピー">${ICONS.copy}</button>
+          <button class="icon-btn clear-btn" title="全付箋を削除">${ICONS.delete}</button>
+          <button class="icon-btn mode-btn" title="表示モードを変更">${modeIcon}</button>
+          <button class="icon-btn settings-btn" title="設定">${ICONS.settings}</button>
+        </div>
+        <div class="menu-section color-palette">
+          ${colorSwatches}
+        </div>
+      </div>
+      <button class="icon-btn close-btn" title="閉じる">${ICONS.close}</button>
+    `;
+
+    // モードに応じてレイアウトを返す
+    if (this.currentMode === 'floating') {
+      return floatingLayout;
+    }
+
+    return `
+      <div class="drag-handle">${ICONS.dragHandle}</div>
+      ${barLayout}
       <div class="menu-spacer"></div>
       <button class="icon-btn close-btn" title="閉じる">${ICONS.close}</button>
     `;
@@ -566,11 +612,9 @@ export class MenuBar {
   private toggleMode(menuBar: HTMLDivElement): void {
     this.currentMode = this.currentMode === 'bar' ? 'floating' : 'bar';
 
-    // アイコンを更新
-    const btn = menuBar.querySelector('.mode-btn');
-    if (btn) {
-      btn.innerHTML = this.currentMode === 'bar' ? ICONS.floating : ICONS.barMode;
-    }
+    // HTMLを再生成（レイアウトが異なるため）
+    menuBar.innerHTML = this.getMenuBarHTML();
+    this.setupEventListeners(menuBar);
 
     this.applyModeAndPosition(menuBar);
     this.saveSettings();
