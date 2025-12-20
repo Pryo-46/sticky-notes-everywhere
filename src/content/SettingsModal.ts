@@ -62,6 +62,7 @@ export class SettingsModal {
       menuBarMode: settings.menuBarMode,
       menuBarPosition: settings.menuBarPosition,
       floatingPosition: { ...settings.floatingPosition },
+      baseZIndex: settings.baseZIndex,
     };
   }
 
@@ -377,6 +378,32 @@ export class SettingsModal {
         color: #1c7ed6;
       }
 
+      .zindex-setting {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .zindex-input {
+        width: 120px;
+        padding: 8px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 14px;
+        text-align: right;
+      }
+
+      .zindex-input:focus {
+        outline: none;
+        border-color: #4dabf7;
+        box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.2);
+      }
+
+      .zindex-hint {
+        font-size: 12px;
+        color: #868e96;
+      }
+
       .settings-footer {
         display: flex;
         align-items: center;
@@ -514,6 +541,13 @@ export class SettingsModal {
               ${buttonSizeButtons}
             </div>
           </div>
+          <div class="settings-section">
+            <h3>重なり順（z-index）</h3>
+            <div class="zindex-setting">
+              <input type="number" class="zindex-input" id="baseZIndex" value="${settings.baseZIndex}" min="1" max="2147483600">
+              <span class="zindex-hint">付箋が他の要素より前面に出ない場合は値を上げてください（最大: 2147483647）</span>
+            </div>
+          </div>
         </div>
         <div class="settings-footer">
           <div class="footer-left">
@@ -637,6 +671,16 @@ export class SettingsModal {
         target.classList.add('active');
       });
     });
+
+    // z-index基準値の変更
+    const zIndexInput = modal.querySelector('#baseZIndex') as HTMLInputElement;
+    zIndexInput?.addEventListener('input', (e) => {
+      const target = e.target as HTMLInputElement;
+      const value = parseInt(target.value, 10);
+      if (!isNaN(value) && value >= 1 && value <= 2147483600) {
+        this.tempSettings.baseZIndex = value;
+      }
+    });
   }
 
   private switchPreset(modal: HTMLDivElement, preset: ColorPresetName): void {
@@ -742,6 +786,12 @@ export class SettingsModal {
         heightInput.value = String(this.tempSettings.sizes[size].height);
       }
     });
+
+    // z-index設定を更新
+    const zIndexInput = modal.querySelector('#baseZIndex') as HTMLInputElement;
+    if (zIndexInput) {
+      zIndexInput.value = String(this.tempSettings.baseZIndex);
+    }
   }
 
   public show(): void {

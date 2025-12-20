@@ -1,15 +1,20 @@
 import type { StickyColor, StickyDimensions, StickyNoteData } from '../types';
 import { StickyNote } from './StickyNote';
+import { StorageService } from './StorageService';
 
 export class StickyManager {
   private notes: Map<string, StickyNote> = new Map();
   private container: HTMLDivElement;
   private shadowRoot: ShadowRoot;
-  private maxZIndex = 2147483640;
+  private baseZIndex: number;
+  private maxZIndex: number;
   private areNotesVisible = true;
   private onNoteCreatedCallback: ((note: StickyNote) => void) | null = null;
 
   constructor() {
+    const settings = StorageService.getInstance().getSettings();
+    this.baseZIndex = settings.baseZIndex;
+    this.maxZIndex = this.baseZIndex;
     // Shadow DOMホストを作成
     this.container = document.createElement('div');
     this.container.id = 'sticky-notes-container';
@@ -258,8 +263,30 @@ export class StickyManager {
   public bringToFront(id: string): void {
     const note = this.notes.get(id);
     if (note) {
-      note.bringToFront(++this.maxZIndex);
+      // オーバーフロー防止: 上限に近づいたらz-indexを再計算
+      const MAX_SAFE_ZINDEX = 2147483600;
+      if (this.maxZIndex >= MAX_SAFE_ZINDEX) {
+        this.rebalanceZIndices();
+      }
+      ++this.maxZIndex;
+      note.bringToFront(this.maxZIndex);
     }
+  }
+
+  private rebalanceZIndices(): void {
+    // 全付箋のz-indexを基準値から再割り当て
+    this.maxZIndex = this.baseZIndex;
+    this.notes.forEach((n) => {
+      n.bringToFront(++this.maxZIndex);
+    });
+  }
+
+  public updateBaseZIndex(newBaseZIndex: number): void {
+    const offset = this.maxZIndex - this.baseZIndex;
+    this.baseZIndex = newBaseZIndex;
+    this.maxZIndex = newBaseZIndex + offset;
+    // 全付箋のz-indexを再計算
+    this.rebalanceZIndices();
   }
 
   public getNotesCount(): number {

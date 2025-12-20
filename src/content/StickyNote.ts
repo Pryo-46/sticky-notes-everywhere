@@ -115,6 +115,7 @@ export class StickyNote {
   private applyStyles(): void {
     const { position, size, color } = this.data;
     const colorValue = this.getColorValue(color);
+    const baseZIndex = StorageService.getInstance().getSettings().baseZIndex;
     this.element.style.cssText = `
       position: fixed;
       left: ${position.x}px;
@@ -126,7 +127,7 @@ export class StickyNote {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       display: flex;
       flex-direction: column;
-      z-index: 2147483640;
+      z-index: ${baseZIndex};
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       box-sizing: border-box;
     `;

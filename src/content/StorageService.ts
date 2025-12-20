@@ -100,6 +100,7 @@ export class StorageService {
         menuBarMode: DEFAULT_SETTINGS.menuBarMode,
         menuBarPosition: DEFAULT_SETTINGS.menuBarPosition,
         floatingPosition: { ...DEFAULT_SETTINGS.floatingPosition },
+        baseZIndex: DEFAULT_SETTINGS.baseZIndex,
       };
     }
 
@@ -120,6 +121,7 @@ export class StorageService {
       menuBarMode: saved.menuBarMode ?? DEFAULT_SETTINGS.menuBarMode,
       menuBarPosition: saved.menuBarPosition ?? DEFAULT_SETTINGS.menuBarPosition,
       floatingPosition: { ...DEFAULT_SETTINGS.floatingPosition, ...saved.floatingPosition },
+      baseZIndex: saved.baseZIndex ?? DEFAULT_SETTINGS.baseZIndex,
     };
   }
 }

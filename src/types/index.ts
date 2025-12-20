@@ -120,6 +120,8 @@ export interface ExtensionSettings {
   menuBarPosition: MenuBarPosition;
   /** フローティング時の位置 */
   floatingPosition: FloatingPosition;
+  /** 付箋のz-index基準値 */
+  baseZIndex: number;
 }
 
 /** デフォルト設定 */
@@ -136,4 +138,5 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   menuBarMode: 'bar',
   menuBarPosition: 'top',
   floatingPosition: { x: 100, y: 100 },
+  baseZIndex: 10000,
 };
