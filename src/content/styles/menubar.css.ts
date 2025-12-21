@@ -235,11 +235,11 @@ export function getMenuBarStyles(): string {
       left: calc(var(--button-size) / 2);
       transform: translateX(-50%);
       border-radius: 9999px;
-      padding: calc(var(--button-size) + 16px) 16px 20px 16px;
+      padding: calc(var(--button-size) + 16px) 8px 20px 8px;
       flex-direction: column;
       gap: 8px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-      overflow: hidden;
+      overflow: visible;
       max-height: 100vh;
       max-width: 100vw;
       transition: max-height ${ANIMATION_DURATION} ${ANIMATION_EASING}, max-width ${ANIMATION_DURATION} ${ANIMATION_EASING}, opacity ${OPACITY_DURATION} ease;
@@ -248,23 +248,25 @@ export function getMenuBarStyles(): string {
       max-height: var(--bar-height);
       max-width: var(--bar-height);
       opacity: 0;
+      overflow: hidden;
     }
 
     /* フローティング時は2列レイアウト */
     .floating .menu-content {
       display: flex;
       flex-direction: row;
-      gap: 12px;
-      padding-bottom: 16px;
+      gap: 16px;
+      padding: 8px;
       max-height: calc(100vh - var(--button-size) - 40px);
       overflow-y: auto;
-      overflow-x: hidden;
+      overflow-x: visible;
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
 
     .floating .menu-content::-webkit-scrollbar {
       display: none;
+      padding: 4px;
     }
 
     /* 左列：ボタン群 */
@@ -352,8 +354,9 @@ export function getMenuBarStyles(): string {
     }
 
     .color-swatch:hover {
-      transform: scale(1.1);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      transform: scale(1.2);
+      box-shadow: 0 4px 2px rgba(0, 0, 0, 0.2);
+      position: relative;
     }
 
     .color-swatch:active {
