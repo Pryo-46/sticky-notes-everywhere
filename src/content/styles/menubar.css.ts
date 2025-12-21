@@ -35,7 +35,7 @@ export function getMenuBarStyles(): string {
       border-radius: 50%;
       border: none;
       background: linear-gradient(135deg, #FFF59D 0%, #FFCC80 100%);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.15);
       cursor: pointer;
       display: flex;
       align-items: center;

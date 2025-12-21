@@ -388,8 +388,8 @@ export function getSetManagerStyles(): string {
     }
 
     .action-btn {
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -412,8 +412,8 @@ export function getSetManagerStyles(): string {
     }
 
     .action-btn svg {
-      width: 16px;
-      height: 16px;
+      width: 24px;
+      height: 24px;
     }
 
     /* 名前入力ダイアログ */
