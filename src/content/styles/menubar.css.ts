@@ -324,7 +324,7 @@ export function getMenuBarStyles(): string {
     }
 
     .menu-divider {
-      width: 1px;
+      width: 2px;
       height: 24px;
       background: #ddd;
     }
@@ -334,7 +334,7 @@ export function getMenuBarStyles(): string {
     .bar-right .menu-divider,
     .floating .menu-divider {
       width: 24px;
-      height: 1px;
+      height: 2px;
     }
 
     .color-palette {
