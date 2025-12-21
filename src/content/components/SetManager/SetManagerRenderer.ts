@@ -36,17 +36,6 @@ export class SetManagerRenderer {
             </div>
           </div>
         </div>
-        <div class="load-options">
-          <span class="load-options-label">読み込み方法:</span>
-          <label class="load-option">
-            <input type="radio" name="loadMode" value="replace" checked>
-            <span>置換</span>
-          </label>
-          <label class="load-option">
-            <input type="radio" name="loadMode" value="merge">
-            <span>マージ（追加）</span>
-          </label>
-        </div>
       </div>
     `;
   }

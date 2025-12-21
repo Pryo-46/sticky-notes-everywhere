@@ -17,7 +17,6 @@ export interface SetManagerCallbacks {
  */
 export class SetManagerController {
   private callbacks: SetManagerCallbacks = {};
-  private loadMode: LoadMode = 'replace';
   private sets: StickyNoteSet[] = [];
   private history: PageHistory[] = [];
 
@@ -30,16 +29,11 @@ export class SetManagerController {
     this.history = history;
   }
 
-  public getLoadMode(): LoadMode {
-    return this.loadMode;
-  }
-
   public setupEventListeners(modal: HTMLDivElement): void {
     this.setupCloseButton(modal);
     this.setupSaveButton(modal);
     this.setupSetList(modal);
     this.setupHistoryList(modal);
-    this.setupLoadOptions(modal);
     this.setupClearHistoryButton(modal);
     this.setupOverlayClick(modal);
   }
@@ -109,10 +103,9 @@ export class SetManagerController {
         const setId = setItem.dataset.setId;
         const set = this.sets.find((s) => s.id === setId);
         if (set) {
-          if (this.loadMode === 'replace' && !window.confirm('現在の付箋を置き換えますか？')) {
-            return;
-          }
-          this.callbacks.onLoadSet?.(set.notes, this.loadMode);
+          this.showLoadDialog(modal, set.name, set.notes.length, 'set', (mode) => {
+            this.callbacks.onLoadSet?.(set.notes, mode);
+          });
         }
       }
     });
@@ -130,21 +123,11 @@ export class SetManagerController {
         const url = historyItem.dataset.url;
         const item = this.history.find((h) => h.url === url);
         if (item) {
-          if (this.loadMode === 'replace' && !window.confirm('現在の付箋を置き換えますか？')) {
-            return;
-          }
-          this.callbacks.onLoadHistory?.(item.notes, this.loadMode);
+          this.showLoadDialog(modal, item.title || item.url, item.notes.length, 'history', (mode) => {
+            this.callbacks.onLoadHistory?.(item.notes, mode);
+          });
         }
       }
-    });
-  }
-
-  private setupLoadOptions(modal: HTMLDivElement): void {
-    modal.querySelectorAll('input[name="loadMode"]').forEach((radio) => {
-      radio.addEventListener('change', (e) => {
-        const target = e.target as HTMLInputElement;
-        this.loadMode = target.value as LoadMode;
-      });
     });
   }
 
@@ -154,6 +137,68 @@ export class SetManagerController {
         this.callbacks.onClearHistory?.();
       }
     });
+  }
+
+  private showLoadDialog(
+    modal: HTMLDivElement,
+    name: string,
+    noteCount: number,
+    sourceType: 'set' | 'history',
+    onConfirm: (mode: LoadMode) => void
+  ): void {
+    const sourceLabel = sourceType === 'set' ? 'セット' : '履歴';
+    const overlay = document.createElement('div');
+    overlay.className = 'load-dialog-overlay';
+    overlay.innerHTML = `
+      <div class="load-dialog">
+        <h3>「${this.escapeHtml(name)}」を読み込み</h3>
+        <p class="load-dialog-info">${noteCount}件の付箋</p>
+        <p class="load-dialog-desc">
+          <strong>置換:</strong> 現在の付箋を削除して${sourceLabel}の付箋を読み込みます<br>
+          <strong>マージ:</strong> 現在の付箋に${sourceLabel}の付箋を追加して読み込みます
+        </p>
+        <div class="load-dialog-buttons">
+          <button class="btn btn-secondary cancel-load-btn">キャンセル</button>
+          <button class="btn btn-primary replace-btn">置換</button>
+          <button class="btn btn-primary merge-btn">マージ</button>
+        </div>
+      </div>
+    `;
+
+    const cancelBtn = overlay.querySelector('.cancel-load-btn') as HTMLButtonElement;
+    const replaceBtn = overlay.querySelector('.replace-btn') as HTMLButtonElement;
+    const mergeBtn = overlay.querySelector('.merge-btn') as HTMLButtonElement;
+
+    const close = (): void => {
+      overlay.remove();
+    };
+
+    cancelBtn.addEventListener('click', close);
+
+    replaceBtn.addEventListener('click', () => {
+      onConfirm('replace');
+      close();
+    });
+
+    mergeBtn.addEventListener('click', () => {
+      onConfirm('merge');
+      close();
+    });
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        close();
+      }
+    });
+
+    overlay.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        close();
+      }
+    });
+
+    modal.appendChild(overlay);
+    replaceBtn.focus();
   }
 
   private showNameInputDialog(

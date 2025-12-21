@@ -267,42 +267,6 @@ export function getSetManagerStyles(): string {
       height: 16px;
     }
 
-    /* 読み込みオプション */
-    .load-options {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 20px;
-      border-top: 1px solid #e9ecef;
-      background: #f8f9fa;
-    }
-
-    .load-options-label {
-      font-size: 13px;
-      color: #495057;
-      font-weight: 500;
-    }
-
-    .load-option {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-    }
-
-    .load-option input[type="radio"] {
-      width: 16px;
-      height: 16px;
-      margin: 0;
-      cursor: pointer;
-      accent-color: #4dabf7;
-    }
-
-    .load-option span {
-      font-size: 13px;
-      color: #495057;
-    }
-
     /* 名前入力ダイアログ */
     .name-input-overlay {
       position: fixed;
@@ -392,6 +356,67 @@ export function getSetManagerStyles(): string {
     .btn-primary:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+    }
+
+    /* 読み込みダイアログ */
+    .load-dialog-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2147483647;
+    }
+
+    .load-dialog {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      width: 360px;
+      max-width: 90vw;
+      padding: 20px;
+    }
+
+    .load-dialog h3 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #212529;
+    }
+
+    .load-dialog-info {
+      margin: 0 0 12px 0;
+      font-size: 13px;
+      color: #868e96;
+    }
+
+    .load-dialog-desc {
+      margin: 0 0 20px 0;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #495057;
+      line-height: 1.6;
+    }
+
+    .load-dialog-desc strong {
+      color: #212529;
+    }
+
+    .load-dialog-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .load-dialog-buttons .btn {
+      min-width: 80px;
+      text-align: center;
     }
   `;
 }
