@@ -81,6 +81,23 @@ export interface StickyNoteData {
   createdAt: number;
 }
 
+/** 付箋セット */
+export interface StickyNoteSet {
+  id: string;
+  name: string;
+  notes: StickyNoteData[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+/** ページ履歴 */
+export interface PageHistory {
+  url: string;
+  title: string;
+  notes: StickyNoteData[];
+  savedAt: number;
+}
+
 /** メッセージ型 */
 export interface ToggleMenuMessage {
   action: 'toggleMenu';
