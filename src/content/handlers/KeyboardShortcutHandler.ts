@@ -23,6 +23,7 @@ export class KeyboardShortcutHandler {
   private onToggleVisibility: () => boolean;
   private onClearAll: () => void;
   private onCopyAll: () => void;
+  private keydownHandler: (e: KeyboardEvent) => void;
 
   constructor(
     stickyManager: StickyManager,
@@ -36,54 +37,62 @@ export class KeyboardShortcutHandler {
     this.onToggleVisibility = onToggleVisibility;
     this.onClearAll = onClearAll;
     this.onCopyAll = onCopyAll;
+    this.keydownHandler = this.handleKeydown.bind(this);
 
     this.setupKeyboardListener();
   }
 
   private setupKeyboardListener(): void {
-    document.addEventListener('keydown', (e) => {
-      // Altキーが押されていない場合は無視
-      if (!e.altKey) return;
+    document.addEventListener('keydown', this.keydownHandler);
+  }
 
-      // Ctrl + Alt + C: 全メモをコピー（入力中でも動作）
-      if (e.ctrlKey && e.key.toLowerCase() === 'c') {
-        e.preventDefault();
-        this.onCopyAll();
+  /** イベントリスナーを削除 */
+  public destroy(): void {
+    document.removeEventListener('keydown', this.keydownHandler);
+  }
+
+  private handleKeydown(e: KeyboardEvent): void {
+    // Altキーが押されていない場合は無視
+    if (!e.altKey) return;
+
+    // Ctrl + Alt + C: 全メモをコピー（入力中でも動作）
+    if (e.ctrlKey && e.key.toLowerCase() === 'c') {
+      e.preventDefault();
+      this.onCopyAll();
+      return;
+    }
+
+    // 入力フィールドにフォーカスがある場合は以降のショートカットを無視
+    const activeElement = document.activeElement;
+    if (activeElement) {
+      const tagName = activeElement.tagName.toLowerCase();
+      if (tagName === 'input' || tagName === 'textarea' || (activeElement as HTMLElement).isContentEditable) {
         return;
       }
+    }
 
-      // 入力フィールドにフォーカスがある場合は以降のショートカットを無視
-      const activeElement = document.activeElement;
-      if (activeElement) {
-        const tagName = activeElement.tagName.toLowerCase();
-        if (tagName === 'input' || tagName === 'textarea' || (activeElement as HTMLElement).isContentEditable) {
-          return;
-        }
-      }
+    // Alt + 数字キー: 付箋を追加
+    if (e.key in KEY_MAP) {
+      e.preventDefault();
+      const colorIndex = KEY_MAP[e.key];
+      const color = STICKY_COLORS[colorIndex];
+      this.createNoteAtCenter(color);
+      return;
+    }
 
-      // Alt + 数字キー: 付箋を追加
-      if (e.key in KEY_MAP) {
-        e.preventDefault();
-        const colorIndex = KEY_MAP[e.key];
-        const color = STICKY_COLORS[colorIndex];
-        this.createNoteAtCenter(color);
-        return;
-      }
+    // Alt + H: 表示/非表示トグル
+    if (e.key.toLowerCase() === 'h') {
+      e.preventDefault();
+      this.onToggleVisibility();
+      return;
+    }
 
-      // Alt + H: 表示/非表示トグル
-      if (e.key.toLowerCase() === 'h') {
-        e.preventDefault();
-        this.onToggleVisibility();
-        return;
-      }
-
-      // Alt + X: 全クリア
-      if (e.key.toLowerCase() === 'x') {
-        e.preventDefault();
-        this.onClearAll();
-        return;
-      }
-    });
+    // Alt + X: 全クリア
+    if (e.key.toLowerCase() === 'x') {
+      e.preventDefault();
+      this.onClearAll();
+      return;
+    }
   }
 
   private createNoteAtCenter(color: StickyColor): void {

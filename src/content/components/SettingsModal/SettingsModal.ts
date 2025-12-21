@@ -203,6 +203,12 @@ export class SettingsModal {
     this.shadowRoot.querySelector('.settings-overlay')?.classList.add('hidden');
   }
 
+  /** モーダルをDOMから完全に削除 */
+  public destroy(): void {
+    this.hide();
+    this.element.remove();
+  }
+
   public onSettingsSaved(callback: SettingsSavedCallback): void {
     this.savedCallback = callback;
   }

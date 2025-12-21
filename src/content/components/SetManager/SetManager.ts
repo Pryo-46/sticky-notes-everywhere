@@ -95,6 +95,12 @@ export class SetManager {
     this.shadowRoot.querySelector('.set-manager-overlay')?.classList.add('hidden');
   }
 
+  /** マネージャーをDOMから完全に削除 */
+  public destroy(): void {
+    this.hide();
+    this.element.remove();
+  }
+
   public onLoadNotes(callback: LoadNotesCallback): void {
     this.loadNotesCallback = callback;
   }

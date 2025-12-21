@@ -28,4 +28,9 @@ export interface IStorageService {
 
   // ストレージ使用量
   getStorageUsage(): Promise<number>;
+
+  // 無効化ページ管理
+  loadDisabledPages(): Promise<string[]>;
+  isPageDisabled(url: string): Promise<boolean>;
+  togglePageDisabled(url: string): Promise<boolean>;
 }

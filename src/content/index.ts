@@ -24,6 +24,7 @@ let keyboardShortcutHandler: KeyboardShortcutHandler | null = null;
 let settingsModal: SettingsModal | null = null;
 let setManager: SetManager | null = null;
 let storageService: IStorageService | null = null;
+let isPageDisabled = false;
 
 /** 現在のページURLを取得（ホスト+パス） */
 function getCurrentPageUrl(): string {
@@ -94,6 +95,13 @@ async function initialize(): Promise<void> {
 
   // ストレージサービスを取得し、設定を読み込む
   storageService = getStorageService();
+
+  // このページが無効化されているかチェック
+  isPageDisabled = await storageService.isPageDisabled(getCurrentPageUrl());
+  if (isPageDisabled) {
+    return; // 無効化されている場合は初期化しない
+  }
+
   const settings = await storageService.loadSettings();
 
   // 各コンポーネントを初期化
@@ -202,15 +210,74 @@ async function getMenuBar(): Promise<MenuBar> {
   return menuBar!;
 }
 
+/** すべてのUIをDOMから削除して参照をクリア */
+function destroyAll(): void {
+  if (menuBar) {
+    menuBar.destroy();
+    menuBar = null;
+  }
+  if (stickyManager) {
+    stickyManager.clearAll();
+    stickyManager = null;
+  }
+  if (settingsModal) {
+    settingsModal.destroy();
+    settingsModal = null;
+  }
+  if (setManager) {
+    setManager.destroy();
+    setManager = null;
+  }
+  if (keyboardShortcutHandler) {
+    keyboardShortcutHandler.destroy();
+    keyboardShortcutHandler = null;
+  }
+  dragCreateHandler = null;
+  dragMoveHandler = null;
+  resizeHandler = null;
+  exportHandler = null;
+}
+
 // バックグラウンドスクリプトからのメッセージを受信
 chrome.runtime.onMessage.addListener((message: ExtensionMessage, _sender, sendResponse) => {
   if (message.action === 'toggleMenu') {
+    // 無効化されている場合は何もしない
+    if (isPageDisabled) {
+      sendResponse({ success: false, disabled: true });
+      return true;
+    }
     getMenuBar().then((menu) => {
       menu.toggle();
       sendResponse({ success: true });
     });
     return true; // 非同期レスポンスを示す
   }
+
+  if (message.action === 'checkDisabled') {
+    sendResponse({ initialized: !!menuBar, disabled: isPageDisabled });
+    return true;
+  }
+
+  if (message.action === 'toggleDisabled') {
+    // 無効化状態が変更された
+    (async () => {
+      if (!storageService) {
+        storageService = getStorageService();
+      }
+      isPageDisabled = await storageService.isPageDisabled(getCurrentPageUrl());
+
+      if (isPageDisabled) {
+        // 無効化された - UIをDOMから削除
+        destroyAll();
+      } else {
+        // 有効化された - 再初期化
+        await initialize();
+      }
+      sendResponse({ success: true, disabled: isPageDisabled });
+    })();
+    return true;
+  }
+
   return false;
 });
 

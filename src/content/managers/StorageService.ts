@@ -7,6 +7,7 @@ const STICKY_NOTES_KEY = 'stickyNotesData';
 const STICKY_NOTES_URL_KEY = 'stickyNotesLastUrl';
 const SETS_KEY = 'stickyNotesSets';
 const PAGE_HISTORY_KEY = 'stickyNotesPageHistory';
+const DISABLED_PAGES_KEY = 'stickyNotesDisabledPages';
 const MAX_PAGE_HISTORY = 50;
 
 type SettingsChangeCallback = (settings: ExtensionSettings) => void;
@@ -305,6 +306,50 @@ export class StorageService implements IStorageService {
     } catch (error) {
       console.error('Failed to get storage usage:', error);
       return 0;
+    }
+  }
+
+  // ========================================
+  // 無効化ページ管理
+  // ========================================
+
+  /** 無効化ページ一覧を読み込む */
+  public async loadDisabledPages(): Promise<string[]> {
+    try {
+      const result = await chrome.storage.local.get(DISABLED_PAGES_KEY);
+      return (result[DISABLED_PAGES_KEY] as string[]) || [];
+    } catch (error) {
+      console.error('Failed to load disabled pages:', error);
+      return [];
+    }
+  }
+
+  /** ページが無効化されているかチェック */
+  public async isPageDisabled(url: string): Promise<boolean> {
+    const disabledPages = await this.loadDisabledPages();
+    return disabledPages.includes(url);
+  }
+
+  /** ページの無効化状態をトグル */
+  public async togglePageDisabled(url: string): Promise<boolean> {
+    try {
+      const disabledPages = await this.loadDisabledPages();
+      const index = disabledPages.indexOf(url);
+
+      if (index >= 0) {
+        // 有効化（リストから削除）
+        disabledPages.splice(index, 1);
+        await chrome.storage.local.set({ [DISABLED_PAGES_KEY]: disabledPages });
+        return false; // 無効化解除
+      } else {
+        // 無効化（リストに追加）
+        disabledPages.push(url);
+        await chrome.storage.local.set({ [DISABLED_PAGES_KEY]: disabledPages });
+        return true; // 無効化
+      }
+    } catch (error) {
+      console.error('Failed to toggle page disabled:', error);
+      return false;
     }
   }
 }

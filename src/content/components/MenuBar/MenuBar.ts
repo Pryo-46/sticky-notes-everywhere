@@ -226,6 +226,12 @@ export class MenuBar {
     return this.isVisible;
   }
 
+  /** メニューバーをDOMから完全に削除 */
+  public destroy(): void {
+    this.hide();
+    this.element.remove();
+  }
+
   public onVisibilityToggle(callback: VisibilityToggleCallback): void {
     this.visibilityToggleCallback = callback;
   }

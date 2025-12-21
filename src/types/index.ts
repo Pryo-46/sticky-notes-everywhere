@@ -107,7 +107,15 @@ export interface ToggleMenuMessage {
   action: 'toggleMenu';
 }
 
-export type ExtensionMessage = ToggleMenuMessage;
+export interface ToggleDisabledMessage {
+  action: 'toggleDisabled';
+}
+
+export interface CheckDisabledMessage {
+  action: 'checkDisabled';
+}
+
+export type ExtensionMessage = ToggleMenuMessage | ToggleDisabledMessage | CheckDisabledMessage;
 
 /** メニューバーのモード */
 export type MenuBarMode = 'bar' | 'floating';
