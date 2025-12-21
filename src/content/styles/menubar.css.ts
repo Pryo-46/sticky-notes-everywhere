@@ -256,6 +256,15 @@ export function getMenuBarStyles(): string {
       flex-direction: row;
       gap: 12px;
       padding-bottom: 16px;
+      max-height: calc(100vh - var(--button-size) - 40px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .floating .menu-content::-webkit-scrollbar {
+      display: none;
     }
 
     /* 左列：ボタン群 */

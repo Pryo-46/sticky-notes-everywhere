@@ -68,9 +68,9 @@ export class MenuBarRenderer {
           </div>
           <button class="icon-btn visibility-btn" title="全付箋の表示/非表示">${ICONS.visibility}</button>
           <button class="icon-btn copy-btn" title="メモをコピー">${ICONS.copy}</button>
-          <button class="icon-btn clear-btn" title="全付箋を削除">${ICONS.delete}</button>
           <button class="icon-btn set-manager-btn" title="付箋セット管理">${ICONS.folder}</button>
           <button class="icon-btn mode-btn" title="表示モードを変更">${modeIcon}</button>
+          <button class="icon-btn clear-btn" title="全付箋を削除">${ICONS.delete}</button>
           <button class="icon-btn settings-btn" title="設定">${ICONS.settings}</button>
         </div>
         <div class="menu-section color-palette">
@@ -98,12 +98,12 @@ export class MenuBarRenderer {
       <div class="menu-section actions-row">
         <button class="icon-btn visibility-btn" title="全付箋の表示/非表示">${ICONS.visibility}</button>
         <button class="icon-btn copy-btn" title="メモをコピー">${ICONS.copy}</button>
-        <button class="icon-btn clear-btn" title="全付箋を削除">${ICONS.delete}</button>
         <button class="icon-btn set-manager-btn" title="付箋セット管理">${ICONS.folder}</button>
         <div class="menu-divider"></div>
-        <button class="icon-btn position-btn" title="メニューの位置を変更">${positionIcon}</button>
         <button class="icon-btn mode-btn" title="表示モードを変更">${modeIcon}</button>
+        <button class="icon-btn position-btn" title="メニューの位置を変更">${positionIcon}</button>
         <div class="menu-divider"></div>
+        <button class="icon-btn clear-btn" title="全付箋を削除">${ICONS.delete}</button>
         <button class="icon-btn settings-btn" title="設定">${ICONS.settings}</button>
       </div>
       <div class="menu-spacer"></div>

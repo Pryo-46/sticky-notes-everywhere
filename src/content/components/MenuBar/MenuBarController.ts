@@ -70,7 +70,7 @@ export class MenuBarController {
 
     container.querySelector('.clear-btn')?.addEventListener('click', () => {
       if (this.callbacks.onClearAll) {
-        const confirmed = window.confirm('すべての付箋を削除しますか？');
+        const confirmed = window.confirm('画面上のすべての付箋を削除しますか？');
         if (confirmed) {
           this.callbacks.onClearAll();
         }
