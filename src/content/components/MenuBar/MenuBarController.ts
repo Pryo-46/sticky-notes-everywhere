@@ -11,6 +11,7 @@ export interface MenuBarCallbacks {
   onClearAll?: () => void;
   onCopyAll?: () => void;
   onSettings?: () => void;
+  onSetManager?: () => void;
   onSizeChange?: (size: StickySize) => void;
   onModeChange?: () => void;
   onPositionChange?: () => void;
@@ -82,6 +83,10 @@ export class MenuBarController {
 
     container.querySelector('.settings-btn')?.addEventListener('click', () => {
       this.callbacks.onSettings?.();
+    });
+
+    container.querySelector('.set-manager-btn')?.addEventListener('click', () => {
+      this.callbacks.onSetManager?.();
     });
   }
 

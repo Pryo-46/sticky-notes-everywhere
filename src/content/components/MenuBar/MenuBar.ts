@@ -15,6 +15,7 @@ type VisibilityToggleCallback = () => boolean;
 type ClearAllCallback = () => void;
 type CopyAllCallback = () => void;
 type SettingsCallback = () => void;
+type SetManagerCallback = () => void;
 
 export class MenuBar {
   private element: HTMLDivElement;
@@ -26,6 +27,7 @@ export class MenuBar {
   private clearAllCallback: ClearAllCallback | null = null;
   private copyAllCallback: CopyAllCallback | null = null;
   private settingsCallback: SettingsCallback | null = null;
+  private setManagerCallback: SetManagerCallback | null = null;
   private notesVisible = true;
 
   private currentMode: MenuBarMode = 'bar';
@@ -91,6 +93,9 @@ export class MenuBar {
       },
       onSettings: () => {
         this.settingsCallback?.();
+      },
+      onSetManager: () => {
+        this.setManagerCallback?.();
       },
       onSizeChange: (size) => {
         this.selectedSize = size;
@@ -219,6 +224,10 @@ export class MenuBar {
 
   public onSettings(callback: SettingsCallback): void {
     this.settingsCallback = callback;
+  }
+
+  public onSetManager(callback: SetManagerCallback): void {
+    this.setManagerCallback = callback;
   }
 
   public updateColorSwatches(): void {
