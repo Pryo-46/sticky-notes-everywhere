@@ -1,4 +1,4 @@
-import type { ExtensionSettings, PageHistory, StickyNoteData, StickyNoteSet } from '../../types';
+import type { BlacklistEntry, ExtensionSettings, PageHistory, StickyNoteData, StickyNoteSet } from '../../types';
 import { DEFAULT_SETTINGS } from '../../types';
 import type { IStorageService } from '../types/storage';
 
@@ -8,6 +8,7 @@ const STICKY_NOTES_URL_KEY = 'stickyNotesLastUrl';
 const SETS_KEY = 'stickyNotesSets';
 const PAGE_HISTORY_KEY = 'stickyNotesPageHistory';
 const DISABLED_PAGES_KEY = 'stickyNotesDisabledPages';
+const BLACKLIST_KEY = 'stickyNotesBlacklist';
 const MAX_PAGE_HISTORY = 50;
 
 type SettingsChangeCallback = (settings: ExtensionSettings) => void;
@@ -349,6 +350,62 @@ export class StorageService implements IStorageService {
       }
     } catch (error) {
       console.error('Failed to toggle page disabled:', error);
+      return false;
+    }
+  }
+
+  // ========================================
+  // ブラックリスト管理
+  // ========================================
+
+  /** ブラックリストを読み込む */
+  public async loadBlacklist(): Promise<BlacklistEntry[]> {
+    try {
+      const result = await chrome.storage.local.get(BLACKLIST_KEY);
+      return (result[BLACKLIST_KEY] as BlacklistEntry[]) || [];
+    } catch (error) {
+      console.error('Failed to load blacklist:', error);
+      return [];
+    }
+  }
+
+  /** ドメインをブラックリストに追加 */
+  public async addToBlacklist(domain: string): Promise<void> {
+    try {
+      const blacklist = await this.loadBlacklist();
+      // 既に存在する場合は追加しない
+      if (blacklist.some((entry) => entry.domain === domain)) {
+        return;
+      }
+      blacklist.push({ domain, addedAt: Date.now() });
+      await chrome.storage.local.set({ [BLACKLIST_KEY]: blacklist });
+    } catch (error) {
+      console.error('Failed to add to blacklist:', error);
+      throw error;
+    }
+  }
+
+  /** ドメインをブラックリストから削除 */
+  public async removeFromBlacklist(domain: string): Promise<void> {
+    try {
+      const blacklist = await this.loadBlacklist();
+      const filtered = blacklist.filter((entry) => entry.domain !== domain);
+      await chrome.storage.local.set({ [BLACKLIST_KEY]: filtered });
+    } catch (error) {
+      console.error('Failed to remove from blacklist:', error);
+      throw error;
+    }
+  }
+
+  /** URLのドメインがブラックリストに登録されているかチェック */
+  public async isBlacklisted(url: string): Promise<boolean> {
+    try {
+      const urlObj = new URL(url);
+      const domain = urlObj.hostname;
+      const blacklist = await this.loadBlacklist();
+      return blacklist.some((entry) => entry.domain === domain);
+    } catch (error) {
+      console.error('Failed to check blacklist:', error);
       return false;
     }
   }

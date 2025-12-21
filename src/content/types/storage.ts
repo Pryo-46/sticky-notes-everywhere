@@ -1,4 +1,4 @@
-import type { ExtensionSettings, PageHistory, StickyNoteData, StickyNoteSet } from '../../types';
+import type { BlacklistEntry, ExtensionSettings, PageHistory, StickyNoteData, StickyNoteSet } from '../../types';
 
 /**
  * StorageServiceのインターフェース
@@ -33,4 +33,10 @@ export interface IStorageService {
   loadDisabledPages(): Promise<string[]>;
   isPageDisabled(url: string): Promise<boolean>;
   togglePageDisabled(url: string): Promise<boolean>;
+
+  // ブラックリスト管理
+  loadBlacklist(): Promise<BlacklistEntry[]>;
+  addToBlacklist(domain: string): Promise<void>;
+  removeFromBlacklist(domain: string): Promise<void>;
+  isBlacklisted(url: string): Promise<boolean>;
 }

@@ -24,11 +24,17 @@ let keyboardShortcutHandler: KeyboardShortcutHandler | null = null;
 let settingsModal: SettingsModal | null = null;
 let setManager: SetManager | null = null;
 let storageService: IStorageService | null = null;
-let isPageDisabled = false;
+let isSessionDisabled = false;
+let isBlacklisted = false;
 
 /** 現在のページURLを取得（ホスト+パス） */
 function getCurrentPageUrl(): string {
   return window.location.origin + window.location.pathname;
+}
+
+/** 現在のドメインを取得 */
+function getCurrentDomain(): string {
+  return window.location.hostname;
 }
 
 /** ページ履歴を保存 */
@@ -90,16 +96,35 @@ function loadNotes(notes: StickyNoteData[], mode: LoadMode): void {
   saveAllNotes();
 }
 
+/** background.tsから状態を取得 */
+async function checkStatusFromBackground(): Promise<{ sessionDisabled: boolean; blacklisted: boolean }> {
+  try {
+    const response = await chrome.runtime.sendMessage({ action: 'checkStatus' });
+    return response || { sessionDisabled: false, blacklisted: false };
+  } catch {
+    return { sessionDisabled: false, blacklisted: false };
+  }
+}
+
 async function initialize(): Promise<void> {
   if (menuBar) return; // 既に初期化済み
 
   // ストレージサービスを取得し、設定を読み込む
   storageService = getStorageService();
 
-  // このページが無効化されているかチェック
-  isPageDisabled = await storageService.isPageDisabled(getCurrentPageUrl());
-  if (isPageDisabled) {
-    return; // 無効化されている場合は初期化しない
+  // background.tsから状態を確認
+  const status = await checkStatusFromBackground();
+  isSessionDisabled = status.sessionDisabled;
+  isBlacklisted = status.blacklisted;
+
+  // ブラックリストに登録されている場合は初期化しない
+  if (isBlacklisted) {
+    return;
+  }
+
+  // セッション無効化されている場合も初期化しない
+  if (isSessionDisabled) {
+    return;
   }
 
   const settings = await storageService.loadSettings();
@@ -242,7 +267,7 @@ function destroyAll(): void {
 chrome.runtime.onMessage.addListener((message: ExtensionMessage, _sender, sendResponse) => {
   if (message.action === 'toggleMenu') {
     // 無効化されている場合は何もしない
-    if (isPageDisabled) {
+    if (isSessionDisabled || isBlacklisted) {
       sendResponse({ success: false, disabled: true });
       return true;
     }
@@ -253,28 +278,41 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, _sender, sendRe
     return true; // 非同期レスポンスを示す
   }
 
-  if (message.action === 'checkDisabled') {
-    sendResponse({ initialized: !!menuBar, disabled: isPageDisabled });
+  if (message.action === 'toggleSessionDisabled') {
+    // セッション無効化状態が変更された
+    isSessionDisabled = message.disabled;
+
+    if (isSessionDisabled) {
+      // 無効化された - UIをDOMから削除
+      destroyAll();
+    } else {
+      // 有効化された - 再初期化
+      initialize();
+    }
+    sendResponse({ success: true, disabled: isSessionDisabled });
     return true;
   }
 
-  if (message.action === 'toggleDisabled') {
-    // 無効化状態が変更された
-    (async () => {
-      if (!storageService) {
-        storageService = getStorageService();
-      }
-      isPageDisabled = await storageService.isPageDisabled(getCurrentPageUrl());
+  if (message.action === 'blacklistAdded') {
+    // ブラックリストに追加された
+    const currentDomain = getCurrentDomain();
+    if (message.domain === currentDomain) {
+      isBlacklisted = true;
+      destroyAll();
+    }
+    sendResponse({ success: true });
+    return true;
+  }
 
-      if (isPageDisabled) {
-        // 無効化された - UIをDOMから削除
-        destroyAll();
-      } else {
-        // 有効化された - 再初期化
-        await initialize();
-      }
-      sendResponse({ success: true, disabled: isPageDisabled });
-    })();
+  if (message.action === 'blacklistRemoved') {
+    // ブラックリストから削除された
+    const currentDomain = getCurrentDomain();
+    if (message.domain === currentDomain) {
+      isBlacklisted = false;
+      // 再初期化
+      initialize();
+    }
+    sendResponse({ success: true });
     return true;
   }
 

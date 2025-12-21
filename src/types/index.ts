@@ -107,15 +107,31 @@ export interface ToggleMenuMessage {
   action: 'toggleMenu';
 }
 
-export interface ToggleDisabledMessage {
-  action: 'toggleDisabled';
+export interface ToggleSessionDisabledMessage {
+  action: 'toggleSessionDisabled';
+  disabled: boolean;
 }
 
-export interface CheckDisabledMessage {
-  action: 'checkDisabled';
+export interface BlacklistAddedMessage {
+  action: 'blacklistAdded';
+  domain: string;
 }
 
-export type ExtensionMessage = ToggleMenuMessage | ToggleDisabledMessage | CheckDisabledMessage;
+export interface BlacklistRemovedMessage {
+  action: 'blacklistRemoved';
+  domain: string;
+}
+
+export interface CheckStatusMessage {
+  action: 'checkStatus';
+}
+
+export type ExtensionMessage =
+  | ToggleMenuMessage
+  | ToggleSessionDisabledMessage
+  | BlacklistAddedMessage
+  | BlacklistRemovedMessage
+  | CheckStatusMessage;
 
 /** メニューバーのモード */
 export type MenuBarMode = 'bar' | 'floating';
@@ -141,6 +157,12 @@ export const BUTTON_SIZE_PRESETS: Record<ButtonSize, number> = {
   medium: 40,
   large: 48,
 };
+
+/** ブラックリストエントリ */
+export interface BlacklistEntry {
+  domain: string;
+  addedAt: number;
+}
 
 /** 拡張機能の設定 */
 export interface ExtensionSettings {
