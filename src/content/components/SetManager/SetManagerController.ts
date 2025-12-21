@@ -1,4 +1,5 @@
 import type { PageHistory, StickyNoteData, StickyNoteSet } from '../../../types';
+import { ICONS } from '../../icons';
 
 export type LoadMode = 'replace' | 'merge';
 
@@ -226,8 +227,8 @@ export class SetManagerController {
         </p>
         <div class="load-dialog-buttons">
           <button class="btn btn-secondary cancel-load-btn">キャンセル</button>
-          <button class="btn btn-danger replace-btn">置換</button>
-          <button class="btn btn-primary merge-btn">マージ</button>
+          <button class="btn btn-warning has-icon replace-btn">${ICONS.replace} 置換</button>
+          <button class="btn btn-primary has-icon merge-btn">${ICONS.add} マージ</button>
         </div>
       </div>
     `;

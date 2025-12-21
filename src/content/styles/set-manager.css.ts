@@ -507,16 +507,16 @@ export function getSetManagerStyles(): string {
       cursor: not-allowed;
     }
 
-    .btn-danger {
+    .btn-warning {
       background: #fff;
-      border: 1px solid #fa5252;
-      color: #fa5252;
+      border: 1px solid #fab005;
+      color: #f59f00;
     }
 
-    .btn-danger:hover {
-      background: #fff5f5;
-      border-color: #e03131;
-      color: #e03131;
+    .btn-warning:hover {
+      background: #fff9db;
+      border-color: #f59f00;
+      color: #e67700;
     }
 
     /* 読み込みダイアログ */
@@ -576,8 +576,24 @@ export function getSetManagerStyles(): string {
     }
 
     .load-dialog-buttons .btn {
-      min-width: 80px;
+      flex: 1;
       text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .load-dialog-buttons .btn.has-icon {
+      position: relative;
+      padding-left: 28px;
+      padding-right: 12px;
+    }
+
+    .load-dialog-buttons .btn svg {
+      width: 16px;
+      height: 16px;
+      position: absolute;
+      left: 10px;
     }
   `;
 }
