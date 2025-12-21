@@ -34,6 +34,7 @@ export class SettingsModalRenderer {
     const colorSettings = this.renderColorSettings(settings, isUserPreset);
     const sizeSettings = this.renderSizeSettings(settings);
     const buttonSizeButtons = this.renderButtonSizeButtons(settings.buttonSize);
+    const behaviorSettings = this.renderBehaviorSettings(settings);
 
     return `
       <div class="settings-modal">
@@ -42,6 +43,10 @@ export class SettingsModalRenderer {
           <button class="close-btn" title="閉じる">${ICONS.close}</button>
         </div>
         <div class="settings-body">
+          <div class="settings-section">
+            <h3>動作設定</h3>
+            ${behaviorSettings}
+          </div>
           <div class="settings-section">
             <h3>カラープリセット</h3>
             <div class="preset-selector">
@@ -133,5 +138,18 @@ export class SettingsModalRenderer {
     return BUTTON_SIZES.map(
       (size) => `<button class="button-size-btn${currentSize === size ? ' active' : ''}" data-button-size="${size}">${BUTTON_SIZE_LABELS[size]}</button>`
     ).join('');
+  }
+
+  private renderBehaviorSettings(settings: ExtensionSettings): string {
+    return `
+      <div class="behavior-settings">
+        <div class="behavior-setting-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="autoShowMenu" ${settings.autoShowMenu ? 'checked' : ''}>
+            <span>ページ表示時にメニューを自動展開</span>
+          </label>
+        </div>
+      </div>
+    `;
   }
 }

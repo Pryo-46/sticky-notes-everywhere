@@ -16,6 +16,7 @@ type ClearAllCallback = () => void;
 type CopyAllCallback = () => void;
 type SettingsCallback = () => void;
 type SetManagerCallback = () => void;
+type PinToggleCallback = () => boolean;
 
 export class MenuBar {
   private element: HTMLDivElement;
@@ -28,7 +29,9 @@ export class MenuBar {
   private copyAllCallback: CopyAllCallback | null = null;
   private settingsCallback: SettingsCallback | null = null;
   private setManagerCallback: SetManagerCallback | null = null;
+  private pinToggleCallback: PinToggleCallback | null = null;
   private notesVisible = true;
+  private isPinned = false;
 
   private currentMode: MenuBarMode = 'bar';
   private currentPosition: MenuBarPosition = 'top';
@@ -46,6 +49,7 @@ export class MenuBar {
     this.currentPosition = settings.menuBarPosition;
     this.floatingPosition = { ...settings.floatingPosition };
     this.selectedSize = settings.defaultSize;
+    this.isPinned = settings.stickyPinned;
 
     const { host, shadowRoot } = createShadowDOM({
       id: 'sticky-notes-everywhere-host',
@@ -117,6 +121,16 @@ export class MenuBar {
         this.floatingPosition = position;
         this.saveSettings();
       },
+      onPinToggle: () => {
+        this.isPinned = !this.isPinned;
+        const container = this.getContainer();
+        if (container) {
+          this.controller.updatePinIcon(container, this.renderer, this.isPinned);
+        }
+        this.saveSettings();
+        this.pinToggleCallback?.();
+        return this.isPinned;
+      },
     });
   }
 
@@ -146,6 +160,8 @@ export class MenuBar {
       currentMode: this.currentMode,
       currentPosition: this.currentPosition,
       settings,
+      isPinned: this.isPinned,
+      notesVisible: this.notesVisible,
     });
   }
 
@@ -230,6 +246,14 @@ export class MenuBar {
     this.setManagerCallback = callback;
   }
 
+  public onPinToggle(callback: PinToggleCallback): void {
+    this.pinToggleCallback = callback;
+  }
+
+  public getPinned(): boolean {
+    return this.isPinned;
+  }
+
   public updateColorSwatches(): void {
     const settings = StorageService.getInstance().getSettings();
     const menuBar = this.shadowRoot.querySelector('.sticky-notes-menu-bar');
@@ -276,6 +300,8 @@ export class MenuBar {
         currentMode: this.currentMode,
         currentPosition: this.currentPosition,
         settings,
+        isPinned: this.isPinned,
+        notesVisible: this.notesVisible,
       });
     }
 
@@ -299,6 +325,7 @@ export class MenuBar {
     settings.menuBarMode = this.currentMode;
     settings.menuBarPosition = this.currentPosition;
     settings.floatingPosition = { ...this.floatingPosition };
+    settings.stickyPinned = this.isPinned;
     await storage.saveSettings(settings);
   }
 }

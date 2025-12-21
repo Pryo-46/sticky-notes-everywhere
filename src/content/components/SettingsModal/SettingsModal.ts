@@ -62,6 +62,9 @@ export class SettingsModal {
       onZIndexChange: (value) => {
         this.tempSettings.baseZIndex = value;
       },
+      onAutoShowMenuChange: (value) => {
+        this.tempSettings.autoShowMenu = value;
+      },
     });
   }
 
@@ -85,6 +88,8 @@ export class SettingsModal {
       floatingPosition: { ...settings.floatingPosition },
       baseZIndex: settings.baseZIndex,
       floatingIconPosition: settings.floatingIconPosition,
+      stickyPinned: settings.stickyPinned,
+      autoShowMenu: settings.autoShowMenu,
     };
   }
 
@@ -174,6 +179,12 @@ export class SettingsModal {
     const zIndexInput = modal.querySelector('#baseZIndex') as HTMLInputElement;
     if (zIndexInput) {
       zIndexInput.value = String(this.tempSettings.baseZIndex);
+    }
+
+    // 動作設定を更新
+    const autoShowMenuCheckbox = modal.querySelector('#autoShowMenu') as HTMLInputElement;
+    if (autoShowMenuCheckbox) {
+      autoShowMenuCheckbox.checked = this.tempSettings.autoShowMenu;
     }
   }
 

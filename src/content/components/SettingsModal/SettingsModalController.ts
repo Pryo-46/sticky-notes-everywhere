@@ -12,6 +12,7 @@ export interface SettingsModalCallbacks {
   onDefaultSizeChange?: (size: StickySize) => void;
   onButtonSizeChange?: (size: ButtonSize) => void;
   onZIndexChange?: (value: number) => void;
+  onAutoShowMenuChange?: (value: boolean) => void;
 }
 
 /**
@@ -36,6 +37,7 @@ export class SettingsModalController {
     this.setupSizeInputs(modal);
     this.setupButtonSizeButtons(modal);
     this.setupZIndexInput(modal);
+    this.setupBehaviorInputs(modal);
     this.setupOverlayClick(modal);
   }
 
@@ -158,6 +160,15 @@ export class SettingsModalController {
       if (!isNaN(value) && value >= 1 && value <= 2147483600) {
         this.callbacks.onZIndexChange?.(value);
       }
+    });
+  }
+
+  private setupBehaviorInputs(modal: HTMLDivElement): void {
+    const autoShowMenuCheckbox = modal.querySelector('#autoShowMenu') as HTMLInputElement;
+
+    autoShowMenuCheckbox?.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement;
+      this.callbacks.onAutoShowMenuChange?.(target.checked);
     });
   }
 

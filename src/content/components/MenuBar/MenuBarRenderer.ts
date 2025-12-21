@@ -15,6 +15,8 @@ export interface MenuBarRenderOptions {
   currentMode: MenuBarMode;
   currentPosition: MenuBarPosition;
   settings: ExtensionSettings;
+  isPinned: boolean;
+  notesVisible: boolean;
 }
 
 /**
@@ -32,18 +34,20 @@ export class MenuBarRenderer {
 
   /** メニューバー内部のHTML */
   public renderMenuBar(options: MenuBarRenderOptions): string {
-    const { selectedSize, currentMode, currentPosition, settings } = options;
+    const { selectedSize, currentMode, currentPosition, settings, isPinned, notesVisible } = options;
 
     const colorSwatches = this.renderColorSwatches(settings);
     const sizeButtons = this.renderSizeButtons(selectedSize);
     const positionIcon = NEXT_POSITION_ICONS[currentPosition];
     const modeIcon = currentMode === 'bar' ? ICONS.floating : ICONS.barMode;
+    const pinIcon = isPinned ? ICONS.pin : ICONS.pinOff;
+    const visibilityIcon = notesVisible ? ICONS.visibility : ICONS.visibilityOff;
 
     if (currentMode === 'floating') {
-      return this.renderFloatingLayout(sizeButtons, colorSwatches, modeIcon);
+      return this.renderFloatingLayout(sizeButtons, colorSwatches, modeIcon, pinIcon, isPinned, visibilityIcon, notesVisible);
     }
 
-    return this.renderBarLayout(sizeButtons, colorSwatches, positionIcon, modeIcon);
+    return this.renderBarLayout(sizeButtons, colorSwatches, positionIcon, modeIcon, pinIcon, isPinned, visibilityIcon, notesVisible);
   }
 
   private renderColorSwatches(settings: ExtensionSettings): string {
@@ -59,14 +63,19 @@ export class MenuBarRenderer {
     ).join('');
   }
 
-  private renderFloatingLayout(sizeButtons: string, colorSwatches: string, modeIcon: string): string {
+  private renderFloatingLayout(sizeButtons: string, colorSwatches: string, modeIcon: string, pinIcon: string, isPinned: boolean, visibilityIcon: string, notesVisible: boolean): string {
+    const pinTitle = isPinned ? 'ピン留め解除（ページ移動時に付箋をクリア）' : 'ピン留め（ページ移動時も付箋を維持）';
+    const pinActiveClass = isPinned ? ' active' : '';
+    const visibilityTitle = notesVisible ? '全付箋を非表示' : '全付箋を表示';
+    const visibilityActiveClass = notesVisible ? ' active' : '';
     return `
       <div class="menu-content">
         <div class="button-column">
           <div class="menu-section size-presets">
             ${sizeButtons}
           </div>
-          <button class="icon-btn visibility-btn" title="全付箋の表示/非表示">${ICONS.visibility}</button>
+          <button class="icon-btn pin-btn${pinActiveClass}" title="${pinTitle}">${pinIcon}</button>
+          <button class="icon-btn visibility-btn${visibilityActiveClass}" title="${visibilityTitle}">${visibilityIcon}</button>
           <button class="icon-btn copy-btn" title="メモをコピー">${ICONS.copy}</button>
           <button class="icon-btn set-manager-btn" title="付箋セット管理">${ICONS.folder}</button>
           <button class="icon-btn mode-btn" title="表示モードを変更">${modeIcon}</button>
@@ -84,8 +93,16 @@ export class MenuBarRenderer {
     sizeButtons: string,
     colorSwatches: string,
     positionIcon: string,
-    modeIcon: string
+    modeIcon: string,
+    pinIcon: string,
+    isPinned: boolean,
+    visibilityIcon: string,
+    notesVisible: boolean
   ): string {
+    const pinTitle = isPinned ? 'ピン留め解除（ページ移動時に付箋をクリア）' : 'ピン留め（ページ移動時も付箋を維持）';
+    const pinActiveClass = isPinned ? ' active' : '';
+    const visibilityTitle = notesVisible ? '全付箋を非表示' : '全付箋を表示';
+    const visibilityActiveClass = notesVisible ? ' active' : '';
     return `
       <div class="menu-section color-palette">
         ${colorSwatches}
@@ -96,7 +113,8 @@ export class MenuBarRenderer {
       </div>
       <div class="menu-divider"></div>
       <div class="menu-section actions-row">
-        <button class="icon-btn visibility-btn" title="全付箋の表示/非表示">${ICONS.visibility}</button>
+        <button class="icon-btn pin-btn${pinActiveClass}" title="${pinTitle}">${pinIcon}</button>
+        <button class="icon-btn visibility-btn${visibilityActiveClass}" title="${visibilityTitle}">${visibilityIcon}</button>
         <button class="icon-btn copy-btn" title="メモをコピー">${ICONS.copy}</button>
         <button class="icon-btn set-manager-btn" title="付箋セット管理">${ICONS.folder}</button>
         <div class="menu-divider"></div>
@@ -123,5 +141,10 @@ export class MenuBarRenderer {
   /** 表示/非表示アイコンを取得 */
   public getVisibilityIcon(visible: boolean): string {
     return visible ? ICONS.visibility : ICONS.visibilityOff;
+  }
+
+  /** ピンアイコンを取得 */
+  public getPinIcon(pinned: boolean): string {
+    return pinned ? ICONS.pin : ICONS.pinOff;
   }
 }

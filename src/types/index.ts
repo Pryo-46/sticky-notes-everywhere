@@ -157,6 +157,10 @@ export interface ExtensionSettings {
   baseZIndex: number;
   /** 常駐アイコンの位置 */
   floatingIconPosition: FloatingIconPosition;
+  /** 付箋をピン留め（ページ移動時も維持）するか */
+  stickyPinned: boolean;
+  /** ページ表示時にメニューを展開状態にするか */
+  autoShowMenu: boolean;
 }
 
 /** デフォルト設定 */
@@ -175,4 +179,6 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   floatingPosition: { x: 100, y: 100 },
   baseZIndex: 10000,
   floatingIconPosition: 'bottom-right',
+  stickyPinned: false,
+  autoShowMenu: false,
 };

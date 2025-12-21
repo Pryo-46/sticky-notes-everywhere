@@ -4,6 +4,7 @@ import type { IStorageService } from '../types/storage';
 
 const STORAGE_KEY = 'stickyNotesSettings';
 const STICKY_NOTES_KEY = 'stickyNotesData';
+const STICKY_NOTES_URL_KEY = 'stickyNotesLastUrl';
 const SETS_KEY = 'stickyNotesSets';
 const PAGE_HISTORY_KEY = 'stickyNotesPageHistory';
 const MAX_PAGE_HISTORY = 50;
@@ -105,11 +106,26 @@ export class StorageService implements IStorageService {
   }
 
   /** 付箋データを保存する */
-  public async saveStickyNotes(notes: StickyNoteData[]): Promise<void> {
+  public async saveStickyNotes(notes: StickyNoteData[], url?: string): Promise<void> {
     try {
-      await chrome.storage.local.set({ [STICKY_NOTES_KEY]: notes });
+      const data: Record<string, unknown> = { [STICKY_NOTES_KEY]: notes };
+      if (url) {
+        data[STICKY_NOTES_URL_KEY] = url;
+      }
+      await chrome.storage.local.set(data);
     } catch (error) {
       console.error('Failed to save sticky notes:', error);
+    }
+  }
+
+  /** 最後に保存した付箋のURLを取得する */
+  public async getLastSavedUrl(): Promise<string> {
+    try {
+      const result = await chrome.storage.local.get(STICKY_NOTES_URL_KEY);
+      return (result[STICKY_NOTES_URL_KEY] as string) || '';
+    } catch (error) {
+      console.error('Failed to get last saved URL:', error);
+      return '';
     }
   }
 
@@ -140,6 +156,8 @@ export class StorageService implements IStorageService {
         floatingPosition: { ...DEFAULT_SETTINGS.floatingPosition },
         baseZIndex: DEFAULT_SETTINGS.baseZIndex,
         floatingIconPosition: DEFAULT_SETTINGS.floatingIconPosition,
+        stickyPinned: DEFAULT_SETTINGS.stickyPinned,
+        autoShowMenu: DEFAULT_SETTINGS.autoShowMenu,
       };
     }
 
@@ -162,6 +180,8 @@ export class StorageService implements IStorageService {
       floatingPosition: { ...DEFAULT_SETTINGS.floatingPosition, ...saved.floatingPosition },
       baseZIndex: saved.baseZIndex ?? DEFAULT_SETTINGS.baseZIndex,
       floatingIconPosition: saved.floatingIconPosition ?? DEFAULT_SETTINGS.floatingIconPosition,
+      stickyPinned: saved.stickyPinned ?? DEFAULT_SETTINGS.stickyPinned,
+      autoShowMenu: saved.autoShowMenu ?? DEFAULT_SETTINGS.autoShowMenu,
     };
   }
 

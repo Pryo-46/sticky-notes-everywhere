@@ -421,6 +421,15 @@ export function getMenuBarStyles(): string {
       background: #dee2e6;
     }
 
+    .icon-btn.active {
+      background: #e7f5ff;
+      color: #1c7ed6;
+    }
+
+    .icon-btn.active:hover {
+      background: #d0ebff;
+    }
+
     .menu-spacer {
       flex: 1;
     }

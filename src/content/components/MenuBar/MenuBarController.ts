@@ -17,6 +17,7 @@ export interface MenuBarCallbacks {
   onPositionChange?: () => void;
   onToggle?: () => void;
   onDragEnd?: (position: { x: number; y: number }) => void;
+  onPinToggle?: () => boolean;
 }
 
 /**
@@ -64,6 +65,10 @@ export class MenuBarController {
   }
 
   private setupActionButtons(container: HTMLDivElement): void {
+    container.querySelector('.pin-btn')?.addEventListener('click', () => {
+      this.callbacks.onPinToggle?.();
+    });
+
     container.querySelector('.visibility-btn')?.addEventListener('click', () => {
       this.callbacks.onVisibilityToggle?.();
     });
@@ -200,11 +205,25 @@ export class MenuBarController {
     });
   }
 
-  /** 表示/非表示ボタンのアイコンを更新 */
+  /** 表示/非表示ボタンのアイコンと状態を更新 */
   public updateVisibilityIcon(container: HTMLElement, renderer: MenuBarRenderer, visible: boolean): void {
     const btn = container.querySelector('.visibility-btn');
     if (btn) {
       btn.innerHTML = renderer.getVisibilityIcon(visible);
+      btn.classList.toggle('active', visible);
+      const title = visible ? '全付箋を非表示' : '全付箋を表示';
+      btn.setAttribute('title', title);
+    }
+  }
+
+  /** ピンボタンのアイコンと状態を更新 */
+  public updatePinIcon(container: HTMLElement, renderer: MenuBarRenderer, pinned: boolean): void {
+    const btn = container.querySelector('.pin-btn');
+    if (btn) {
+      btn.innerHTML = renderer.getPinIcon(pinned);
+      btn.classList.toggle('active', pinned);
+      const title = pinned ? 'ピン留め解除（ページ移動時に付箋をクリア）' : 'ピン留め（ページ移動時も付箋を維持）';
+      btn.setAttribute('title', title);
     }
   }
 

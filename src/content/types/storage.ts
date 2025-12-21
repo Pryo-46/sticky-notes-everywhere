@@ -11,8 +11,9 @@ export interface IStorageService {
   getSettings(): ExtensionSettings;
   onSettingsChanged(callback: (settings: ExtensionSettings) => void): () => void;
   loadStickyNotes(): Promise<StickyNoteData[]>;
-  saveStickyNotes(notes: StickyNoteData[]): Promise<void>;
+  saveStickyNotes(notes: StickyNoteData[], url?: string): Promise<void>;
   clearStickyNotes(): Promise<void>;
+  getLastSavedUrl(): Promise<string>;
 
   // セット管理
   loadSets(): Promise<StickyNoteSet[]>;

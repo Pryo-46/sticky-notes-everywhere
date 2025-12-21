@@ -344,6 +344,76 @@ export function getSettingsModalStyles(): string {
       color: #868e96;
     }
 
+    .behavior-settings {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .behavior-setting-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .behavior-setting-item.sub-setting {
+      margin-left: 24px;
+      padding: 10px 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .behavior-setting-item.sub-setting.disabled {
+      opacity: 0.5;
+    }
+
+    .behavior-setting-item label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #495057;
+    }
+
+    .checkbox-label {
+      cursor: pointer;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      cursor: pointer;
+      accent-color: #4dabf7;
+    }
+
+    .behavior-setting-item select {
+      padding: 6px 10px;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      font-size: 13px;
+      background: #fff;
+      cursor: pointer;
+      min-width: 180px;
+    }
+
+    .behavior-setting-item select:focus {
+      outline: none;
+      border-color: #4dabf7;
+      box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.2);
+    }
+
+    .behavior-setting-item select:disabled {
+      background: #e9ecef;
+      cursor: not-allowed;
+    }
+
+    .setting-hint {
+      font-size: 12px;
+      color: #868e96;
+      margin-top: 2px;
+    }
+
     .settings-footer {
       display: flex;
       align-items: center;

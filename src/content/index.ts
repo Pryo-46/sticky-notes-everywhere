@@ -50,7 +50,7 @@ async function savePageHistory(): Promise<void> {
 async function saveAllNotes(): Promise<void> {
   if (!stickyManager || !storageService) return;
   const notesData = stickyManager.getAllNotesData();
-  await storageService.saveStickyNotes(notesData);
+  await storageService.saveStickyNotes(notesData, getCurrentPageUrl());
 }
 
 /** 付箋データを保存し、ページ履歴も更新 */
@@ -92,7 +92,7 @@ async function initialize(): Promise<void> {
 
   // ストレージサービスを取得し、設定を読み込む
   storageService = getStorageService();
-  await storageService.loadSettings();
+  const settings = await storageService.loadSettings();
 
   // 各コンポーネントを初期化
   menuBar = new MenuBar();
@@ -126,10 +126,17 @@ async function initialize(): Promise<void> {
     saveAllNotesWithHistory();
   });
 
-  // 保存済み付箋を復元
-  const savedNotes = await storageService.loadStickyNotes();
-  for (const noteData of savedNotes) {
-    stickyManager.createNoteFromData(noteData);
+  // ピン留め時は保存済み付箋を復元
+  if (settings.stickyPinned) {
+    const savedNotes = await storageService.loadStickyNotes();
+    if (savedNotes.length > 0) {
+      for (const noteData of savedNotes) {
+        stickyManager.createNoteFromData(noteData);
+      }
+    }
+  } else {
+    // ピン留めがオフの場合は保存済み付箋をクリア
+    await storageService.clearStickyNotes();
   }
 
   // メニューバーのカラースウォッチにドラッグハンドラーを設定
@@ -168,6 +175,11 @@ async function initialize(): Promise<void> {
     menuBar!.updateColorSwatches();
     menuBar!.refreshStyles();
   });
+
+  // autoShowMenuがオンの場合、メニューを自動展開
+  if (settings.autoShowMenu) {
+    menuBar.show();
+  }
 }
 
 async function getMenuBar(): Promise<MenuBar> {
