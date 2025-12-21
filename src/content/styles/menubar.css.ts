@@ -41,17 +41,15 @@ export function getMenuBarStyles(): string {
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      transition: box-shadow 0.15s ease;
       z-index: 1;
     }
 
     .sticky-icon-btn:hover {
-      transform: scale(1.1);
       box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
     }
 
     .sticky-icon-btn:active {
-      transform: scale(0.95);
     }
 
     .sticky-icon-btn svg {
@@ -83,12 +81,6 @@ export function getMenuBarStyles(): string {
       top: 50%;
       transform: translateY(-50%);
       z-index: 2;
-    }
-    .sticky-menu-container.bar-top .sticky-icon-btn:hover {
-      transform: translateY(-50%) scale(1.1);
-    }
-    .sticky-menu-container.bar-top .sticky-icon-btn:active {
-      transform: translateY(-50%) scale(0.95);
     }
     .sticky-menu-container.bar-top .sticky-notes-menu-bar {
       height: var(--bar-height);
@@ -123,12 +115,6 @@ export function getMenuBarStyles(): string {
       top: 50%;
       transform: translateY(-50%);
       z-index: 2;
-    }
-    .sticky-menu-container.bar-bottom .sticky-icon-btn:hover {
-      transform: translateY(-50%) scale(1.1);
-    }
-    .sticky-menu-container.bar-bottom .sticky-icon-btn:active {
-      transform: translateY(-50%) scale(0.95);
     }
     .sticky-menu-container.bar-bottom .sticky-notes-menu-bar {
       height: var(--bar-height);
@@ -165,12 +151,6 @@ export function getMenuBarStyles(): string {
       transform: translateX(-50%);
       z-index: 2;
     }
-    .sticky-menu-container.bar-left .sticky-icon-btn:hover {
-      transform: translateX(-50%) scale(1.1);
-    }
-    .sticky-menu-container.bar-left .sticky-icon-btn:active {
-      transform: translateX(-50%) scale(0.95);
-    }
     .sticky-menu-container.bar-left .sticky-notes-menu-bar {
       width: var(--bar-height);
       flex-direction: column;
@@ -205,12 +185,6 @@ export function getMenuBarStyles(): string {
       left: 50%;
       transform: translateX(-50%);
       z-index: 2;
-    }
-    .sticky-menu-container.bar-right .sticky-icon-btn:hover {
-      transform: translateX(-50%) scale(1.1);
-    }
-    .sticky-menu-container.bar-right .sticky-icon-btn:active {
-      transform: translateX(-50%) scale(0.95);
     }
     .sticky-menu-container.bar-right .sticky-notes-menu-bar {
       width: var(--bar-height);
