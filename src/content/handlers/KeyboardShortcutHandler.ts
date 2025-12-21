@@ -87,10 +87,12 @@ export class KeyboardShortcutHandler {
       return;
     }
 
-    // Alt + X: 全クリア
+    // Alt + X: 全クリア（確認あり）
     if (e.key.toLowerCase() === 'x') {
       e.preventDefault();
-      this.onClearAll();
+      if (confirm('すべての付箋を削除しますか？')) {
+        this.onClearAll();
+      }
       return;
     }
   }
