@@ -52,7 +52,11 @@ export class MenuBarRenderer {
 
   private renderColorSwatches(settings: ExtensionSettings): string {
     return STICKY_COLORS.map(
-      (color) => `<div class="color-swatch ${color}" data-color="${color}" draggable="true" style="background-color: ${settings.colors[color]}"></div>`
+      (color, index) => {
+        const shortcutKey = index === 9 ? '0' : String(index + 1);
+        const title = `ドラッグして付箋を作成 (Alt + ${shortcutKey})`;
+        return `<div class="color-swatch ${color}" data-color="${color}" draggable="true" style="background-color: ${settings.colors[color]}" title="${title}"></div>`;
+      }
     ).join('');
   }
 
@@ -66,7 +70,7 @@ export class MenuBarRenderer {
   private renderFloatingLayout(sizeButtons: string, colorSwatches: string, modeIcon: string, pinIcon: string, isPinned: boolean, visibilityIcon: string, notesVisible: boolean): string {
     const pinTitle = isPinned ? 'ピン留め解除（ページ移動時に付箋をクリア）' : 'ピン留め（ページ移動時も付箋を維持）';
     const pinActiveClass = isPinned ? ' active' : '';
-    const visibilityTitle = notesVisible ? '全付箋を非表示' : '全付箋を表示';
+    const visibilityTitle = notesVisible ? '全付箋を非表示 (Alt + H)' : '全付箋を表示 (Alt + H)';
     const visibilityActiveClass = notesVisible ? ' active' : '';
     return `
       <div class="menu-content">
@@ -76,10 +80,10 @@ export class MenuBarRenderer {
           </div>
           <button class="icon-btn pin-btn${pinActiveClass}" title="${pinTitle}">${pinIcon}</button>
           <button class="icon-btn visibility-btn${visibilityActiveClass}" title="${visibilityTitle}">${visibilityIcon}</button>
-          <button class="icon-btn copy-btn" title="メモをコピー">${ICONS.copy}</button>
+          <button class="icon-btn copy-btn" title="メモをコピー (Ctrl + Alt + C)">${ICONS.copy}</button>
           <button class="icon-btn set-manager-btn" title="付箋セット管理">${ICONS.folder}</button>
           <button class="icon-btn mode-btn" title="表示モードを変更">${modeIcon}</button>
-          <button class="icon-btn clear-btn" title="全付箋を削除">${ICONS.delete}</button>
+          <button class="icon-btn clear-btn" title="全付箋を削除 (Alt + X)">${ICONS.delete}</button>
           <button class="icon-btn settings-btn" title="設定">${ICONS.settings}</button>
         </div>
         <div class="menu-section color-palette">
@@ -101,7 +105,7 @@ export class MenuBarRenderer {
   ): string {
     const pinTitle = isPinned ? 'ピン留め解除（ページ移動時に付箋をクリア）' : 'ピン留め（ページ移動時も付箋を維持）';
     const pinActiveClass = isPinned ? ' active' : '';
-    const visibilityTitle = notesVisible ? '全付箋を非表示' : '全付箋を表示';
+    const visibilityTitle = notesVisible ? '全付箋を非表示 (Alt + H)' : '全付箋を表示 (Alt + H)';
     const visibilityActiveClass = notesVisible ? ' active' : '';
     return `
       <div class="menu-section color-palette">
@@ -115,13 +119,13 @@ export class MenuBarRenderer {
       <div class="menu-section actions-row">
         <button class="icon-btn pin-btn${pinActiveClass}" title="${pinTitle}">${pinIcon}</button>
         <button class="icon-btn visibility-btn${visibilityActiveClass}" title="${visibilityTitle}">${visibilityIcon}</button>
-        <button class="icon-btn copy-btn" title="メモをコピー">${ICONS.copy}</button>
+        <button class="icon-btn copy-btn" title="メモをコピー (Ctrl + Alt + C)">${ICONS.copy}</button>
         <button class="icon-btn set-manager-btn" title="付箋セット管理">${ICONS.folder}</button>
         <div class="menu-divider"></div>
         <button class="icon-btn mode-btn" title="表示モードを変更">${modeIcon}</button>
         <button class="icon-btn position-btn" title="メニューの位置を変更">${positionIcon}</button>
         <div class="menu-divider"></div>
-        <button class="icon-btn clear-btn" title="全付箋を削除">${ICONS.delete}</button>
+        <button class="icon-btn clear-btn" title="全付箋を削除 (Alt + X)">${ICONS.delete}</button>
         <button class="icon-btn settings-btn" title="設定">${ICONS.settings}</button>
       </div>
       <div class="menu-spacer"></div>

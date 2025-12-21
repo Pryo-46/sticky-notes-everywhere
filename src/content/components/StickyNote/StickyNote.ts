@@ -304,6 +304,10 @@ export class StickyNote {
     return this.element.querySelector('.sticky-note-resize');
   }
 
+  public focus(): void {
+    this.textArea.focus();
+  }
+
   public destroy(): void {
     this.colorPicker.destroy();
     this.element.remove();

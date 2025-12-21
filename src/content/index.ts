@@ -5,6 +5,7 @@ import { DragCreateHandler } from './handlers/DragCreateHandler';
 import { DragMoveHandler } from './handlers/DragMoveHandler';
 import { ResizeHandler } from './handlers/ResizeHandler';
 import { ExportHandler } from './handlers/ExportHandler';
+import { KeyboardShortcutHandler } from './handlers/KeyboardShortcutHandler';
 import { getStorageService } from './services/ServiceContainer';
 import { SettingsModal } from './components/SettingsModal';
 import { SetManager } from './components/SetManager';
@@ -19,6 +20,7 @@ let dragCreateHandler: DragCreateHandler | null = null;
 let dragMoveHandler: DragMoveHandler | null = null;
 let resizeHandler: ResizeHandler | null = null;
 let exportHandler: ExportHandler | null = null;
+let keyboardShortcutHandler: KeyboardShortcutHandler | null = null;
 let settingsModal: SettingsModal | null = null;
 let setManager: SetManager | null = null;
 let storageService: IStorageService | null = null;
@@ -101,6 +103,18 @@ async function initialize(): Promise<void> {
   dragMoveHandler = new DragMoveHandler(stickyManager);
   resizeHandler = new ResizeHandler(stickyManager);
   exportHandler = new ExportHandler();
+  keyboardShortcutHandler = new KeyboardShortcutHandler(
+    stickyManager,
+    () => menuBar!.getSelectedSize(),
+    () => stickyManager!.toggleVisibility(),
+    async () => {
+      stickyManager!.clearAll();
+      await storageService!.clearStickyNotes();
+    },
+    () => {
+      exportHandler!.exportToClipboard(stickyManager!.getAllNotes());
+    }
+  );
   settingsModal = new SettingsModal();
   setManager = new SetManager({
     getCurrentNotes: () => stickyManager!.getAllNotesData(),
