@@ -22,7 +22,7 @@ export class SetManagerRenderer {
               <!-- 保存セクション -->
               <div class="set-manager-section save-section${disabledClass}">
                 <div class="section-header">
-                  <h3>${ICONS.save} 保存</h3>
+                  <h2>${ICONS.save} 保存</h2>
                   ${!hasCurrentNotes ? '<span class="section-note">付箋がありません</span>' : ''}
                 </div>
                 <button class="save-current-btn"${disabledAttr}>
@@ -36,7 +36,7 @@ export class SetManagerRenderer {
               <!-- 読み込みセクション -->
               <div class="set-manager-section load-section">
                 <div class="section-header">
-                  <h3>${ICONS.folder} 読み込み</h3>
+                  <h2>${ICONS.folder} 読み込み</h2>
                 </div>
                 <div class="set-list">
                   ${this.renderLoadSetList(sets)}
@@ -48,7 +48,7 @@ export class SetManagerRenderer {
             <div class="column column-right">
               <div class="set-manager-section">
                 <div class="section-header">
-                  <h3>${ICONS.history} 自動バックアップ</h3>
+                  <h2>${ICONS.history} 自動バックアップ</h2>
                   ${history.length > 0 ? '<button class="clear-history-btn">すべて削除</button>' : ''}
                 </div>
                 <div class="history-list">

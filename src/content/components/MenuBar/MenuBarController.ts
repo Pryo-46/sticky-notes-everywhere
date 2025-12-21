@@ -44,6 +44,22 @@ export class MenuBarController {
     this.setupModeButton(container);
     this.setupDragHandlers(container, currentMode, floatingPosition);
     this.setupColorSwatches(container);
+    this.setupHorizontalScroll(container);
+  }
+
+  private setupHorizontalScroll(container: HTMLDivElement): void {
+    const menuBar = container.querySelector('.sticky-notes-menu-bar') as HTMLElement;
+    if (!menuBar) return;
+
+    menuBar.addEventListener('wheel', (e: WheelEvent) => {
+      // 横バーモード（top/bottom）の場合のみ横スクロールに変換
+      if (container.classList.contains('bar-top') || container.classList.contains('bar-bottom')) {
+        if (e.deltaY !== 0) {
+          e.preventDefault();
+          menuBar.scrollLeft += e.deltaY;
+        }
+      }
+    }, { passive: false });
   }
 
   private setupSizeButtons(container: HTMLDivElement): void {

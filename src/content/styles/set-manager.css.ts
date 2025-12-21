@@ -47,7 +47,7 @@ export function getSetManagerStyles(): string {
 
     .set-manager-header h2 {
       margin: 0;
-      font-size: 18px;
+      font-size: 22px;
       font-weight: 600;
       color: #212529;
     }
@@ -186,8 +186,8 @@ export function getSetManagerStyles(): string {
       margin-bottom: 12px;
     }
 
-    .section-header h3 {
-      font-size: 14px;
+    .section-header h2 {
+      font-size: 18px;
       font-weight: 600;
       color: #495057;
       margin: 0;
@@ -196,9 +196,9 @@ export function getSetManagerStyles(): string {
       gap: 8px;
     }
 
-    .section-header h3 svg {
-      width: 18px;
-      height: 18px;
+    .section-header h2 svg {
+      width: 20px;
+      height: 20px;
     }
 
     .section-note {

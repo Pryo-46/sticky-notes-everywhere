@@ -219,5 +219,5 @@ window.addEventListener('beforeunload', () => {
 
 // ページ読み込み時に自動初期化
 initialize().then(() => {
-  console.log('Sticky Notes Everywhere: 自動初期化完了');
+  //console.log('Sticky Notes Everywhere: 自動初期化完了');
 });

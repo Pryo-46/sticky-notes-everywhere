@@ -222,13 +222,13 @@ export class SetManagerController {
         <h3>「${this.escapeHtml(name)}」を読み込み</h3>
         <p class="load-dialog-info">${noteCount}件の付箋</p>
         <p class="load-dialog-desc">
-          <strong>置換:</strong> 現在の付箋を削除して${sourceLabel}の付箋を読み込みます<br>
-          <strong>マージ:</strong> 現在の付箋に${sourceLabel}の付箋を追加して読み込みます
+          <strong>読み込む:</strong> 現在の付箋を削除して${sourceLabel}の付箋を読み込みます<br>
+          <strong>追加する:</strong> 現在の付箋に${sourceLabel}の付箋を追加して読み込みます
         </p>
         <div class="load-dialog-buttons">
           <button class="btn btn-secondary cancel-load-btn">キャンセル</button>
-          <button class="btn btn-warning has-icon replace-btn">${ICONS.replace} 置換</button>
-          <button class="btn btn-primary has-icon merge-btn">${ICONS.add} マージ</button>
+          <button class="btn btn-secondary has-icon merge-btn">${ICONS.add} 追加する</button>
+          <button class="btn btn-primary has-icon replace-btn">${ICONS.load} 読み込む</button>
         </div>
       </div>
     `;

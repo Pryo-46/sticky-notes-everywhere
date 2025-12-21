@@ -45,7 +45,7 @@ export function getSettingsModalStyles(): string {
 
     .settings-header h2 {
       margin: 0;
-      font-size: 18px;
+      font-size: 22px;
       font-weight: 600;
       color: #212529;
     }
@@ -100,13 +100,11 @@ export function getSettingsModalStyles(): string {
       margin-bottom: 0;
     }
 
-    .settings-section h3 {
-      font-size: 14px;
+    .settings-section h2 {
+      font-size: 18px;
       font-weight: 600;
       color: #495057;
       margin: 0 0 12px 0;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
     .preset-selector {

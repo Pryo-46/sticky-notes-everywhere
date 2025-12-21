@@ -97,7 +97,14 @@ export function getMenuBarStyles(): string {
       padding: 0 16px 0 calc(var(--button-size) + 16px);
       border-radius: var(--bar-radius);
       max-width: 100vw;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
       transition: max-width ${ANIMATION_DURATION} ${ANIMATION_EASING}, opacity ${OPACITY_DURATION} ease;
+    }
+    .sticky-menu-container.bar-top .sticky-notes-menu-bar::-webkit-scrollbar {
+      display: none;
     }
     .sticky-menu-container.bar-top.hidden .sticky-notes-menu-bar {
       max-width: var(--bar-height);
@@ -130,7 +137,14 @@ export function getMenuBarStyles(): string {
       padding: 0 16px 0 calc(var(--button-size) + 16px);
       border-radius: var(--bar-radius);
       max-width: 100vw;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
       transition: max-width ${ANIMATION_DURATION} ${ANIMATION_EASING}, opacity ${OPACITY_DURATION} ease;
+    }
+    .sticky-menu-container.bar-bottom .sticky-notes-menu-bar::-webkit-scrollbar {
+      display: none;
     }
     .sticky-menu-container.bar-bottom.hidden .sticky-notes-menu-bar {
       max-width: var(--bar-height);
@@ -235,7 +249,7 @@ export function getMenuBarStyles(): string {
       left: calc(var(--button-size) / 2);
       transform: translateX(-50%);
       border-radius: 9999px;
-      padding: calc(var(--button-size) + 16px) 8px 20px 8px;
+      padding: calc(var(--button-size) + 16px) 0px 20px 0px;
       flex-direction: column;
       gap: 8px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
@@ -255,7 +269,7 @@ export function getMenuBarStyles(): string {
     .floating .menu-content {
       display: flex;
       flex-direction: row;
-      gap: 16px;
+      gap: 8px;
       padding: 8px;
       max-height: calc(100vh - var(--button-size) - 40px);
       overflow-y: auto;

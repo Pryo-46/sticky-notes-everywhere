@@ -44,11 +44,11 @@ export class SettingsModalRenderer {
         </div>
         <div class="settings-body">
           <div class="settings-section">
-            <h3>動作設定</h3>
+            <h2>動作設定</h2>
             ${behaviorSettings}
           </div>
           <div class="settings-section">
-            <h3>カラープリセット</h3>
+            <h2>カラープリセット</h2>
             <div class="preset-selector">
               ${presetButtons}
             </div>
@@ -57,19 +57,19 @@ export class SettingsModalRenderer {
             </div>
           </div>
           <div class="settings-section">
-            <h3>サイズプリセット（ピクセル）</h3>
+            <h2>サイズプリセット（ピクセル）</h2>
             <div class="size-settings">
               ${sizeSettings}
             </div>
           </div>
           <div class="settings-section">
-            <h3>メニューボタンサイズ</h3>
+            <h2>メニューボタンサイズ</h2>
             <div class="button-size-selector">
               ${buttonSizeButtons}
             </div>
           </div>
           <div class="settings-section">
-            <h3>重なり順（z-index）</h3>
+            <h2>重なり順（z-index）</h2>
             <div class="zindex-setting">
               <input type="number" class="zindex-input" id="baseZIndex" value="${settings.baseZIndex}" min="1" max="2147483600">
               <span class="zindex-hint">付箋が他の要素より前面に出ない場合は値を上げてください（最大: 2147483647）</span>
