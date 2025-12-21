@@ -170,10 +170,11 @@ async function initialize(): Promise<void> {
     setManager!.show();
   });
 
-  // 設定保存後にメニューバーを更新
+  // 設定保存後にメニューバーと付箋を更新
   settingsModal.onSettingsSaved(() => {
     menuBar!.updateColorSwatches();
     menuBar!.refreshStyles();
+    stickyManager!.refreshAllColors();
   });
 
   // autoShowMenuがオンの場合、メニューを自動展開

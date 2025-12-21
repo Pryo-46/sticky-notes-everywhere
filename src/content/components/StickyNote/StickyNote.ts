@@ -287,6 +287,11 @@ export class StickyNote {
     this.element.style.display = visible ? 'flex' : 'none';
   }
 
+  /** 設定変更後に色を再適用する */
+  public refreshColor(): void {
+    this.setColor(this.data.color);
+  }
+
   public bringToFront(zIndex: number): void {
     this.element.style.zIndex = String(zIndex);
   }

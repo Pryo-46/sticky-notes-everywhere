@@ -325,6 +325,11 @@ export class StickyManager {
     this.rebalanceZIndices();
   }
 
+  /** 全付箋の色を再適用する（設定変更後に呼び出す） */
+  public refreshAllColors(): void {
+    this.notes.forEach((note) => note.refreshColor());
+  }
+
   public getNotesCount(): number {
     return this.notes.size;
   }

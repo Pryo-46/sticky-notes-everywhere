@@ -1,8 +1,8 @@
-/** 付箋の色（8色） */
-export type StickyColor = 'color1' | 'color2' | 'color3' | 'color4' | 'color5' | 'color6' | 'color7' | 'color8';
+/** 付箋の色（10色） */
+export type StickyColor = 'color1' | 'color2' | 'color3' | 'color4' | 'color5' | 'color6' | 'color7' | 'color8' | 'color9' | 'color10';
 
 /** 全カラー定数 */
-export const STICKY_COLORS: StickyColor[] = ['color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'color8'];
+export const STICKY_COLORS: StickyColor[] = ['color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'color8', 'color9', 'color10'];
 
 /** 付箋のサイズプリセット */
 export type StickySize = 'small' | 'medium' | 'large';
@@ -46,6 +46,8 @@ export const LIGHT_PRESET: ColorPreset = {
   color6: '#90CAF9', // 青
   color7: '#CE93D8', // 紫
   color8: '#E0E0E0', // グレー
+  color9: '#FFFFFF', // 白
+  color10: '#424242', // 黒
 };
 
 /** ダークモードプリセット */
@@ -58,6 +60,8 @@ export const DARK_PRESET: ColorPreset = {
   color6: '#4A7AB3', // 青
   color7: '#7E5A9E', // 紫
   color8: '#5A5A5A', // グレー
+  color9: '#E0E0E0', // 白
+  color10: '#1A1A1A', // 黒
 };
 
 /** 全カラープリセット */
