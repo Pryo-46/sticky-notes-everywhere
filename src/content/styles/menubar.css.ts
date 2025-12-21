@@ -34,14 +34,14 @@ export function getMenuBarStyles(): string {
       height: var(--button-size);
       border-radius: 50%;
       border: none;
-      background: linear-gradient(135deg, #FFF59D 0%, #FFCC80 100%);
+      background: #6d534b;
       box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.15);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: box-shadow 0.15s ease;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
       z-index: 1;
     }
 
@@ -55,9 +55,8 @@ export function getMenuBarStyles(): string {
     }
 
     .sticky-icon-btn svg {
-      width: var(--icon-size);
-      height: var(--icon-size);
-      color: #5D4037;
+      width: var(--button-size);
+      height: var(--button-size);
     }
 
     /* メニューバー本体 */

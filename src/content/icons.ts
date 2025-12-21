@@ -72,9 +72,30 @@ export const ICONS = {
     <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
   </svg>`,
 
-  // 付箋アイコン (sticky note / note_add)
-  stickyNote: `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8l6-6V5c0-1.1-.9-2-2-2zm-7 8H7v-2h5v2zm5-4H7V5h10v2zm-4 12v-5h5l-5 5z"/>
+  // 付箋アイコン (積み重なった付箋)
+  stickyNote: `<svg width="24" height="24" viewBox="0 0 128 128">
+    <!-- 付箋1段目（緑）左面 -->
+    <path d="M64 108 L64 96 L8 68 L8 80 Z" fill="#4aa858"/>
+    <!-- 付箋1段目（緑）右面 -->
+    <path d="M64 108 L64 96 L120 68 L120 80 Z" fill="#6bcb77"/>
+    <!-- 付箋1段目（緑）上面 -->
+    <path d="M64 96 L8 68 L64 40 L120 68 Z" fill="#8fdb98"/>
+    <!-- 付箋2段目（赤）左面 -->
+    <path d="M64 96 L64 84 L8 56 L8 68 Z" fill="#e54545"/>
+    <!-- 付箋2段目（赤）右面 -->
+    <path d="M64 96 L64 84 L120 56 L120 68 Z" fill="#ff6b6b"/>
+    <!-- 付箋2段目（赤）上面 -->
+    <path d="M64 84 L8 56 L64 28 L120 56 Z" fill="#ff9a9a"/>
+    <!-- 付箋3段目（黄色）左面 -->
+    <path d="M64 84 L64 72 L8 44 L8 56 Z" fill="#e0a800"/>
+    <!-- 付箋3段目（黄色）右面 -->
+    <path d="M64 84 L64 72 L120 44 L120 56 Z" fill="#ffd93d"/>
+    <!-- 付箋3段目（黄色）上面 -->
+    <path d="M64 72 L8 44 L64 16 L120 44 Z" fill="#ffe66d"/>
+    <!-- めくれた部分（裏面・上半分） -->
+    <path d="M28 54 L64 36 L100 54 L64 54 Z" fill="#fff9c4"/>
+    <!-- めくれた部分（裏面・下半分） -->
+    <path d="M64 72 L28 54 L64 54 L100 54 Z" fill="#ffe66d"/>
   </svg>`,
 
   // フォルダ (folder_open)
