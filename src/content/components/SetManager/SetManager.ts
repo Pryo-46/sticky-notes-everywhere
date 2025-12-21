@@ -102,25 +102,15 @@ export class SetManager {
     const notes = this.getCurrentNotes();
     if (notes.length === 0) return;
 
-    // 同名のセットが存在するかチェック
-    const existingSet = this.sets.find((s) => s.name === name);
-    if (existingSet) {
-      if (!window.confirm(`「${name}」は既に存在します。上書きしますか？`)) {
-        return;
-      }
-      existingSet.notes = notes;
-      existingSet.updatedAt = Date.now();
-      await this.storageService.saveSet(existingSet);
-    } else {
-      const newSet: StickyNoteSet = {
-        id: this.generateId(),
-        name,
-        notes,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      };
-      await this.storageService.saveSet(newSet);
-    }
+    // 常に新規セットとして保存（IDで区別）
+    const newSet: StickyNoteSet = {
+      id: this.generateId(),
+      name,
+      notes,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    await this.storageService.saveSet(newSet);
 
     await this.refreshData();
     this.updateUI();
