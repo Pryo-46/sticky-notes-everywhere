@@ -6,33 +6,55 @@ import { ICONS } from '../../icons';
  */
 export class SetManagerRenderer {
   public renderModal(sets: StickyNoteSet[], history: PageHistory[], hasCurrentNotes: boolean): string {
+    const disabledClass = hasCurrentNotes ? '' : ' disabled';
+    const disabledAttr = hasCurrentNotes ? '' : ' disabled';
+
     return `
       <div class="set-manager-modal">
         <div class="set-manager-header">
-          <h2>付箋セット管理</h2>
+          <h2>付箋の保存・読み込み</h2>
           <button class="close-btn" title="閉じる">${ICONS.close}</button>
         </div>
         <div class="set-manager-body">
-          <button class="save-current-btn"${!hasCurrentNotes ? ' disabled' : ''}>
-            現在の付箋を保存...
-          </button>
+          <div class="two-column-layout">
+            <!-- 左列: 保存（上） + 読み込み（下） -->
+            <div class="column column-left">
+              <!-- 保存セクション -->
+              <div class="set-manager-section save-section${disabledClass}">
+                <div class="section-header">
+                  <h3>${ICONS.save} 保存</h3>
+                  ${!hasCurrentNotes ? '<span class="section-note">付箋がありません</span>' : ''}
+                </div>
+                <button class="save-current-btn"${disabledAttr}>
+                  + 新しいセットとして保存...
+                </button>
+                <div class="save-list">
+                  ${this.renderSaveSetList(sets, hasCurrentNotes)}
+                </div>
+              </div>
 
-          <div class="set-manager-section">
-            <div class="section-header">
-              <h3>${ICONS.folder} 保存済みセット</h3>
+              <!-- 読み込みセクション -->
+              <div class="set-manager-section load-section">
+                <div class="section-header">
+                  <h3>${ICONS.folder} 読み込み</h3>
+                </div>
+                <div class="set-list">
+                  ${this.renderLoadSetList(sets)}
+                </div>
+              </div>
             </div>
-            <div class="set-list">
-              ${this.renderSetList(sets)}
-            </div>
-          </div>
 
-          <div class="set-manager-section">
-            <div class="section-header">
-              <h3>${ICONS.history} ページ履歴</h3>
-              ${history.length > 0 ? '<button class="clear-history-btn">履歴をすべて削除</button>' : ''}
-            </div>
-            <div class="history-list">
-              ${this.renderHistoryList(history)}
+            <!-- 右列: 自動バックアップ -->
+            <div class="column column-right">
+              <div class="set-manager-section">
+                <div class="section-header">
+                  <h3>${ICONS.history} 自動バックアップ</h3>
+                  ${history.length > 0 ? '<button class="clear-history-btn">すべて削除</button>' : ''}
+                </div>
+                <div class="history-list">
+                  ${this.renderHistoryList(history)}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -40,12 +62,39 @@ export class SetManagerRenderer {
     `;
   }
 
-  private renderSetList(sets: StickyNoteSet[]): string {
+  /** 保存セクション用: 上書きボタン付きのセット一覧 */
+  private renderSaveSetList(sets: StickyNoteSet[], hasCurrentNotes: boolean): string {
     if (sets.length === 0) {
       return '<div class="empty-message">保存済みセットはありません</div>';
     }
 
-    return sets
+    const disabledAttr = hasCurrentNotes ? '' : ' disabled';
+    const sortedSets = [...sets].sort((a, b) => b.updatedAt - a.updatedAt);
+
+    return sortedSets
+      .map(
+        (set) => `
+          <div class="save-set-item">
+            <div class="save-set-item-info">
+              <div class="save-set-item-name">${this.escapeHtml(set.name)}</div>
+              <div class="save-set-item-meta">${set.notes.length}件 - ${this.formatDate(set.updatedAt)}</div>
+            </div>
+            <button class="overwrite-btn" data-set-id="${set.id}"${disabledAttr}>上書き</button>
+          </div>
+        `
+      )
+      .join('');
+  }
+
+  /** 読み込みセクション用: 編集・削除ボタン付きのセット一覧 */
+  private renderLoadSetList(sets: StickyNoteSet[]): string {
+    if (sets.length === 0) {
+      return '<div class="empty-message">保存済みセットはありません</div>';
+    }
+
+    const sortedSets = [...sets].sort((a, b) => b.updatedAt - a.updatedAt);
+
+    return sortedSets
       .map(
         (set) => `
           <div class="set-item" data-set-id="${set.id}">
@@ -68,7 +117,9 @@ export class SetManagerRenderer {
       return '<div class="empty-message">ページ履歴はありません</div>';
     }
 
-    return history
+    const sortedHistory = [...history].sort((a, b) => b.savedAt - a.savedAt);
+
+    return sortedHistory
       .map(
         (item) => `
           <div class="history-item" data-url="${this.escapeHtml(item.url)}">

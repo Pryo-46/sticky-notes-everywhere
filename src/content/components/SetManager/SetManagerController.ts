@@ -5,6 +5,7 @@ export type LoadMode = 'replace' | 'merge';
 export interface SetManagerCallbacks {
   onClose?: () => void;
   onSaveCurrentNotes?: (name: string) => void;
+  onOverwriteSet?: (setId: string) => void;
   onLoadSet?: (notes: StickyNoteData[], mode: LoadMode) => void;
   onDeleteSet?: (setId: string) => void;
   onRenameSet?: (setId: string, newName: string) => void;
@@ -32,6 +33,7 @@ export class SetManagerController {
   public setupEventListeners(modal: HTMLDivElement): void {
     this.setupCloseButton(modal);
     this.setupSaveButton(modal);
+    this.setupOverwriteButtons(modal);
     this.setupSetList(modal);
     this.setupHistoryList(modal);
     this.setupClearHistoryButton(modal);
@@ -54,12 +56,77 @@ export class SetManagerController {
 
   private setupSaveButton(modal: HTMLDivElement): void {
     modal.querySelector('.save-current-btn')?.addEventListener('click', () => {
-      this.showNameInputDialog(modal, '現在の付箋を保存', '', (name) => {
+      this.showNameInputDialog(modal, '新しいセットとして保存', '', (name) => {
         if (name.trim()) {
           this.callbacks.onSaveCurrentNotes?.(name.trim());
         }
       });
     });
+  }
+
+  private setupOverwriteButtons(modal: HTMLDivElement): void {
+    modal.querySelectorAll('.overwrite-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const setId = (btn as HTMLElement).dataset.setId;
+        const set = this.sets.find((s) => s.id === setId);
+        if (set) {
+          this.showOverwriteConfirmDialog(modal, set.name, () => {
+            this.callbacks.onOverwriteSet?.(set.id);
+          });
+        }
+      });
+    });
+  }
+
+  private showOverwriteConfirmDialog(
+    modal: HTMLDivElement,
+    setName: string,
+    onConfirm: () => void
+  ): void {
+    const overlay = document.createElement('div');
+    overlay.className = 'name-input-overlay';
+    overlay.innerHTML = `
+      <div class="name-input-dialog">
+        <h3>上書き保存の確認</h3>
+        <p style="margin: 0 0 16px; color: #495057; font-size: 14px;">
+          「${this.escapeHtml(setName)}」を現在の付箋で上書きしますか？
+        </p>
+        <div class="name-input-buttons">
+          <button class="btn btn-secondary cancel-btn">キャンセル</button>
+          <button class="btn btn-primary confirm-btn">上書き保存</button>
+        </div>
+      </div>
+    `;
+
+    const confirmBtn = overlay.querySelector('.confirm-btn') as HTMLButtonElement;
+    const cancelBtn = overlay.querySelector('.cancel-btn') as HTMLButtonElement;
+
+    const close = (): void => {
+      overlay.remove();
+    };
+
+    confirmBtn.addEventListener('click', () => {
+      onConfirm();
+      close();
+    });
+
+    cancelBtn.addEventListener('click', close);
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        close();
+      }
+    });
+
+    overlay.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        close();
+      }
+    });
+
+    modal.appendChild(overlay);
+    confirmBtn.focus();
   }
 
   private setupSetList(modal: HTMLDivElement): void {
@@ -159,7 +226,7 @@ export class SetManagerController {
         </p>
         <div class="load-dialog-buttons">
           <button class="btn btn-secondary cancel-load-btn">キャンセル</button>
-          <button class="btn btn-primary replace-btn">置換</button>
+          <button class="btn btn-danger replace-btn">置換</button>
           <button class="btn btn-primary merge-btn">マージ</button>
         </div>
       </div>
@@ -198,7 +265,7 @@ export class SetManagerController {
     });
 
     modal.appendChild(overlay);
-    replaceBtn.focus();
+    mergeBtn.focus();
   }
 
   private showNameInputDialog(

@@ -26,9 +26,11 @@ export function getSetManagerStyles(): string {
       background: #fff;
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      width: 520px;
-      max-width: 90vw;
-      max-height: 80vh;
+      width: 900px;
+      min-width: 85vw;
+      min-height: 85vh;
+      max-width: 85vw;
+      max-height: 85vh;
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -71,8 +73,11 @@ export function getSetManagerStyles(): string {
 
     .set-manager-body {
       padding: 20px;
-      overflow-y: auto;
+      overflow: hidden;
       flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
     }
 
     .set-manager-body::-webkit-scrollbar {
@@ -92,38 +97,86 @@ export function getSetManagerStyles(): string {
       background: rgba(0, 0, 0, 0.3);
     }
 
-    /* 保存ボタン */
-    .save-current-btn {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px dashed #4dabf7;
-      border-radius: 8px;
-      background: #e7f5ff;
-      color: #1c7ed6;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      margin-bottom: 20px;
+    /* 2列レイアウト */
+    .two-column-layout {
+      display: flex;
+      gap: 24px;
+      flex: 1;
+      min-height: 0;
     }
 
-    .save-current-btn:hover {
-      background: #d0ebff;
-      border-color: #339af0;
+    .column {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
     }
 
-    .save-current-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    .column-left {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .column-left .set-manager-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .column-left .save-list,
+    .column-left .set-list {
+      flex: 1;
+      overflow-y: scroll;
+    }
+
+    .column-right .set-manager-section {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .column-right .history-list {
+      flex: 1;
+      overflow-y: scroll;
+    }
+
+    /* スクロールバー常時表示 */
+    .save-list::-webkit-scrollbar,
+    .set-list::-webkit-scrollbar,
+    .history-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .save-list::-webkit-scrollbar-track,
+    .set-list::-webkit-scrollbar-track,
+    .history-list::-webkit-scrollbar-track {
+      background: #f1f3f4;
+      border-radius: 4px;
+    }
+
+    .save-list::-webkit-scrollbar-thumb,
+    .set-list::-webkit-scrollbar-thumb,
+    .history-list::-webkit-scrollbar-thumb {
+      background: #c4c9cc;
+      border-radius: 4px;
+    }
+
+    .save-list::-webkit-scrollbar-thumb:hover,
+    .set-list::-webkit-scrollbar-thumb:hover,
+    .history-list::-webkit-scrollbar-thumb:hover {
+      background: #a8adb0;
     }
 
     /* セクション */
     .set-manager-section {
-      margin-bottom: 24px;
+      margin-bottom: 0;
     }
 
-    .set-manager-section:last-child {
-      margin-bottom: 0;
+    .set-manager-section.save-section.disabled {
+      opacity: 0.5;
+      pointer-events: none;
     }
 
     .section-header {
@@ -148,13 +201,109 @@ export function getSetManagerStyles(): string {
       height: 18px;
     }
 
+    .section-note {
+      font-size: 12px;
+      color: #868e96;
+      font-weight: normal;
+    }
+
+    /* 新規保存ボタン（固定表示） */
+    .save-current-btn {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px dashed #4dabf7;
+      border-radius: 8px;
+      background: #e7f5ff;
+      color: #1c7ed6;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+      margin-bottom: 8px;
+      flex-shrink: 0;
+    }
+
+    .save-current-btn:hover {
+      background: #d0ebff;
+      border-color: #339af0;
+    }
+
+    .save-current-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* 保存リスト */
+    .save-list {
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    /* 上書き保存アイテム */
+    .save-set-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      border-bottom: 1px solid #e9ecef;
+      background: #fff;
+    }
+
+    .save-set-item:last-child {
+      border-bottom: none;
+    }
+
+    .save-set-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .save-set-item-name {
+      font-size: 14px;
+      color: #495057;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .save-set-item-meta {
+      font-size: 12px;
+      color: #adb5bd;
+      margin-top: 2px;
+    }
+
+    .overwrite-btn {
+      padding: 6px 12px;
+      border: 1px solid #fab005;
+      border-radius: 4px;
+      background: #fff;
+      color: #f59f00;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-left: 12px;
+      white-space: nowrap;
+    }
+
+    .overwrite-btn:hover {
+      background: #fff9db;
+      border-color: #f59f00;
+    }
+
+    .overwrite-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     .clear-history-btn {
       padding: 4px 10px;
       border: 1px solid #fa5252;
       border-radius: 4px;
       background: #fff;
       color: #fa5252;
-      font-size: 12px;
+      font-size: 11px;
       cursor: pointer;
       transition: all 0.15s ease;
     }
@@ -356,6 +505,18 @@ export function getSetManagerStyles(): string {
     .btn-primary:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+    }
+
+    .btn-danger {
+      background: #fff;
+      border: 1px solid #fa5252;
+      color: #fa5252;
+    }
+
+    .btn-danger:hover {
+      background: #fff5f5;
+      border-color: #e03131;
+      color: #e03131;
     }
 
     /* 読み込みダイアログ */

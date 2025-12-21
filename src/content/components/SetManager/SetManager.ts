@@ -46,6 +46,7 @@ export class SetManager {
     this.controller.setCallbacks({
       onClose: () => this.hide(),
       onSaveCurrentNotes: (name) => this.saveCurrentNotes(name),
+      onOverwriteSet: (setId) => this.overwriteSet(setId),
       onLoadSet: (notes, mode) => this.loadNotes(notes, mode),
       onDeleteSet: (setId) => this.deleteSet(setId),
       onRenameSet: (setId, newName) => this.renameSet(setId, newName),
@@ -111,6 +112,24 @@ export class SetManager {
       updatedAt: Date.now(),
     };
     await this.storageService.saveSet(newSet);
+
+    await this.refreshData();
+    this.updateUI();
+  }
+
+  private async overwriteSet(setId: string): Promise<void> {
+    const notes = this.getCurrentNotes();
+    if (notes.length === 0) return;
+
+    const existingSet = this.sets.find((s) => s.id === setId);
+    if (!existingSet) return;
+
+    const updatedSet: StickyNoteSet = {
+      ...existingSet,
+      notes,
+      updatedAt: Date.now(),
+    };
+    await this.storageService.saveSet(updatedSet);
 
     await this.refreshData();
     this.updateUI();

@@ -2,28 +2,27 @@
 
 ## 概要
 
-付箋を「セット」として名前をつけて保存・管理できる機能を追加する。
+付箋を「セット」として名前をつけて保存・管理できる機能。
 
-## 機能要件
+## ユーザーの要件
 
-### 1. セットの保存
-- 現在の付箋を名前をつけて保存
-- 同名のセットがある場合は上書き確認
+1. 貼り付けた付箋を丸ごと保存したい
+2. 任意のページで保存した付箋を読み込みたい
+3. 保存先のセットを選びたい（上書き保存）
+4. 保存忘れたときに履歴から書いた付箋を復元したい
 
-### 2. セットの読み込み
-- 保存済みセット一覧を表示
-- セット名クリックで読み込み
-- 読み込み時に「置換」か「マージ（追加）」を選択
+## 機能設計
 
-### 3. セットの編集・削除
-- セット名の編集（鉛筆アイコン）
-- セットの削除（ゴミ箱アイコン）
+### セット（手動保存）
+- 名前付きで保存
+- ページに紐づかない（どのページでも読み込み可能）
+- 新規保存 or 既存セットに上書き保存
 
-### 4. ページ履歴（自動保存）
-- 直近10ページ分の付箋を自動保存
-- ページ離脱時に自動的に履歴に追加
-- 履歴クリックで復元（置換/マージ選択）
-- 「履歴をすべて削除」ボタン
+### 自動バックアップ（履歴）
+- 付箋変更時に自動保存
+- ページURL+タイトルに紐づく
+- 直近50ページ分を保持
+- 保存忘れ時の復元用
 
 ## データ構造
 
@@ -37,10 +36,10 @@ interface StickyNoteSet {
   updatedAt: number;
 }
 
-/** ページ履歴 */
+/** ページ履歴（自動バックアップ） */
 interface PageHistory {
-  url: string;           // ホスト+パス
-  title: string;         // ページタイトル（document.title）
+  url: string;
+  title: string;
   notes: StickyNoteData[];
   savedAt: number;
 }
@@ -52,99 +51,79 @@ interface PageHistory {
 |------|------|
 | `stickyNotesData` | 現在の付箋（既存） |
 | `stickyNotesSets` | 名前付きセット一覧 |
-| `stickyNotesPageHistory` | ページ履歴（最大10件） |
+| `stickyNotesPageHistory` | 自動バックアップ（最大50件） |
 
 ## UI設計
 
-### メニューバーに追加
-- セット管理ボタン（フォルダアイコン）
-
-### セット管理モーダル
 ```
 ┌─────────────────────────────────────┐
-│ 付箋セット管理                    ✕ │
+│ 付箋の保存・読み込み              ✕ │
 ├─────────────────────────────────────┤
-│ [現在の付箋を保存...]               │
-├─────────────────────────────────────┤
-│ ■ 保存済みセット                    │
+│ ■ 保存                              │
 │ ┌─────────────────────────────────┐ │
-│ │ プロジェクトA用       [✏️] [🗑️] │ │
-│ │ 読書メモ              [✏️] [🗑️] │ │
+│ │ [+ 新しいセットとして保存...]    │ │
+│ │ ─────────────────────────────── │ │
+│ │ プロジェクトA用        [上書き]  │ │
+│ │ 読書メモ               [上書き]  │ │
 │ └─────────────────────────────────┘ │
-│ ※セット名クリックで読み込み          │
+│ ※現在の付箋がない場合は非活性        │
 ├─────────────────────────────────────┤
-│ ■ ページ履歴        [履歴をすべて削除]│
+│ ■ 読み込み                          │
 │ ┌─────────────────────────────────┐ │
-│ │ ページタイトル1 - example.com/..  │ │
-│ │                     12/21 10:30 │ │
-│ │ ページタイトル2 - example.com/..  │ │
-│ │                     12/21 10:25 │ │
+│ │ ▼ 保存済みセット                 │ │
+│ │   プロジェクトA用    [✏️] [🗑️]  │ │
+│ │   読書メモ           [✏️] [🗑️]  │ │
+│ │ ▼ 自動バックアップ  [すべて削除] │ │
+│ │   ページタイトル1 - 12/21 10:30  │ │
+│ │   ページタイトル2 - 12/21 10:25  │ │
 │ └─────────────────────────────────┘ │
-│ ※履歴クリックで復元                  │
-├─────────────────────────────────────┤
-│ 読み込み方法: ○置換 ○マージ（追加）  │
+│ ※クリックで読み込み（置換/マージ選択）│
 └─────────────────────────────────────┘
 ```
 
-## 実装ファイル
+### UI変更点（現状からの差分）
 
-### 新規作成
-| ファイル | 役割 |
-|----------|------|
-| `src/content/components/SetManager/SetManager.ts` | メインファサード |
-| `src/content/components/SetManager/SetManagerRenderer.ts` | HTML生成 |
-| `src/content/components/SetManager/SetManagerController.ts` | イベント処理 |
-| `src/content/styles/set-manager.css.ts` | スタイル |
+1. **モーダルタイトル変更**: 「付箋セット管理」→「付箋の保存・読み込み」
+2. **「保存」セクション追加**: 新規保存ボタン + 既存セット上書きボタン
+3. **「読み込み」セクション**: 保存済みセット + 自動バックアップを統合
+4. **履歴の名称変更**: 「ページ履歴」→「自動バックアップ」
 
-### 修正
-| ファイル | 変更内容 |
-|----------|----------|
-| `src/types/index.ts` | `StickyNoteSet`, `PageHistory` 型追加 |
-| `src/content/managers/StorageService.ts` | セット・履歴の保存/読込メソッド追加 |
-| `src/content/types/storage.ts` | IStorageService にメソッド追加 |
-| `src/content/components/MenuBar/MenuBarRenderer.ts` | セット管理ボタン追加 |
-| `src/content/components/MenuBar/MenuBar.ts` | セット管理コールバック追加 |
-| `src/content/index.ts` | SetManager初期化、ページ離脱時の履歴保存 |
-| `src/content/icons.ts` | フォルダアイコン追加 |
+## 操作フロー
+
+### 保存フロー
+```
+[新しいセットとして保存] → 名前入力ダイアログ → 保存完了
+[上書き] → 確認ダイアログ「○○に上書きしますか？」→ 保存完了
+```
+
+### 読み込みフロー
+```
+[セット/バックアップをクリック] → 置換/マージ選択ダイアログ → 読み込み完了
+```
+
+## 実装変更箇所
+
+### SetManagerRenderer.ts
+- `renderModal()`: 保存セクションと読み込みセクションに分離
+- 上書きボタンの追加
+- セクションヘッダーの変更
+
+### SetManagerController.ts
+- `onOverwriteSet` コールバック追加
+- 上書きボタンのイベントハンドリング
+- 上書き確認ダイアログ
+
+### SetManager.ts
+- `overwriteSet()` メソッド追加
 
 ## 実装順序
 
-### Phase 1: 基盤（型定義・ストレージ）
-1. `src/types/index.ts` - `StickyNoteSet`, `PageHistory` 型追加
-2. `src/content/types/storage.ts` - IStorageService にメソッド追加
-3. `src/content/managers/StorageService.ts` - セット・履歴の保存/読込メソッド実装
-4. `src/content/icons.ts` - フォルダアイコン追加
-
-### Phase 2: SetManagerコンポーネント
-1. `src/content/styles/set-manager.css.ts` - スタイル作成
-2. `src/content/components/SetManager/SetManagerRenderer.ts` - HTML生成
-3. `src/content/components/SetManager/SetManagerController.ts` - イベント処理
-4. `src/content/components/SetManager/SetManager.ts` - メインファサード
-5. `src/content/components/SetManager/index.ts` - エクスポート
-
-### Phase 3: MenuBar統合
-1. `src/content/components/MenuBar/MenuBarRenderer.ts` - セット管理ボタン追加
-2. `src/content/components/MenuBar/MenuBar.ts` - セット管理コールバック追加
-
-### Phase 4: 全体統合・ページ履歴
-1. `src/content/index.ts` - SetManager初期化、コールバック設定
-2. `src/content/index.ts` - ページ履歴の自動保存（付箋変更時・beforeunload）
-
-## ページ履歴の保存タイミング
-
-- **付箋変更ごと**：作成・編集・削除・移動・リサイズ時に履歴更新
-- **ページ離脱時**：beforeunloadでも保存（念のため）
-- 同一ページの履歴は上書き（重複しない）
+1. SetManagerRenderer.ts - UI変更
+2. SetManagerController.ts - イベント処理追加
+3. SetManager.ts - 上書き保存ロジック追加
 
 ## 注意点
 
-- ページ履歴は最大10件を超えたら古いものから削除
-- 「置換」モードで読み込み時は確認ダイアログを表示（現在の付箋が消える警告）
-- 「マージ」モードでは確認不要（追加のみ）
-
-## ストレージ容量管理
-
-- 保存前に使用量をチェック
-- **4MB超過時**：新規セット保存をブロック、エラーメッセージ表示
-- `chrome.storage.local.getBytesInUse()` で使用量取得
-- セット管理モーダルに現在の使用量を表示（オプション）
+- 現在の付箋がない場合、保存セクション全体を非活性に
+- 上書き保存時は確認ダイアログ必須
+- 読み込み時の置換/マージ選択は既存のまま

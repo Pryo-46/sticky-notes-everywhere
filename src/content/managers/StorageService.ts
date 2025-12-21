@@ -6,7 +6,7 @@ const STORAGE_KEY = 'stickyNotesSettings';
 const STICKY_NOTES_KEY = 'stickyNotesData';
 const SETS_KEY = 'stickyNotesSets';
 const PAGE_HISTORY_KEY = 'stickyNotesPageHistory';
-const MAX_PAGE_HISTORY = 10;
+const MAX_PAGE_HISTORY = 50;
 
 type SettingsChangeCallback = (settings: ExtensionSettings) => void;
 
@@ -243,7 +243,7 @@ export class StorageService implements IStorageService {
     }
   }
 
-  /** ページ履歴を保存する（同一URLは上書き、最大10件） */
+  /** ページ履歴を保存する（同一URLは上書き、最大50件） */
   public async savePageHistory(history: PageHistory): Promise<void> {
     try {
       const histories = await this.loadPageHistory();
