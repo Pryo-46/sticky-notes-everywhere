@@ -222,7 +222,7 @@ export function getMenuBarStyles(): string {
       left: calc(var(--button-size) / 2);
       transform: translateX(-50%);
       border-radius: 9999px;
-      padding: calc(var(--button-size) + 16px) 0px 20px 0px;
+      padding: calc(var(--button-size) + 16px) 0px 32px 0px;
       flex-direction: column;
       gap: 8px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);

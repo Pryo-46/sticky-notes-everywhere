@@ -112,6 +112,24 @@ export class SettingsModalController {
           }
         }
       });
+
+      // フォーカスが外れたらtrimする
+      input.addEventListener('blur', (e) => {
+        const target = e.target as HTMLInputElement;
+        const trimmedValue = target.value.trim();
+        target.value = trimmedValue;
+
+        if (isValidHexColor(trimmedValue)) {
+          const color = target.dataset.color as StickyColor;
+          this.callbacks.onColorChange?.(color, trimmedValue);
+
+          // カラーピッカーも同期
+          const picker = modal.querySelector(`.color-picker-input[data-color="${color}"]`) as HTMLInputElement;
+          if (picker) {
+            picker.value = trimmedValue;
+          }
+        }
+      });
     });
   }
 

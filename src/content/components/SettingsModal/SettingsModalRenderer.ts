@@ -100,9 +100,17 @@ export class SettingsModalRenderer {
   }
 
   private renderColorSettings(settings: ExtensionSettings, isUserPreset: boolean): string {
-    return STICKY_COLORS.map(
-      (color) => `
+    // ショートカットキーの並び順に合わせて縦方向に番号を振る
+    // 表示順: 1,6,2,7,3,8,4,9,5,0 -> インデックス順で並べ替え
+    const columnOrder = [0, 5, 1, 6, 2, 7, 3, 8, 4, 9];
+    const orderedColors = columnOrder
+      .filter(i => i < STICKY_COLORS.length)
+      .map(i => ({ color: STICKY_COLORS[i], number: i + 1 }));
+
+    return orderedColors.map(
+      ({ color, number }) => `
         <div class="color-setting-item">
+          <span class="color-number">${number === 10 ? 0 : number}</span>
           <input type="color" class="color-picker-input" data-color="${color}" value="${settings.colors[color]}"${!isUserPreset ? ' disabled' : ''}>
           <input type="text" class="color-input" data-color="${color}" value="${settings.colors[color]}" placeholder="#ffffff"${!isUserPreset ? ' disabled' : ''}>
         </div>

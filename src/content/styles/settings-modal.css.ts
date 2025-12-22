@@ -153,6 +153,14 @@ export function getSettingsModalStyles(): string {
       gap: 10px;
     }
 
+    .color-number {
+      font-size: 12px;
+      font-weight: 600;
+      color: #868e96;
+      min-width: 16px;
+      text-align: center;
+    }
+
     .color-picker-input {
       width: 32px;
       height: 32px;
