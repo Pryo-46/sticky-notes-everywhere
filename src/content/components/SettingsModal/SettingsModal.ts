@@ -90,6 +90,7 @@ export class SettingsModal {
       floatingIconPosition: settings.floatingIconPosition,
       stickyPinned: settings.stickyPinned,
       autoShowMenu: settings.autoShowMenu,
+      notesHidden: settings.notesHidden,
     };
   }
 
