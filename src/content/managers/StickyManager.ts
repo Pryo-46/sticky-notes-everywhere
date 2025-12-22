@@ -17,6 +17,8 @@ export class StickyManager {
   constructor() {
     const settings = StorageService.getInstance().getSettings();
     this.zIndexManager = new ZIndexManager(settings.baseZIndex);
+    // 保存された非表示状態を復元
+    this.areNotesVisible = !settings.notesHidden;
 
     const { host, shadowRoot } = createShadowDOM({
       id: 'sticky-notes-container',

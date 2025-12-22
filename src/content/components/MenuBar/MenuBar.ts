@@ -50,6 +50,7 @@ export class MenuBar {
     this.floatingPosition = { ...settings.floatingPosition };
     this.selectedSize = settings.defaultSize;
     this.isPinned = settings.stickyPinned;
+    this.notesVisible = !settings.notesHidden;
 
     const { host, shadowRoot } = createShadowDOM({
       id: 'sticky-notes-everywhere-host',
@@ -86,6 +87,8 @@ export class MenuBar {
           if (container) {
             this.controller.updateVisibilityIcon(container, this.renderer, this.notesVisible);
           }
+          // 非表示状態を設定に保存
+          this.saveNotesHiddenState();
         }
         return this.notesVisible;
       },
@@ -260,6 +263,20 @@ export class MenuBar {
     return this.isPinned;
   }
 
+  public getNotesVisible(): boolean {
+    return this.notesVisible;
+  }
+
+  /** 外部から非表示状態を更新（キーボードショートカット等から呼ばれる） */
+  public updateNotesVisibility(visible: boolean): void {
+    this.notesVisible = visible;
+    const container = this.getContainer();
+    if (container) {
+      this.controller.updateVisibilityIcon(container, this.renderer, this.notesVisible);
+    }
+    this.saveNotesHiddenState();
+  }
+
   public updateColorSwatches(): void {
     const settings = StorageService.getInstance().getSettings();
     const menuBar = this.shadowRoot.querySelector('.sticky-notes-menu-bar');
@@ -332,6 +349,13 @@ export class MenuBar {
     settings.menuBarPosition = this.currentPosition;
     settings.floatingPosition = { ...this.floatingPosition };
     settings.stickyPinned = this.isPinned;
+    await storage.saveSettings(settings);
+  }
+
+  private async saveNotesHiddenState(): Promise<void> {
+    const storage = StorageService.getInstance();
+    const settings = storage.getSettings();
+    settings.notesHidden = !this.notesVisible;
     await storage.saveSettings(settings);
   }
 }

@@ -195,6 +195,8 @@ export interface ExtensionSettings {
   stickyPinned: boolean;
   /** ページ表示時にメニューを展開状態にするか */
   autoShowMenu: boolean;
+  /** 付箋を非表示にしているか */
+  notesHidden: boolean;
 }
 
 /** デフォルト設定 */
@@ -215,4 +217,5 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   floatingIconPosition: 'bottom-right',
   stickyPinned: false,
   autoShowMenu: false,
+  notesHidden: false,
 };

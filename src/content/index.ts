@@ -139,7 +139,11 @@ async function initialize(): Promise<void> {
   keyboardShortcutHandler = new KeyboardShortcutHandler(
     stickyManager,
     () => menuBar!.getSelectedSize(),
-    () => stickyManager!.toggleVisibility(),
+    () => {
+      const visible = stickyManager!.toggleVisibility();
+      menuBar!.updateNotesVisibility(visible);
+      return visible;
+    },
     async () => {
       stickyManager!.clearAll();
       await storageService!.clearStickyNotes();

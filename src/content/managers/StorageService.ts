@@ -160,6 +160,7 @@ export class StorageService implements IStorageService {
         floatingIconPosition: DEFAULT_SETTINGS.floatingIconPosition,
         stickyPinned: DEFAULT_SETTINGS.stickyPinned,
         autoShowMenu: DEFAULT_SETTINGS.autoShowMenu,
+        notesHidden: DEFAULT_SETTINGS.notesHidden,
       };
     }
 
@@ -184,6 +185,7 @@ export class StorageService implements IStorageService {
       floatingIconPosition: saved.floatingIconPosition ?? DEFAULT_SETTINGS.floatingIconPosition,
       stickyPinned: saved.stickyPinned ?? DEFAULT_SETTINGS.stickyPinned,
       autoShowMenu: saved.autoShowMenu ?? DEFAULT_SETTINGS.autoShowMenu,
+      notesHidden: saved.notesHidden ?? DEFAULT_SETTINGS.notesHidden,
     };
   }
 
