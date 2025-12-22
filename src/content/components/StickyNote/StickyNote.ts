@@ -196,6 +196,8 @@ export class StickyNote {
     // テキストエリアのフォント色とプレースホルダー色も更新
     this.textArea.style.color = getTextColor(colorValue);
     this.updatePlaceholderStyle(colorValue);
+    // 色変更を保存
+    this.scheduleSave();
   }
 
   private createColorIcon(color: StickyColor): string {

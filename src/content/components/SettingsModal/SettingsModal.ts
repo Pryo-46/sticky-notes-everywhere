@@ -181,6 +181,18 @@ export class SettingsModal {
       zIndexInput.value = String(this.tempSettings.baseZIndex);
     }
 
+    // デフォルトサイズのラジオボタンを更新
+    modal.querySelectorAll('input[name="defaultSize"]').forEach((radio) => {
+      const radioInput = radio as HTMLInputElement;
+      radioInput.checked = radioInput.value === this.tempSettings.defaultSize;
+    });
+
+    // ボタンサイズの選択状態を更新
+    modal.querySelectorAll('.button-size-btn').forEach((btn) => {
+      const buttonSize = (btn as HTMLButtonElement).dataset.buttonSize;
+      btn.classList.toggle('active', buttonSize === this.tempSettings.buttonSize);
+    });
+
     // 動作設定を更新
     const autoShowMenuCheckbox = modal.querySelector('#autoShowMenu') as HTMLInputElement;
     if (autoShowMenuCheckbox) {

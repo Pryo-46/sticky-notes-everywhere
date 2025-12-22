@@ -1,5 +1,5 @@
 import type { StickySize, MenuBarMode, MenuBarPosition, ExtensionSettings } from '../../../types';
-import { STICKY_COLORS, STICKY_SIZES, SIZE_LABELS } from '../../../types';
+import { STICKY_COLORS, STICKY_SIZES, SIZE_LABELS, SIZE_TOOLTIPS } from '../../../types';
 import { ICONS } from '../../icons';
 
 // 現在の位置から次の位置へ移動するアイコン（押したらどこに行くか）
@@ -63,7 +63,7 @@ export class MenuBarRenderer {
   private renderSizeButtons(selectedSize: StickySize): string {
     return STICKY_SIZES.map(
       (size) =>
-        `<button class="size-btn ${size === selectedSize ? 'active' : ''}" data-size="${size}">${SIZE_LABELS[size]}</button>`
+        `<button class="size-btn ${size === selectedSize ? 'active' : ''}" data-size="${size}" title="${SIZE_TOOLTIPS[size]}">${SIZE_LABELS[size]}</button>`
     ).join('');
   }
 
@@ -81,7 +81,7 @@ export class MenuBarRenderer {
           <button class="icon-btn pin-btn${pinActiveClass}" title="${pinTitle}">${pinIcon}</button>
           <button class="icon-btn visibility-btn${visibilityActiveClass}" title="${visibilityTitle}">${visibilityIcon}</button>
           <button class="icon-btn copy-btn" title="メモをコピー (Ctrl + Alt + C)">${ICONS.copy}</button>
-          <button class="icon-btn set-manager-btn" title="付箋セット管理">${ICONS.folder}</button>
+          <button class="icon-btn set-manager-btn" title="付箋セット管理">${ICONS.save}</button>
           <button class="icon-btn mode-btn" title="表示モードを変更">${modeIcon}</button>
           <button class="icon-btn clear-btn" title="全付箋を削除 (Alt + X)">${ICONS.delete}</button>
           <button class="icon-btn settings-btn" title="設定">${ICONS.settings}</button>
@@ -120,7 +120,7 @@ export class MenuBarRenderer {
         <button class="icon-btn pin-btn${pinActiveClass}" title="${pinTitle}">${pinIcon}</button>
         <button class="icon-btn visibility-btn${visibilityActiveClass}" title="${visibilityTitle}">${visibilityIcon}</button>
         <button class="icon-btn copy-btn" title="メモをコピー (Ctrl + Alt + C)">${ICONS.copy}</button>
-        <button class="icon-btn set-manager-btn" title="付箋セット管理">${ICONS.folder}</button>
+        <button class="icon-btn set-manager-btn" title="付箋セット管理">${ICONS.save}</button>
         <div class="menu-divider"></div>
         <button class="icon-btn mode-btn" title="表示モードを変更">${modeIcon}</button>
         <button class="icon-btn position-btn" title="メニューの位置を変更">${positionIcon}</button>

@@ -17,6 +17,13 @@ export const SIZE_LABELS: Record<StickySize, string> = {
   large: 'L',
 };
 
+/** サイズツールチップ */
+export const SIZE_TOOLTIPS: Record<StickySize, string> = {
+  small: '小サイズ',
+  medium: '中サイズ',
+  large: '大サイズ',
+};
+
 /** 付箋のサイズ（ピクセル） */
 export interface StickyDimensions {
   width: number;
