@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Sticky Notes Everywhere",
+  "name": "どこでも付箋 - Sticky Notes Everywhere",
   "version": "1.0.0",
   "description": "Webページ上にどこでも付箋を貼れる拡張機能",
   "permissions": ["activeTab", "scripting", "storage", "contextMenus", "webNavigation", "unlimitedStorage"],
