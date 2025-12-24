@@ -16,7 +16,7 @@ const LIGHT_PLACEHOLDER_COLOR = 'rgba(255, 255, 255, 0.9)';
 /** プレースホルダー色 - 明るい背景用 */
 const DARK_PLACEHOLDER_COLOR = 'rgba(0, 0, 0, 0.35)';
 /** フォント色を切り替える輝度の閾値（0.0〜1.0） */
-const TEXT_LUMINANCE_THRESHOLD = 0.5;
+const TEXT_LUMINANCE_THRESHOLD = 0.6;
 
 /**
  * 16進数カラーコードから輝度を計算
@@ -69,10 +69,10 @@ export function getContrastColor(hex: string, percent: number): string {
   const b = num & 0xff;
 
   // 暗い色の場合はより強いコントラストを適用
-  const adjustedPercent = luminance < 0.5 ? percent * 2.2 : percent;
+  const adjustedPercent = luminance < TEXT_LUMINANCE_THRESHOLD ? percent * 2.2 : percent;
   const delta = Math.round((255 * adjustedPercent) / 100);
 
-  if (luminance < 0.5) {
+  if (luminance < TEXT_LUMINANCE_THRESHOLD) {
     // 明るくする
     const newR = Math.min(255, r + delta);
     const newG = Math.min(255, g + delta);
